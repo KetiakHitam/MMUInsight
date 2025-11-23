@@ -1,11 +1,23 @@
+<!DOCTYPE html>
+<html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MMUInsight{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-    <title>
-        Rate my professor
-    </title>
 </head>
 
 <body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
     <div class="div-1">
         <h1 class="Homepage-header">
             <p class="Logo">
@@ -38,3 +50,4 @@
         <h2 class="member-1">Jimmy</h2> <h2 class="member-2">Isac</h2> <h2 class="member-3">Ming Hao</h2>   
     </div>
 </body>
+</html>
