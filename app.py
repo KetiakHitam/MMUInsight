@@ -1,6 +1,5 @@
-from flask import Flask, get_flashed_messages, render_template_string, render_template
+from flask import Flask, get_flashed_messages, render_template_string, render_template, request, jsonify
 from flask_login import LoginManager, current_user
-from flask import Flask, render_template
 import os
 
 from extensions import db, bcrypt
@@ -52,6 +51,25 @@ def register():
 @app.route("/Professor-info.html")
 def Professors():
     return render_template('Professor-info.html')
+
+
+@app.route('/search')
+def search():
+    """Search users by email (case-insensitive partial match).
+
+    Query param: q
+    Returns JSON list of objects: {id, email, user_type}
+    """
+    q = request.args.get('q', '')
+    q = q.strip()
+    if not q:
+        return jsonify([])
+
+    # only return lecturers so student emails aren't exposed
+    matches = User.query.filter(User.user_type == 'lecturer', User.email.ilike(f"%{q}%")).limit(20).all()
+    results = [{'id': u.id, 'email': u.email, 'user_type': u.user_type} for u in matches]
+    return jsonify(results)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

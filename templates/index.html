@@ -44,7 +44,50 @@
             <img src="C:\Users\Jimha\Projects\MMUInsight\templates\Sleeping.jpg">
         </h3>-->
         <p class="search-bar">Type your Professor's Name here</p>
-        <input type="search" placeholder="Search..">
+        <input id="search-input" type="search" placeholder="Search email...">
+        <div id="search-results" class="search-results"></div>
     </div>
 </body>
+
+<script>
+// Debounced search that queries /search?q=term and renders results
+(function(){
+    const input = document.getElementById('search-input');
+    const results = document.getElementById('search-results');
+    if (!input) return;
+    let timer = null;
+
+    function clearResults(){ results.innerHTML = ''; }
+
+    function render(items){
+        if (!items || items.length === 0){
+            results.innerHTML = '<p class="no-results">No results</p>';
+            return;
+        }
+        results.innerHTML = items.map(i => {
+            const href = '/lecturer/' + i.id;
+            return `<div class="result-item"><a href="${href}">${i.email}</a> <span class="type">(${i.user_type})</span></div>`;
+        }).join('');
+    }
+
+    async function doSearch(q){
+        try{
+            const res = await fetch('/search?q=' + encodeURIComponent(q));
+            if (!res.ok) throw new Error('Network error');
+            const data = await res.json();
+            render(data);
+        }catch(err){
+            results.innerHTML = '<p class="error">Search error</p>';
+            console.error(err);
+        }
+    }
+
+    input.addEventListener('input', (e) => {
+        const q = e.target.value.trim();
+        clearTimeout(timer);
+        if (!q){ clearResults(); return; }
+        timer = setTimeout(() => doSearch(q), 250);
+    });
+})();
+</script>
 </html>
