@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 </head>
 <body>
+    <div class="header">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -34,6 +35,7 @@
             <a href="/register">Register</a>
         </div>
     {% endif %}
+    </div>
     <br>
     <br>
     <div class="div-2">
