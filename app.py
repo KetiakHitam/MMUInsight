@@ -40,15 +40,12 @@ def index():
 @app.get("/test")
 def test():
     return "<h1>TESTING WORKS</h1>"
-@app.route("/")
-def base():
-    return render_template('base.html')
 
 @app.route("/login.html")
 def login():
     return render_template('login.html')
 
-@app.route("/base.html")
+@app.route("/register.html")
 def register():
     return render_template('register.html')
 
