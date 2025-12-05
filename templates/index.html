@@ -5,6 +5,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 </head>
 <body>
+    <div class="div-1">
+        <h1 class="Homepage-header">
+            <p class="Logo">
+                Logo here
+            </p>
+            <div class="buttons">
+                <a href="Professor-info.html"><button>Professors</button></a>
+                <a href="register.html"><button>Register</button></a>
+                <a href="Untitled-4.html"><button>Page 3</button></a>
+                <a href="Untitled-5.html"><button>Page 4</button></a>
+            </div>
+        </h1>
+    </div>
+    <br>
     <div class="header">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
