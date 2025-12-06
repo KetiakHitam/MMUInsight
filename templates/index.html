@@ -7,17 +7,14 @@
 <body>
     <div class="div-1">
         <h1 class="Homepage-header">
-            <p class="Logo">
-                Logo here
-            </p>
+            <p class="Logo">Logo here</p>
+            <h1 class="Title">MMUInsight</h1>
             <div class="buttons">
-                <a href="Professor-info.html"><button>Professors</button></a>
-                <a href="register.html"><button>Register</button></a>
-                <a href="Untitled-4.html"><button>Page 3</button></a>
-                <a href="Untitled-5.html"><button>Page 4</button></a>
+                <a href="/register"><button>Register</button></a>
             </div>
         </h1>
     </div>
+    <div class="horizontal-line"></div>
     <br>
     <div class="header">
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -28,27 +25,6 @@
         {% endif %}
     {% endwith %}
 
-    {% if current_user.is_authenticated %}
-        <h1>MMUInsight</h1>
-        <p>Logged in as: {{ current_user.email }} ({{ current_user.user_type }})</p>
-        
-        <h2>Lecturers:</h2>
-        <ul>
-            {% for lecturer in lecturers %}
-            <li><a href="/lecturer/{{ lecturer.id }}">{{ lecturer.email }}</a></li>
-            {% endfor %}
-        </ul>
-        
-        <br>
-        <a href="/logout">Logout</a>
-    {% else %}
-        <div class="login-links">
-            <h1>Welcome to MMUInsight</h1>
-            <p>Review and rate your lecturers</p>
-            <a href="/login">Login</a>
-            <a href="/register">Register</a>
-        </div>
-    {% endif %}
     </div>
     <br>
     <br>
@@ -58,8 +34,19 @@
             <img src="C:\Users\Jimha\Projects\MMUInsight\templates\Sleeping.jpg">
         </h3>-->
         <p class="search-bar">Type your Professor's Name here</p>
-        <input id="search-input" type="search" placeholder="Search email...">
+        <input id="search-input" type="search" placeholder="Names go here...">
         <div id="search-results" class="search-results"></div>
+        {% if current_user.is_authenticated %}
+        <p class="Account">Logged in as: {{ current_user.email }}</p>
+        <br>
+    {% else %}
+        <div class="login-links">
+            <h1>Welcome to MMUInsight</h1>
+            <p>Review and rate your lecturers</p>
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        </div>
+    {% endif %}
     </div>
 </body>
 
