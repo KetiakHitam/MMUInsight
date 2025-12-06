@@ -1,15 +1,15 @@
 body{
-    border: 1px red solid;
+    border: 1px black solid;
     width: 300px;
     height: 450px;
     margin: auto;
     margin-top: 75px;
     padding: 50px;
-    background-image: url("Despair.png");
+    /*background-image: url("Despair.png");
     background-size: 400px 550px;
     background-repeat: no-repeat;
     background-position: center;
-    background-position-y: 75px;
+    background-position-y: 75px;*/
     font-family: Arial;
 }
 
@@ -23,8 +23,22 @@ h1{
     color: red;
     text-align: center;
 }
-
 .Login{
     text-align: center;
     font-size: 20px;
+}
+.Login a{
+    text-decoration: none;;
+}
+.email-input{
+    margin-left: 10%;
+}
+.register-button{
+    float: right;
+}
+.User-type{
+    text-align: left;
+}
+select{
+    float: left;
 }
