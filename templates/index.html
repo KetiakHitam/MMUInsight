@@ -11,7 +11,12 @@
     <h3>Lecturers:</h3>
     <ul>
         {% for lecturer in lecturers %}
-        <li><a href="/lecturer/{{ lecturer.id }}">{{ lecturer.email }}</a></li>
+        <li>
+            <a href="/lecturer/{{ lecturer.id }}">{{ lecturer.email }}</a>
+            {% if lecturer.is_claimed %}
+            <span style="color: #28a745; font-size: 0.9em;">✓ Verified</span>
+            {% endif %}
+        </li>
         {% endfor %}
     </ul>
 </div>
