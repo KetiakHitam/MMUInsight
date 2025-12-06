@@ -8,6 +8,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     user_type = db.Column(db.String(10), nullable=False, default='student')
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
+    is_claimed = db.Column(db.Boolean, nullable=False, default=False)
     verification_token = db.Column(db.String(100), nullable=True)
     reset_token = db.Column(db.String(100), nullable=True)
 
