@@ -33,22 +33,37 @@ a {
     display: inline-block; 
 }
 .Logo{
-    float: left;
-    width: 90px;
-    height: 80px;
-    margin-left: 25px;
-    margin-top: 5px;
+    position: fixed;
+    top: 40px;
+    left:50px;
+    width: 35px;
+    height: 20px;
+    font-size: small;
 }
 .div-1{
-    height: 150px;
-    width:100%;
-    border: 1px solid black;
+
+    height: 80px;
+}
+.horizontal-line{
+    background-color: black;
+    height: 1px;
+    position: fixed;
+    width: 100%;
+    left: 0px;
+}
+.Title{
+    text-align: center;
+    width: 24%;
+    margin-left: 38%;
+    margin-right: 38%;
 }
 .buttons{
-    margin-top: 20px;
-    margin-left: 60%;
+    position: fixed;
+    float: right;
+    right: 20px;
+    top: 45px;
+    width: 8%;
     text-align: center;
-    border: 1px solid black;
 }
 
 button{
@@ -69,13 +84,17 @@ button:hover{
     text-align: center;
     font-weight: bolder;
     font-size: xx-large;
-    margin: auto;
+}
+.Account{
+    text-align: center;
+    font-size: 24px;
+    color: lightskyblue;
 }
 .div-2 input[type=search]{
     width: 800px;
     height: 50px;
     font-size: 20px;
-    margin-left: 15%;
+    margin-left: 25%;
 }
 
 .header{
