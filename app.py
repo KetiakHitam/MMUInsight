@@ -6,6 +6,7 @@ from extensions import db, bcrypt
 from models import User, Subject, Review
 from auth import auth_bp
 from reviews import reviews_bp
+from lecturer_search import search_lecturers_by_email
 
 app = Flask(__name__)
 
@@ -36,6 +37,18 @@ def index():
         return render_template('index.html', lecturers=lecturers)
     return render_template('index.html')
 
+@app.route("/search", methods=["GET"])
+def search_page():
+    q = request.args.get("q", "").strip()
+    results = search_lecturers_by_email(q)
+
+    return render_template(
+        "index.html",
+        lecturers=current_user.is_authenticated and User.query.filter_by(user_type='lecturer').all() or None,
+        search_query=q,
+        search_results=results
+    )
+
 @app.get("/test")
 def test():
     return "<h1>TESTING WORKS</h1>"
@@ -53,7 +66,7 @@ def Professors():
     return render_template('Professor-info.html')
 
 
-@app.route('/search')
+'''@app.route('/search')
 def search():
     """Search users by email (case-insensitive partial match).
 
@@ -69,7 +82,7 @@ def search():
     matches = User.query.filter(User.user_type == 'lecturer', User.email.ilike(f"%{q}%")).limit(20).all()
     results = [{'id': u.id, 'email': u.email, 'user_type': u.user_type} for u in matches]
     return jsonify(results)
-
+'''
 
 if __name__ == "__main__":
     app.run(debug=True)

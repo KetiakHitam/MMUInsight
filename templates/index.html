@@ -50,8 +50,20 @@
     </div>
 </body>
 
-<script>
-// Debounced search that queries /search?q=term and renders results
+{% if search_results is not none %}
+    <div class="search-results">
+        {% if search_results|length == 0 %}
+            <p>No results found.</p>
+        {% else %}
+            {% for lecturer in search_results %}
+                <div class="result-item">
+                    <a href="/lecturer/{{ lecturer.id }}">{{ lecturer.email }}</a>
+                    <span class="type">({{ lecturer.user_type }})</span>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+<!--<script>
 (function(){
     const input = document.getElementById('search-input');
     const results = document.getElementById('search-results');
@@ -90,5 +102,5 @@
         timer = setTimeout(() => doSearch(q), 250);
     });
 })();
-</script>
+</script>-->
 </html>
