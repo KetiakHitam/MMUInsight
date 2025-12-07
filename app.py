@@ -33,9 +33,8 @@ app.register_blueprint(reviews_bp)
 @app.route("/", methods=["GET"])
 def index():
     if current_user.is_authenticated:
-        lecturers = User.query.filter_by(user_type='lecturer').all()
-        return render_template('index.html', lecturers=lecturers)
-    return render_template('index.html')
+        return render_template('index.html')
+    
 
 @app.route("/search", methods=["GET"])
 def search_page():
