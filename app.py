@@ -1,4 +1,4 @@
-from flask import Flask, get_flashed_messages, render_template_string, render_template
+from flask import Flask, get_flashed_messages, render_template_string, render_template, request, jsonify
 from flask_login import LoginManager, current_user
 import os
 
@@ -6,6 +6,7 @@ from extensions import db, bcrypt
 from models import User, Subject, Review
 from auth import auth_bp
 from reviews import reviews_bp
+from lecturer_search import search_lecturers_by_email
 
 app = Flask(__name__)
 
@@ -31,14 +32,34 @@ app.register_blueprint(reviews_bp)
 
 @app.route("/", methods=["GET"])
 def index():
-    if current_user.is_authenticated:
-        lecturers = User.query.filter_by(user_type='lecturer').all()
-        return render_template('index.html', lecturers=lecturers)
     return render_template('index.html')
+
+@app.route("/search", methods=["GET"])
+def search_page():
+    q = request.args.get("q", "").strip()
+    results = search_lecturers_by_email(q)
+
+    return render_template(
+        "index.html",
+        search_query=q,
+        search_results=results
+    )
 
 @app.get("/test")
 def test():
     return "<h1>TESTING WORKS</h1>"
+
+@app.route("/login.html")
+def login():
+    return render_template('login.html')
+
+@app.route("/register.html")
+def register():
+    return render_template('register.html')
+
+@app.route("/Professor-info.html")
+def Professors():
+    return render_template('Professor-info.html')
 
 if __name__ == "__main__":
     app.run(debug=True)

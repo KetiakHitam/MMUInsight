@@ -1,0 +1,102 @@
+body { 
+    font-family: Arial; 
+    padding: 20px; 
+}
+.alert { 
+    padding: 10px; 
+    margin: 10px 0; 
+    border-radius: 4px; 
+}
+.alert-error { 
+    background-color: #f8d7da; 
+    color: #721c24; 
+}
+.alert-success { 
+    background-color: #d4edda; 
+    color: #155724; 
+}
+a { 
+    color: #007bff; 
+    text-decoration: none; 
+}
+.login-links { 
+    text-align: center; 
+    padding: 40px; 
+}
+.login-links a { 
+    margin: 10px; 
+    padding: 10px 20px; 
+    background-color: #007bff; 
+    color: white; 
+    text-decoration: none; 
+    border-radius: 30px; 
+    display: inline-block; 
+}
+.Logo{
+    position: fixed;
+    top: 40px;
+    left:50px;
+    width: 35px;
+    height: 20px;
+    font-size: small;
+}
+.div-1{
+
+    height: 80px;
+}
+.horizontal-line{
+    background-color: black;
+    height: 1px;
+    position: fixed;
+    width: 100%;
+    left: 0px;
+}
+.Title{
+    text-align: center;
+    width: 24%;
+    margin-left: 38%;
+    margin-right: 38%;
+}
+.buttons{
+    position: fixed;
+    float: right;
+    right: 20px;
+    top: 45px;
+    width: 8%;
+    text-align: center;
+}
+
+button{
+    border-radius: 20px 20px;
+    padding: 10px 10px;
+    font-size: medium;
+    cursor: pointer;
+    transition-duration: 1s;
+}
+
+button:hover{
+    background-color: skyblue;
+}
+.div-2{
+    padding: 20px 20px;
+}
+.search-bar{
+    text-align: center;
+    font-weight: bolder;
+    font-size: xx-large;
+}
+.Account{
+    text-align: center;
+    font-size: 24px;
+    color: lightskyblue;
+}
+.div-2 input[type=search]{
+    width: 800px;
+    height: 50px;
+    font-size: 20px;
+    margin-left: 25%;
+}
+
+.header{
+    padding: 20px 20px;  
+}
