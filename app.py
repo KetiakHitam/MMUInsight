@@ -2,7 +2,7 @@ from flask import Flask, get_flashed_messages, render_template_string, render_te
 from flask_login import LoginManager, current_user
 import os
 
-from extensions import db, bcrypt
+from extensions import db, bcrypt, login_manager
 from models import User, Subject, Review
 from auth import auth_bp
 from reviews import reviews_bp
@@ -18,10 +18,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 bcrypt.init_app(app)
-
-login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'auth.login'
 
 @login_manager.user_loader
 def load_user(user_id):
