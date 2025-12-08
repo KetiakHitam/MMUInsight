@@ -1,0 +1,26 @@
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Search results for "{{ q|e }}"</title>
+</head>
+<body>
+  <h1>Search results</h1>
+
+  <p><a href="{{ url_for('search.index') }}">← Back to search</a></p>
+
+  <p>Query: "<strong>{{ q|e }}</strong>" — showing {{ emails|length }} of {{ total }}</p>
+
+  {% if emails %}
+    <ul>
+      {% for email in emails %}
+        <li>{{ email }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No results found.</p>
+  {% endif %}
+</body>
+</html>
+```

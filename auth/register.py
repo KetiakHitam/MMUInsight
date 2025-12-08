@@ -8,7 +8,7 @@ from models import User
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
-        return render_template("register.html")
+        return render_template("register.html")  # or return "Register page"
 
     email = request.form.get("email", "").strip()
     password = request.form.get("password", "")
