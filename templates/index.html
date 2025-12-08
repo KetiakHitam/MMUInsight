@@ -24,7 +24,7 @@
             <p style="color: #999; text-align: center; padding: 20px;">No results found.</p>
         {% else %}
             {% for lecturer in search_results %}
-            <div style="padding: 15px; border: 1px solid #eee; border-radius: 5px; margin-bottom: 10px; transition: background-color 0.2s;">
+            <div style="padding: 15px; border: 1px solid #eee; border-radius: 5px; margin-bottom: 10px; background-color: white;">
                 <a href="/lecturer/{{ lecturer.id }}" style="color: #007bff; font-size: 1.1em; text-decoration: none; font-weight: 500;">
                     {{ lecturer.email }}
                 </a>
