@@ -1,0 +1,25 @@
+body{
+    height: 400px;
+    width:500px;
+    border: 1px solid black;
+    margin: auto;
+    margin-top: 100px;
+    font-family: Arial;
+
+}
+
+h1{
+    text-align: center;
+}
+
+form{
+    text-align: center;
+}
+
+button{
+    padding: 15px 15px;
+    border: black 2px solid;
+    font-size: medium;
+    background-color: blanchedalmond;
+
+}
