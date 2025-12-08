@@ -4,8 +4,21 @@
 
 {% block content %}
 <div class="container">
-    <h2>{{ lecturer.email }}</h2>
+    <h2>
+        {{ lecturer.email }}
+        {% if lecturer.is_claimed %}
+        <span style="color: #28a745; font-size: 0.8em;">✓ Verified</span>
+        {% endif %}
+    </h2>
     <p>Lecturer Profile</p>
+    
+    {% if current_user.is_authenticated and current_user.user_type == 'lecturer' and not lecturer.is_claimed and not current_user.is_claimed %}
+    <form method="POST" action="{{ url_for('reviews.claim_profile', lecturer_id=lecturer.id) }}" style="margin-bottom: 20px;">
+        <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer;">
+            🔐 Claim This Profile
+        </button>
+    </form>
+    {% endif %}
     
     {% if averages %}
     <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #dee2e6;">

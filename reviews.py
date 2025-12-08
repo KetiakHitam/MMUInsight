@@ -81,6 +81,42 @@ def lecturer_profile(lecturer_id):
     
     return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages)
 
+@reviews_bp.route('/claim_profile/<int:lecturer_id>', methods=['POST'])
+@login_required
+def claim_profile(lecturer_id):
+
+    if current_user.user_type != 'lecturer':
+        flash("Only lecturers can claim profiles", "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+    
+    if current_user.is_claimed:
+        flash("You have already claimed a profile", "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+    
+    if not current_user.email.endswith('@mmu.edu.my'):
+        flash("Only official MMU email addresses (@mmu.edu.my) can claim profiles", "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+    
+    lecturer = User.query.get_or_404(lecturer_id)
+    
+    if current_user.email != lecturer.email:
+        flash("You can only claim your own profile", "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+    
+    if lecturer.user_type != 'lecturer':
+        flash("Invalid profile", "error")
+        return redirect(url_for('index'))
+    
+    if lecturer.is_claimed:
+        flash("This profile has already been claimed", "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+    
+    lecturer.is_claimed = True
+    db.session.commit()
+    
+    flash("Profile claimed successfully! You are now verified.", "success")
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+
 @reviews_bp.route('/review/<int:review_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_review(review_id):
