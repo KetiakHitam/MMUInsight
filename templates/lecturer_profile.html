@@ -46,7 +46,16 @@
     {% if reviews %}
         {% for review in reviews %}
         <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 5px;">
-            <p><strong>By:</strong> {{ review.author.email }}</p>
+            <p><strong>By:</strong> 
+                {% if review.is_anonymous %}
+                    <span style="color: #6c757d;">🕶️ Anonymous Student</span>
+                {% else %}
+                    {{ review.author.email }}
+                {% endif %}
+                {% if review.author == current_user %}
+                    <span style="color: #999; font-size: 0.9em; margin-left: 10px;">(You)</span>
+                {% endif %}
+            </p>
             <p><strong>Review:</strong> {{ review.review_text }}</p>
             
             <p><strong>Ratings:</strong></p>
