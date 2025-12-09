@@ -29,6 +29,7 @@ def create_review(lecturer_id):
     rating_responsiveness = int(request.form.get('rating_responsiveness', 0))
     rating_fairness = int(request.form.get('rating_fairness', 0))
     subject_id = request.form.get('subject_id')
+    is_anonymous = request.form.get('is_anonymous') == 'on'
     
     if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]):
         flash("Please fill all fields", "error")
@@ -43,7 +44,8 @@ def create_review(lecturer_id):
         rating_fairness=rating_fairness,
         user_id=current_user.id,
         lecturer_id=lecturer_id,
-        subject_id=subject_id if subject_id else None
+        subject_id=subject_id if subject_id else None,
+        is_anonymous=is_anonymous
     )
     
     db.session.add(review)
@@ -135,6 +137,7 @@ def edit_review(review_id):
     rating_punctuality = int(request.form.get('rating_punctuality', 0))
     rating_responsiveness = int(request.form.get('rating_responsiveness', 0))
     rating_fairness = int(request.form.get('rating_fairness', 0))
+    is_anonymous = request.form.get('is_anonymous') == 'on'
     
     if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]):
         flash("Please fill all fields", "error")
@@ -146,6 +149,7 @@ def edit_review(review_id):
     review.rating_punctuality = rating_punctuality
     review.rating_responsiveness = rating_responsiveness
     review.rating_fairness = rating_fairness
+    review.is_anonymous = is_anonymous
     
     db.session.commit()
     
