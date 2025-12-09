@@ -36,6 +36,7 @@ class Review(db.Model):
     lecturer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=True)
     review_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    is_anonymous = db.Column(db.Boolean, nullable=False, default=False)
     
     replies = db.relationship('Reply', backref='review', lazy=True, cascade='all, delete-orphan')
     reports = db.relationship('Report', backref='review', lazy=True, cascade='all, delete-orphan')
@@ -46,7 +47,7 @@ class Reply(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     review_id = db.Column(db.Integer, db.ForeignKey('review.id'), nullable=False)
     reply_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    is_edited = db.Column(db.Boolean, nullable=False, default=False)  
+    is_edited = db.Column(db.Boolean, nullable=False, default=False)
 
 class Report(db.Model):
     id = db.Column(db.Integer, primary_key=True)
