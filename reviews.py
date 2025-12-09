@@ -395,3 +395,43 @@ def student_analytics(lecturer_id):
                          distribution=distribution,
                          all_lecturers_avg=all_lecturers_avg,
                          comparison_text=comparison_text)
+
+@reviews_bp.route('/reply/<int:reply_id>/edit', methods=['POST'])
+@login_required
+def edit_reply(reply_id):
+    reply = Reply.query.get_or_404(reply_id)
+    
+    
+    if reply.author != current_user:
+        flash("You can only edit your own replies", "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=reply.review.lecturer_id))
+    
+    new_text = request.form.get('reply_text', '').strip()
+    
+    if not new_text:
+        flash("Reply cannot be empty", "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=reply.review.lecturer_id))
+    
+    reply.reply_text = new_text
+    reply.is_edited = True
+    db.session.commit()
+    
+    flash("Reply updated successfully!", "success")
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=reply.review.lecturer_id))
+
+@reviews_bp.route('/reply/<int:reply_id>/delete', methods=['GET'])
+@login_required
+def delete_reply(reply_id):
+    reply = Reply.query.get_or_404(reply_id)
+    
+    if reply.author != current_user:
+        flash("You can only delete your own replies", "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=reply.review.lecturer_id))
+    
+    lecturer_id = reply.review.lecturer_id
+    
+    db.session.delete(reply)
+    db.session.commit()
+    
+    flash("Reply deleted successfully!", "success")
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
