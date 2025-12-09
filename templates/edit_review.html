@@ -44,6 +44,14 @@
             <small>Assessments match taught content</small>
         </div>
 
+        <div class="form-group" style="margin-top: 25px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+            <label style="display: flex; align-items: center; cursor: pointer; font-size: 1.05em;">
+                <input type="checkbox" name="is_anonymous" id="is_anonymous" {% if review.is_anonymous %}checked{% endif %} style="width: 20px; height: 20px; margin-right: 10px; cursor: pointer;">
+                <span>🕶️ Post this review anonymously</span>
+            </label>
+            <small style="color: #666; display: block; margin-top: 8px; margin-left: 30px;">Your email will be hidden from other students, but you can still edit/delete the review</small>
+        </div>
+
         <button type="submit">Update Review</button>
         <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id) }}">Cancel</a>
     </form>
