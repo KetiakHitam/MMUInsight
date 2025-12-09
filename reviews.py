@@ -29,6 +29,7 @@ def create_review(lecturer_id):
     rating_responsiveness = int(request.form.get('rating_responsiveness', 0))
     rating_fairness = int(request.form.get('rating_fairness', 0))
     subject_id = request.form.get('subject_id')
+    is_anonymous = request.form.get('is_anonymous') == 'on'
     
     if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]):
         flash("Please fill all fields", "error")
@@ -43,7 +44,8 @@ def create_review(lecturer_id):
         rating_fairness=rating_fairness,
         user_id=current_user.id,
         lecturer_id=lecturer_id,
-        subject_id=subject_id if subject_id else None
+        subject_id=subject_id if subject_id else None,
+        is_anonymous=is_anonymous
     )
     
     db.session.add(review)
@@ -135,6 +137,7 @@ def edit_review(review_id):
     rating_punctuality = int(request.form.get('rating_punctuality', 0))
     rating_responsiveness = int(request.form.get('rating_responsiveness', 0))
     rating_fairness = int(request.form.get('rating_fairness', 0))
+    is_anonymous = request.form.get('is_anonymous') == 'on'
     
     if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]):
         flash("Please fill all fields", "error")
@@ -146,6 +149,7 @@ def edit_review(review_id):
     review.rating_punctuality = rating_punctuality
     review.rating_responsiveness = rating_responsiveness
     review.rating_fairness = rating_fairness
+    review.is_anonymous = is_anonymous
     
     db.session.commit()
     
@@ -395,3 +399,43 @@ def student_analytics(lecturer_id):
                          distribution=distribution,
                          all_lecturers_avg=all_lecturers_avg,
                          comparison_text=comparison_text)
+
+@reviews_bp.route('/reply/<int:reply_id>/edit', methods=['POST'])
+@login_required
+def edit_reply(reply_id):
+    reply = Reply.query.get_or_404(reply_id)
+    
+    
+    if reply.author != current_user:
+        flash("You can only edit your own replies", "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=reply.review.lecturer_id))
+    
+    new_text = request.form.get('reply_text', '').strip()
+    
+    if not new_text:
+        flash("Reply cannot be empty", "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=reply.review.lecturer_id))
+    
+    reply.reply_text = new_text
+    reply.is_edited = True
+    db.session.commit()
+    
+    flash("Reply updated successfully!", "success")
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=reply.review.lecturer_id))
+
+@reviews_bp.route('/reply/<int:reply_id>/delete', methods=['GET'])
+@login_required
+def delete_reply(reply_id):
+    reply = Reply.query.get_or_404(reply_id)
+    
+    if reply.author != current_user:
+        flash("You can only delete your own replies", "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=reply.review.lecturer_id))
+    
+    lecturer_id = reply.review.lecturer_id
+    
+    db.session.delete(reply)
+    db.session.commit()
+    
+    flash("Reply deleted successfully!", "success")
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
