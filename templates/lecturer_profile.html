@@ -80,13 +80,41 @@
             <div style="margin-top: 20px; padding-left: 20px; border-left: 3px solid #dee2e6;">
                 <h4 style="margin-bottom: 10px;">💬 Discussion Thread:</h4>
                 {% for reply in review.replies %}
-                <div style="margin-bottom: 15px; padding: 10px; background-color: {% if reply.author.user_type == 'lecturer' %}#e7f3ff{% else %}#f8f9fa{% endif %}; border-radius: 3px;">
+                <div id="reply-{{ reply.id }}" style="margin-bottom: 15px; padding: 10px; background-color: {% if reply.author.user_type == 'lecturer' %}#e7f3ff{% else %}#f8f9fa{% endif %}; border-radius: 3px; position: relative;">
                     <p style="margin: 0; font-weight: bold; color: {% if reply.author.user_type == 'lecturer' %}#007bff{% else %}#333{% endif %};">
                         {{ reply.author.email }} 
                         {% if reply.author.user_type == 'lecturer' %}(Lecturer){% endif %}
                     </p>
-                    <p style="margin: 5px 0;">{{ reply.reply_text }}</p>
-                    <p style="font-size: 0.9em; color: #666; margin: 0;">{{ reply.reply_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                    
+                    <!-- Display mode -->
+                    <div id="reply-display-{{ reply.id }}">
+                        <p style="margin: 5px 0;">{{ reply.reply_text }}</p>
+                        <p style="font-size: 0.9em; color: #666; margin: 0;">
+                            {{ reply.reply_date.strftime('%Y-%m-%d %H:%M') }}
+                            {% if reply.is_edited %}
+                            <span style="font-style: italic; color: #999; margin-left: 5px;">(edited)</span>
+                            {% endif %}
+                        </p>
+                        
+                        <!-- Edit/Delete buttons (only show for reply author) -->
+                        {% if reply.author == current_user %}
+                        <div style="margin-top: 8px;">
+                            <button onclick="showEditForm({{ reply.id }})" style="background-color: #ffc107; color: black; padding: 4px 10px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85em;">Edit</button>
+                            <a href="{{ url_for('reviews.delete_reply', reply_id=reply.id) }}" 
+                               onclick="return confirm('Delete this reply?');"
+                               style="background-color: #dc3545; color: white; padding: 4px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; margin-left: 5px; display: inline-block;">Delete</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Edit mode (hidden by default) -->
+                    <div id="reply-edit-{{ reply.id }}" style="display: none;">
+                        <form method="POST" action="{{ url_for('reviews.edit_reply', reply_id=reply.id) }}">
+                            <textarea name="reply_text" rows="3" style="width: 100%; padding: 8px; margin: 5px 0;">{{ reply.reply_text }}</textarea>
+                            <button type="submit" style="background-color: #28a745; color: white; padding: 5px 12px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.9em;">Save</button>
+                            <button type="button" onclick="hideEditForm({{ reply.id }})" style="background-color: #6c757d; color: white; padding: 5px 12px; border: none; border-radius: 3px; cursor: pointer; margin-left: 5px; font-size: 0.9em;">Cancel</button>
+                        </form>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
@@ -111,4 +139,16 @@
     <br><br>
     <a href="{{ url_for('index') }}">Back to Home</a>
 </div>
+
+<script>
+function showEditForm(replyId) {
+    document.getElementById('reply-display-' + replyId).style.display = 'none';
+    document.getElementById('reply-edit-' + replyId).style.display = 'block';
+}
+
+function hideEditForm(replyId) {
+    document.getElementById('reply-display-' + replyId).style.display = 'block';
+    document.getElementById('reply-edit-' + replyId).style.display = 'none';
+}
+</script>
 {% endblock %}
