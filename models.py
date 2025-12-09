@@ -46,6 +46,7 @@ class Reply(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     review_id = db.Column(db.Integer, db.ForeignKey('review.id'), nullable=False)
     reply_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    is_edited = db.Column(db.Boolean, nullable=False, default=False)  # NEW FIELD
 
 class Report(db.Model):
     id = db.Column(db.Integer, primary_key=True)
