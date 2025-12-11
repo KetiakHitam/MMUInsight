@@ -439,3 +439,33 @@ def delete_reply(reply_id):
     
     flash("Reply deleted successfully!", "success")
     return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+
+@reviews_bp.route('/lecturer/<int:lecturer_id>/bio', methods=['GET', 'POST'])
+@login_required
+def lecturer_bio(lecturer_id):
+    lecturer = User.query.get_or_404(lecturer_id)
+    
+    if lecturer.user_type != 'lecturer':
+        flash("Invalid lecturer", "error")
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        if current_user.id != lecturer_id:
+            flash("You can only edit your own bio", "error")
+            return redirect(url_for('reviews.lecturer_bio', lecturer_id=lecturer_id))
+        
+        if current_user.user_type != 'lecturer':
+            flash("Only lecturers can edit bios", "error")
+            return redirect(url_for('reviews.lecturer_bio', lecturer_id=lecturer_id))
+        
+        bio_text = request.form.get('bio', '').strip()
+        
+        lecturer.bio = bio_text if bio_text else None
+        db.session.commit()
+        
+        flash("Bio updated successfully!", "success")
+        return redirect(url_for('reviews.lecturer_bio', lecturer_id=lecturer_id))
+    
+    can_edit = current_user.id == lecturer_id and current_user.user_type == 'lecturer'
+    
+    return render_template('lecturer_bio.html', lecturer=lecturer, can_edit=can_edit)
