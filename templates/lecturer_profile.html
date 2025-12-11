@@ -37,6 +37,8 @@
     <a href="{{ url_for('reviews.analytics', lecturer_id=lecturer.id) }}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; margin-bottom: 20px;">📊 View Analytics Dashboard</a>
     {% endif %}
     
+    <a href="{{ url_for('reviews.lecturer_bio', lecturer_id=lecturer.id) }}" style="background-color: #6f42c1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; margin-bottom: 20px; margin-left: 10px;">📝 View Bio</a>
+    
     {% if current_user.user_type == 'student' %}
     <a href="{{ url_for('reviews.student_analytics', lecturer_id=lecturer.id) }}" style="background-color: #17a2b8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; margin-bottom: 20px;">📈 View Student Analytics</a>
     {% endif %}
