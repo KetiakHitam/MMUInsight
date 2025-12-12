@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>MMUInsight</title>
+    <title>{% block title %}MMUInsight{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 </head>
@@ -56,12 +56,12 @@
 {% if search_results is not none %}
     <div class="search-results">
         {% if search_results|length == 0 %}
-            <p>No results found.</p>
+            <p style="text-align: center;">No results found.</p>
         {% else %}
+            <p style="font-size: large; text-align: center;">Results:</p>
             {% for lecturer in search_results %}
                 <div class="result-item">
                     <a href="/lecturer/{{ lecturer.id }}">{{ lecturer.email }}</a>
-                    <span class="type">({{ lecturer.user_type }})</span>
                 </div>
             {% endfor %}
             {% endif %}
