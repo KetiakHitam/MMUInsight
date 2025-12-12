@@ -3,11 +3,7 @@
 }
 
 body{
-    background-color: grey;
     font-family: Arial;
-}
-div{
-    background-color: lavender;
 }
 .description{
     text-align: justify;

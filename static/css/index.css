@@ -1,6 +1,7 @@
 body { 
     font-family: Arial; 
     padding: 20px; 
+    text-decoration: none;
 }
 .alert { 
     padding: 10px; 
@@ -27,8 +28,7 @@ a {
     margin: 10px; 
     padding: 10px 20px; 
     background-color: #007bff; 
-    color: white; 
-    text-decoration: none; 
+    color: white;  
     border-radius: 30px; 
     display: inline-block; 
 }
@@ -100,3 +100,25 @@ button:hover{
 .header{
     padding: 20px 20px;  
 }
+.result-item{
+    font-size: large;
+    text-align: center;
+}
+/* create_review.css */
+
+h2{ 
+    text-align: center;
+ }
+ .form-group-rating {
+    margin:auto;
+    display:block;
+    width: 400px;
+    text-align: left;
+ }
+ .review-submit {
+    float: left;
+ }
+ .review-cancel{
+    text-decoration: none;
+    float: right;
+ }
