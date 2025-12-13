@@ -79,6 +79,10 @@ button:hover{
 }
 .div-2{
     padding: 20px 20px;
+    display: flex;
+    align-items: center;
+    flex: auto;
+    float: center;
 }
 .search-bar{
     text-align: center;
@@ -91,10 +95,11 @@ button:hover{
     color: lightskyblue;
 }
 .div-2 input[type=search]{
-    width: 800px;
+    width: 70%;
     height: 50px;
     font-size: 20px;
-    margin-left: 25%;
+    margin-left: 15%;
+    border-radius: 20px 20px;
 }
 
 .header{
