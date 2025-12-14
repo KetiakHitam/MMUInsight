@@ -44,6 +44,18 @@
             <small>Assessments match taught content</small>
         </div>
         
+        <div class="form-group">
+            <label>Would you recommend this lecturer to other students?</label>
+            <div style="margin-top: 10px;">
+                <label style="display: inline-block; margin-right: 20px;">
+                    <input type="radio" name="recommend" value="yes" required> 👍 Yes, I would recommend
+                </label>
+                <label style="display: inline-block;">
+                    <input type="radio" name="recommend" value="no" required> 👎 No, I would not recommend
+                </label>
+            </div>
+        </div>
+        
         <button type="submit">Submit Review</button>
         <a href="{{ url_for('index') }}">Cancel</a>
     </form>

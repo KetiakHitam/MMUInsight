@@ -17,6 +17,9 @@
             <li><strong>Responsiveness:</strong> {{ averages.responsiveness }}/5</li>
             <li><strong>Fairness:</strong> {{ averages.fairness }}/5</li>
         </ul>
+        {% if recommend_percentage is not none %}
+        <p style="margin-top: 15px; font-size: 1.1em;"><strong>Would Recommend:</strong> <span style="color: #28a745; font-weight: bold;">{{ recommend_percentage }}%</span> of students would recommend this lecturer</p>
+        {% endif %}
     </div>
     {% endif %}
     
@@ -44,6 +47,21 @@
                 <li>Responsiveness: {{ review.rating_responsiveness }}/5</li>
                 <li>Fairness: {{ review.rating_fairness }}/5</li>
             </ul>
+            
+            <p><strong>Would you recommend this lecturer?</strong></p>
+            {% if review.author == current_user %}
+            <p style="font-size: 0.9em; color: #666; margin: 5px 0;">(Your recommendation)</p>
+            <form method="POST" action="{{ url_for('reviews.vote_recommend', review_id=review.id) }}" style="display: inline-block;">
+                <button type="submit" name="recommend" value="yes" style="background-color: {% if review.recommend == True %}#28a745{% else %}#e8f5e9{% endif %}; color: {% if review.recommend == True %}white{% else %}#28a745{% endif %}; padding: 5px 10px; border: 2px solid #28a745; border-radius: 3px; cursor: pointer; margin-right: 5px;">👍 Yes</button>
+                <button type="submit" name="recommend" value="no" style="background-color: {% if review.recommend == False %}#dc3545{% else %}#ffebee{% endif %}; color: {% if review.recommend == False %}white{% else %}#dc3545{% endif %}; padding: 5px 10px; border: 2px solid #dc3545; border-radius: 3px; cursor: pointer;">👎 No</button>
+            </form>
+            {% else %}
+            <div style="display: inline-block; padding: 5px 10px;">
+                <span style="color: {% if review.recommend == True %}#28a745{% else %}#dc3545{% endif %};">
+                    {% if review.recommend == True %}👍 Yes{% else %}👎 No{% endif %}
+                </span>
+            </div>
+            {% endif %}
             
             {% if review.author == current_user %}
             <a href="{{ url_for('reviews.edit_review', review_id=review.id) }}" style="background-color: #ffc107; color: black; padding: 5px 10px; text-decoration: none; border-radius: 3px;">Edit</a>

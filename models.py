@@ -31,6 +31,7 @@ class Review(db.Model):
     rating_punctuality = db.Column(db.Integer, nullable=False)
     rating_responsiveness = db.Column(db.Integer, nullable=False)
     rating_fairness = db.Column(db.Integer, nullable=False)
+    recommend = db.Column(db.Boolean, nullable=False, default=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     lecturer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=True)
