@@ -28,11 +28,14 @@ def create_review(lecturer_id):
     rating_punctuality = int(request.form.get('rating_punctuality', 0))
     rating_responsiveness = int(request.form.get('rating_responsiveness', 0))
     rating_fairness = int(request.form.get('rating_fairness', 0))
+    recommend = request.form.get('recommend')
     subject_id = request.form.get('subject_id')
     
-    if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]):
+    if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]) or not recommend:
         flash("Please fill all fields", "error")
         return redirect(url_for('reviews.create_review', lecturer_id=lecturer_id))
+    
+    recommend = recommend.lower() == 'yes'
     
     review = Review(
         review_text=review_text,
@@ -41,6 +44,7 @@ def create_review(lecturer_id):
         rating_punctuality=rating_punctuality,
         rating_responsiveness=rating_responsiveness,
         rating_fairness=rating_fairness,
+        recommend=recommend,
         user_id=current_user.id,
         lecturer_id=lecturer_id,
         subject_id=subject_id if subject_id else None
@@ -76,10 +80,15 @@ def lecturer_profile(lecturer_id):
             'responsiveness': round(avg_responsiveness, 1) if avg_responsiveness else 0,
             'fairness': round(avg_fairness, 1) if avg_fairness else 0,
         }
+        
+        # Calculate recommendation percentage
+        recommend_count = Review.query.filter_by(lecturer_id=lecturer_id, recommend=True).count()
+        recommend_percentage = round((recommend_count / len(reviews)) * 100) if reviews else None
     else:
         averages = None
+        recommend_percentage = None
     
-    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages)
+    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage)
 
 @reviews_bp.route('/review/<int:review_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -99,10 +108,13 @@ def edit_review(review_id):
     rating_punctuality = int(request.form.get('rating_punctuality', 0))
     rating_responsiveness = int(request.form.get('rating_responsiveness', 0))
     rating_fairness = int(request.form.get('rating_fairness', 0))
+    recommend = request.form.get('recommend')
     
-    if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]):
+    if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]) or not recommend:
         flash("Please fill all fields", "error")
         return redirect(url_for('reviews.edit_review', review_id=review_id))
+    
+    recommend = recommend.lower() == 'yes'
     
     review.review_text = review_text
     review.rating_clarity = rating_clarity
@@ -110,6 +122,7 @@ def edit_review(review_id):
     review.rating_punctuality = rating_punctuality
     review.rating_responsiveness = rating_responsiveness
     review.rating_fairness = rating_fairness
+    review.recommend = recommend
     
     db.session.commit()
     
@@ -359,3 +372,23 @@ def student_analytics(lecturer_id):
                          distribution=distribution,
                          all_lecturers_avg=all_lecturers_avg,
                          comparison_text=comparison_text)
+
+@reviews_bp.route('/review/<int:review_id>/vote_recommend', methods=['POST'])
+@login_required
+def vote_recommend(review_id):
+    review = Review.query.get_or_404(review_id)
+    
+    if review.author != current_user:
+        flash("You can only change your own review's recommendation", "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
+    
+    recommend_value = request.form.get('recommend')
+    
+    if recommend_value == 'yes':
+        review.recommend = True
+    elif recommend_value == 'no':
+        review.recommend = False
+    
+    db.session.commit()
+    
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
