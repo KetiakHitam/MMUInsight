@@ -150,6 +150,7 @@ def edit_review(review_id):
     rating_fairness = int(request.form.get('rating_fairness', 0))
     is_anonymous = request.form.get('is_anonymous') == 'on'
     recommend = request.form.get('recommend')
+    subject_code = request.form.get('subject_code', '').strip() or None
     
     if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]) or not recommend:
         flash("Please fill all fields", "error")
@@ -165,6 +166,7 @@ def edit_review(review_id):
     review.rating_fairness = rating_fairness
     review.is_anonymous = is_anonymous
     review.recommend = recommend
+    review.subject_code = subject_code
     
     db.session.commit()
     
@@ -295,18 +297,14 @@ def analytics(lecturer_id):
         for lect in all_lecturers:
             lect_reviews = Review.query.filter_by(lecturer_id=lect.id).all()
             if lect_reviews:
-                lect_avg_clarity = db.session.query(func.avg(Review.rating_clarity)).filter_by(lecturer_id=lect.id).scalar()
-                lect_avg_engagement = db.session.query(func.avg(Review.rating_engagement)).filter_by(lecturer_id=lect.id).scalar()
-                lect_avg_punctuality = db.session.query(func.avg(Review.rating_punctuality)).filter_by(lecturer_id=lect.id).scalar()
-                lect_avg_responsiveness = db.session.query(func.avg(Review.rating_responsiveness)).filter_by(lecturer_id=lect.id).scalar()
-                lect_avg_fairness = db.session.query(func.avg(Review.rating_fairness)).filter_by(lecturer_id=lect.id).scalar()
-                
-                lect_overall = round((lect_avg_clarity + lect_avg_engagement + lect_avg_punctuality + lect_avg_responsiveness + lect_avg_fairness) / 5, 1)
+                lect_avg = db.session.query(
+                    func.avg(Review.rating_clarity + Review.rating_engagement + Review.rating_punctuality + Review.rating_responsiveness + Review.rating_fairness) / 5
+                ).filter_by(lecturer_id=lect.id).scalar()
                 
                 lecturer_stats.append({
-                    'email': lect.email,
                     'id': lect.id,
-                    'overall': lect_overall,
+                    'email': lect.email,
+                    'overall': round(lect_avg, 1) if lect_avg else 0,
                     'total_reviews': len(lect_reviews)
                 })
         
@@ -385,25 +383,21 @@ def student_analytics(lecturer_id):
         for lect in all_lecturers:
             lect_reviews = Review.query.filter_by(lecturer_id=lect.id).all()
             if lect_reviews:
-                lect_avg_clarity = db.session.query(func.avg(Review.rating_clarity)).filter_by(lecturer_id=lect.id).scalar()
-                lect_avg_engagement = db.session.query(func.avg(Review.rating_engagement)).filter_by(lecturer_id=lect.id).scalar()
-                lect_avg_punctuality = db.session.query(func.avg(Review.rating_punctuality)).filter_by(lecturer_id=lect.id).scalar()
-                lect_avg_responsiveness = db.session.query(func.avg(Review.rating_responsiveness)).filter_by(lecturer_id=lect.id).scalar()
-                lect_avg_fairness = db.session.query(func.avg(Review.rating_fairness)).filter_by(lecturer_id=lect.id).scalar()
-                
-                lect_overall = (lect_avg_clarity + lect_avg_engagement + lect_avg_punctuality + lect_avg_responsiveness + lect_avg_fairness) / 5
-                all_ratings.append(lect_overall)
+                lect_avg = sum([
+                    (r.rating_clarity + r.rating_engagement + r.rating_punctuality + r.rating_responsiveness + r.rating_fairness) / 5
+                    for r in lect_reviews
+                ]) / len(lect_reviews)
+                all_ratings.append(lect_avg)
         
         if all_ratings:
             all_lecturers_avg = round(sum(all_ratings) / len(all_ratings), 1)
-            difference = round(overall_rating - all_lecturers_avg, 1)
-            
-            if difference >= 0.1:
-                comparison_text = f"ABOVE AVERAGE (+{difference} points)"
-            elif difference <= -0.1:
-                comparison_text = f"BELOW AVERAGE ({difference} points)"
+            diff = overall_rating - all_lecturers_avg
+            if diff > 0.5:
+                comparison_text = f"{diff:.1f} points ABOVE AVERAGE"
+            elif diff < -0.5:
+                comparison_text = f"{abs(diff):.1f} points BELOW AVERAGE"
             else:
-                comparison_text = "AT AVERAGE"
+                comparison_text = "AT AVERAGE LEVEL"
     
     return render_template('student_analytics.html', 
                          lecturer=lecturer, 
