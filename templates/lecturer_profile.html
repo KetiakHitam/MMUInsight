@@ -66,6 +66,10 @@
             </p>
             <p><strong>Review:</strong> {{ review.review_text }}</p>
             
+            {% if review.subject_code %}
+            <p><strong>Subject:</strong> <span style="background-color: #e7f3ff; padding: 4px 10px; border-radius: 3px; font-size: 0.95em;">{{ review.subject_code }}</span></p>
+            {% endif %}
+            
             <p><strong>Ratings:</strong></p>
             <ul>
                 <li>Clarity: {{ review.rating_clarity }}/5</li>
