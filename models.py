@@ -39,6 +39,7 @@ class Review(db.Model):
     subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=True)
     review_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     is_anonymous = db.Column(db.Boolean, nullable=False, default=False)
+    subject_code = db.Column(db.String(100), nullable=True)
     
     replies = db.relationship('Reply', backref='review', lazy=True, cascade='all, delete-orphan')
     reports = db.relationship('Report', backref='review', lazy=True, cascade='all, delete-orphan')
