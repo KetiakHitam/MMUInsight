@@ -30,6 +30,9 @@
             <li><strong>Responsiveness:</strong> {{ averages.responsiveness }}/5</li>
             <li><strong>Fairness:</strong> {{ averages.fairness }}/5</li>
         </ul>
+        {% if recommend_percentage is not none %}
+        <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;"><strong>Would Recommend:</strong> <span style="font-size: 1.3em; color: #28a745;">{{ recommend_percentage }}%</span> of students</p>
+        {% endif %}
     </div>
     {% endif %}
     
@@ -71,6 +74,13 @@
                 <li>Responsiveness: {{ review.rating_responsiveness }}/5</li>
                 <li>Fairness: {{ review.rating_fairness }}/5</li>
             </ul>
+
+            <div style="display: inline-block; padding: 5px 10px; margin: 5px 0; border-radius: 3px; background-color: {% if review.recommend %}#d4edda{% else %}#f8d7da{% endif %};">
+                <span style="font-size: 1.2em;">{% if review.recommend %}👍{% else %}👎{% endif %}</span>
+                <span style="color: {% if review.recommend %}#155724{% else %}#721c24{% endif %}; margin-left: 5px;">
+                    {% if review.recommend %}Would recommend{% else %}Would not recommend{% endif %}
+                </span>
+            </div>
             
             {% if review.author == current_user %}
             <a href="{{ url_for('reviews.edit_review', review_id=review.id) }}" style="background-color: #ffc107; color: black; padding: 5px 10px; text-decoration: none; border-radius: 3px;">Edit</a>
@@ -100,7 +110,6 @@
                         {% if reply.author.user_type == 'lecturer' %}(Lecturer){% endif %}
                     </p>
                     
-                    <!-- Display mode -->
                     <div id="reply-display-{{ reply.id }}">
                         <p style="margin: 5px 0;">{{ reply.reply_text }}</p>
                         <p style="font-size: 0.9em; color: #666; margin: 0;">
@@ -110,7 +119,6 @@
                             {% endif %}
                         </p>
                         
-                        <!-- Edit/Delete buttons (only show for reply author) -->
                         {% if reply.author == current_user %}
                         <div style="margin-top: 8px;">
                             <button onclick="showEditForm({{ reply.id }})" style="background-color: #ffc107; color: black; padding: 4px 10px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85em;">Edit</button>
@@ -121,7 +129,6 @@
                         {% endif %}
                     </div>
                     
-                    <!-- Edit mode (hidden by default) -->
                     <div id="reply-edit-{{ reply.id }}" style="display: none;">
                         <form method="POST" action="{{ url_for('reviews.edit_reply', reply_id=reply.id) }}">
                             <textarea name="reply_text" rows="3" style="width: 100%; padding: 8px; margin: 5px 0;">{{ reply.reply_text }}</textarea>
