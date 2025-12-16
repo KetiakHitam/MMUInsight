@@ -104,10 +104,18 @@
             <div style="margin-top: 20px; padding-left: 20px; border-left: 3px solid #dee2e6;">
                 <h4 style="margin-bottom: 10px;">💬 Discussion Thread:</h4>
                 {% for reply in review.replies %}
-                <div id="reply-{{ reply.id }}" style="margin-bottom: 15px; padding: 10px; background-color: {% if reply.author.user_type == 'lecturer' %}#e7f3ff{% else %}#f8f9fa{% endif %}; border-radius: 3px; position: relative;">
-                    <p style="margin: 0; font-weight: bold; color: {% if reply.author.user_type == 'lecturer' %}#007bff{% else %}#333{% endif %};">
-                        {{ reply.author.email }} 
-                        {% if reply.author.user_type == 'lecturer' %}(Lecturer){% endif %}
+                <div id="reply-{{ reply.id }}" style="margin-bottom: 15px; padding: 10px; background-color: {% if reply.author.user_type == 'lecturer' %}#e7f3ff{% elif reply.author == review.author and review.is_anonymous and current_user.user_type != 'admin' %}#ffe7e7{% elif reply.author == review.author %}#ffe7e7{% else %}#f8f9fa{% endif %}; border-radius: 3px; position: relative;">
+                    <p style="margin: 0; font-weight: bold; color: {% if reply.author.user_type == 'lecturer' %}#007bff{% elif reply.author == review.author %}#dc3545{% else %}#333{% endif %};">
+                        {% if reply.author == review.author and review.is_anonymous and current_user.user_type != 'admin' %}
+                            🕶️ Anonymous Student (OP)
+                        {% else %}
+                            {{ reply.author.email }}
+                            {% if reply.author.user_type == 'lecturer' %}
+                                (Lecturer)
+                            {% elif reply.author == review.author %}
+                                (OP)
+                            {% endif %}
+                        {% endif %}
                     </p>
                     
                     <div id="reply-display-{{ reply.id }}">
