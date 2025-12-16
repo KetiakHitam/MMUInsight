@@ -64,6 +64,12 @@
             </div>
         </div>
 
+        <div class="form-group">
+            <label for="subject_code">Subject Code & Name (Optional):</label>
+            <input type="text" id="subject_code" name="subject_code" value="{{ review.subject_code if review.subject_code else '' }}" placeholder="e.g., CMT1134 - MATHEMATICS III" maxlength="100">
+            <small>You can specify which subject/course this review is for, or leave it blank</small>
+        </div>
+
         <button type="submit">Update Review</button>
         <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id) }}">Cancel</a>
     </form>
