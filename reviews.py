@@ -30,6 +30,7 @@ def create_review(lecturer_id):
     rating_fairness = int(request.form.get('rating_fairness', 0))
     recommend = request.form.get('recommend')
     subject_id = request.form.get('subject_id')
+    subject_code = request.form.get('subject_code', '').strip() or None
     is_anonymous = request.form.get('is_anonymous') == 'on'
     
     if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]) or not recommend:
@@ -49,6 +50,7 @@ def create_review(lecturer_id):
         user_id=current_user.id,
         lecturer_id=lecturer_id,
         subject_id=subject_id if subject_id else None,
+        subject_code=subject_code,
         is_anonymous=is_anonymous
     )
     
