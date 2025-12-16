@@ -28,12 +28,15 @@ def create_review(lecturer_id):
     rating_punctuality = int(request.form.get('rating_punctuality', 0))
     rating_responsiveness = int(request.form.get('rating_responsiveness', 0))
     rating_fairness = int(request.form.get('rating_fairness', 0))
+    recommend = request.form.get('recommend')
     subject_id = request.form.get('subject_id')
     is_anonymous = request.form.get('is_anonymous') == 'on'
     
-    if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]):
+    if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]) or not recommend:
         flash("Please fill all fields", "error")
         return redirect(url_for('reviews.create_review', lecturer_id=lecturer_id))
+    
+    recommend = recommend.lower() == 'yes'
     
     review = Review(
         review_text=review_text,
@@ -42,6 +45,7 @@ def create_review(lecturer_id):
         rating_punctuality=rating_punctuality,
         rating_responsiveness=rating_responsiveness,
         rating_fairness=rating_fairness,
+        recommend=recommend,
         user_id=current_user.id,
         lecturer_id=lecturer_id,
         subject_id=subject_id if subject_id else None,
@@ -78,10 +82,15 @@ def lecturer_profile(lecturer_id):
             'responsiveness': round(avg_responsiveness, 1) if avg_responsiveness else 0,
             'fairness': round(avg_fairness, 1) if avg_fairness else 0,
         }
+        
+        # Calculate recommendation percentage
+        recommend_count = Review.query.filter_by(lecturer_id=lecturer_id, recommend=True).count()
+        recommend_percentage = round((recommend_count / len(reviews)) * 100) if reviews else None
     else:
         averages = None
+        recommend_percentage = None
     
-    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages)
+    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage)
 
 @reviews_bp.route('/claim_profile/<int:lecturer_id>', methods=['POST'])
 @login_required
@@ -138,10 +147,13 @@ def edit_review(review_id):
     rating_responsiveness = int(request.form.get('rating_responsiveness', 0))
     rating_fairness = int(request.form.get('rating_fairness', 0))
     is_anonymous = request.form.get('is_anonymous') == 'on'
+    recommend = request.form.get('recommend')
     
-    if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]):
+    if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]) or not recommend:
         flash("Please fill all fields", "error")
         return redirect(url_for('reviews.edit_review', review_id=review_id))
+    
+    recommend = recommend.lower() == 'yes'
     
     review.review_text = review_text
     review.rating_clarity = rating_clarity
@@ -150,6 +162,7 @@ def edit_review(review_id):
     review.rating_responsiveness = rating_responsiveness
     review.rating_fairness = rating_fairness
     review.is_anonymous = is_anonymous
+    review.recommend = recommend
     
     db.session.commit()
     
