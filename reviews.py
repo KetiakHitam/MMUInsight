@@ -50,8 +50,8 @@ def create_review(lecturer_id):
         user_id=current_user.id,
         lecturer_id=lecturer_id,
         subject_id=subject_id if subject_id else None,
-        subject_code=subject_code,
-        is_anonymous=is_anonymous
+        is_anonymous=is_anonymous,
+        subject_code=subject_code
     )
     
     db.session.add(review)
