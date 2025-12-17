@@ -30,11 +30,12 @@ login_manager.init_app(app)
 
 babel = Babel(app)
 
-@babel.locale_selector
 def get_locale():
     if 'language' in session:
         return session['language']
     return request.accept_languages.best_match(app.config['LANGUAGES'].keys()) or 'en'
+
+app.jinja_env.globals['get_locale'] = get_locale
 
 @login_manager.user_loader
 def load_user(user_id):
