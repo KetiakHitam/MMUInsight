@@ -1,5 +1,6 @@
-from flask import Flask, get_flashed_messages, render_template_string, render_template, request, jsonify
+from flask import Flask, get_flashed_messages, render_template_string, render_template, request, jsonify, session, redirect, url_for
 from flask_login import LoginManager, current_user
+from flask_babel import Babel, gettext
 import os
 
 from extensions import db, bcrypt, login_manager
@@ -15,10 +16,25 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(BASE_DIR, 'database', 'mmuinsight.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config['BABEL_DEFAULT_LOCALE'] = 'en'
+app.config['BABEL_DEFAULT_TIMEZONE'] = 'UTC'
+app.config['LANGUAGES'] = {
+    'en': 'English',
+    'ms': 'Malay',
+    'zh': 'Chinese'
+}
 
 db.init_app(app)
 bcrypt.init_app(app)
 login_manager.init_app(app)
+
+babel = Babel(app)
+
+@babel.localeselector
+def get_locale():
+    if 'language' in session:
+        return session['language']
+    return request.accept_languages.best_match(app.config['LANGUAGES'].keys()) or 'en'
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -26,6 +42,12 @@ def load_user(user_id):
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(reviews_bp)
+
+@app.route("/set-language/<language>")
+def set_language(language):
+    if language in app.config['LANGUAGES']:
+        session['language'] = language
+    return redirect(request.referrer or url_for('index'))
 
 @app.route("/", methods=["GET"])
 def index():
