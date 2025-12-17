@@ -30,7 +30,7 @@ login_manager.init_app(app)
 
 babel = Babel(app)
 
-@babel.localeselector
+@babel.locale_selector
 def get_locale():
     if 'language' in session:
         return session['language']
