@@ -59,4 +59,4 @@ def Professors():
     return render_template('Professor-info.html')
 
 if __name__ == "__main__":
-    app.run(debug=True
+    app.run(debug=True)
