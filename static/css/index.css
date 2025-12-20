@@ -1,6 +1,6 @@
 body{ 
     font-family: Arial; 
-    padding-top: 3%;
+    padding-top: 3% ;
     padding: 20px; 
     text-decoration: none;
     background-color: white;
@@ -170,7 +170,7 @@ a {
 }
 .Logo{
     position: fixed;
-    top: 40px;
+    top: 20px;
     left:50px;
     width: 35px;
     height: 20px;
@@ -197,7 +197,7 @@ a {
     position: fixed;
     float: right;
     right: 20px;
-    top: 45px;
+    top: 25px;
     width: 8%;
     text-align: center;
 }
@@ -240,6 +240,40 @@ button:hover{
 .result-item{
     font-size: large;
     text-align: center;
+    margin: auto;
+    width: 60%;
+    float: left;
+}
+.search-results{
+    border:1px solid red;
+    margin: auto;
+    width: 60%;
+}
+.Filter{
+    position: relative;
+    display: inline-block;
+    border: 1px solid red;
+}
+.Filter-button{
+    position: fixed;
+    right:200px;
+    padding: 10px 10px;
+    font-size: medium;
+    cursor: pointer;
+    transition-duration: 1s;
+}
+.Filter-options{
+    display: none;
+    right: 150px;
+    position: fixed;
+    background-color: lightblue;
+    min-width:160px;
+}
+.Filter:hover .Filter-options{
+    display:block;
+}
+.Filter:hover .Filter-button{
+    background-color: blue;
 }
 /* create_review.css */
 
