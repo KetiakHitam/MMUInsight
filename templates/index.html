@@ -59,12 +59,21 @@
             <p style="text-align: center;">No results found.</p>
         {% else %}
             <p style="font-size: large; text-align: center;">Results:</p>
+            <div class="Filter">
+                <button class="Filter-button">Filter</button>
+                <div class="Filter-options">
+                    <p>Template</p>
+                    <p>Template</p>
+                    <p>Template</p>
+                </div>
+            </div>
             {% for lecturer in search_results %}
                 <div class="result-item">
                     <a href="/lecturer/{{ lecturer.id }}">{{ lecturer.email }}</a>
                 </div>
             {% endfor %}
             {% endif %}
+    </div>
 {% endif %}
 
 <!--<script>
