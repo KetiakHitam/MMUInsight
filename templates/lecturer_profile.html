@@ -15,67 +15,46 @@
     </div>
     
     {% if current_user.is_authenticated and current_user.user_type == 'lecturer' and not lecturer.is_claimed and not current_user.is_claimed %}
-    <form method="POST" action="{{ url_for('reviews.claim_profile', lecturer_id=lecturer.id) }}" style="margin-bottom: 20px;">
-        <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">
-            🔐 Claim This Profile
-        </button>
-    </form>
+    <div style="max-width: 800px; margin-left: auto; margin-right: auto; margin-bottom: 20px;">
+        <form method="POST" action="{{ url_for('reviews.claim_profile', lecturer_id=lecturer.id) }}">
+            <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">
+                🔐 Claim This Profile
+            </button>
+        </form>
+    </div>
     {% endif %}
     
     {% if averages %}
-    <div style="max-width: 1000px; margin-left: auto; margin-right: auto; margin-bottom: 40px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 25px;">
-        <!-- Left Side: Overall Quality and Key Stats -->
-        <div style="padding: 30px; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);">
-            <div style="margin-bottom: 25px;">
-                <div style="font-size: 5em; font-weight: 900; color: #1f2937; line-height: 0.9; margin-bottom: 10px;">
-                    {{ "%.1f" | format((averages.clarity + averages.engagement + averages.punctuality + averages.responsiveness + averages.fairness) / 5) }}
-                </div>
-                <div style="font-size: 0.9em; color: #9ca3af; font-weight: 500;">
-                    Overall Quality<br>Based on {{ reviews|length }} rating{{ 's' if reviews|length != 1 else '' }}
-                </div>
-            </div>
-
-            <div style="background-color: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid #28a745;">
-                <div style="font-size: 0.9em; color: #333;">
-                    <span style="font-size: 1.5em; font-weight: 800; color: #28a745; display: block; margin-bottom: 3px;">{{ recommend_percentage if recommend_percentage is not none else 0 }}%</span>
-                    <span style="color: #6b7280; font-size: 0.85em;">Would recommend</span>
-                </div>
-            </div>
-
-            <a href="{{ url_for('reviews.create_review', lecturer_id=lecturer.id) }}" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 13px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(37, 99, 235, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(37, 99, 235, 0.3)';">Rate →</a>
-        </div>
-
-        <!-- Right Side: Detailed Ratings as Bar Chart -->
-        <div style="padding: 30px; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);">
-            <h4 style="margin: 0 0 25px 0; font-size: 1.15em; color: #1f2937; font-weight: 700;">Detailed Ratings</h4>
-            
-            {% set ratings = [('Clarity', averages.clarity), ('Engagement', averages.engagement), ('Punctuality', averages.punctuality), ('Responsiveness', averages.responsiveness), ('Fairness', averages.fairness)] %}
-            
-            {% for name, value in ratings %}
-                <div style="margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px;">
-                        <span style="font-size: 0.95em; color: #1f2937; font-weight: 600;">{{ name }}</span>
-                        <span style="font-weight: 700; color: #2563eb; font-size: 0.95em;">{{ "%.1f" | format(value) }}/5</span>
-                    </div>
-                    <div style="background-color: #e5e7eb; height: 10px; border-radius: 5px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);">
-                        <div style="background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%); height: 100%; width: {{ (value / 5 * 100) }}%; transition: width 0.3s ease; box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);"></div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
+    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #ccc; max-width: 800px; margin-left: auto; margin-right: auto;">
+        <h3 style="margin-top: 0;">Average Ratings:</h3>
+        <ul style="list-style: none; padding-left: 0;">
+            <li><strong>Clarity:</strong> {{ averages.clarity }}/5</li>
+            <li><strong>Engagement:</strong> {{ averages.engagement }}/5</li>
+            <li><strong>Punctuality:</strong> {{ averages.punctuality }}/5</li>
+            <li><strong>Responsiveness:</strong> {{ averages.responsiveness }}/5</li>
+            <li><strong>Fairness:</strong> {{ averages.fairness }}/5</li>
+        </ul>
+        {% if recommend_percentage is not none %}
+        <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;"><span style="font-size: 1.3em; color: #28a745;"><strong>{{ recommend_percentage }}%</strong></span> of students would recommend this lecturer</p>
+        {% endif %}
     </div>
     {% endif %}
     
     {% if (current_user.id == lecturer.id and current_user.user_type == 'lecturer') or current_user.user_type == 'admin' %}
-    <div style="max-width: 1000px; margin-left: auto; margin-right: auto; margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
-    <a href="{{ url_for('reviews.lecturer_bio', lecturer_id=lecturer.id) }}" style="background-color: #6f42c1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block;">📝 View Bio</a>
-    <a href="{{ url_for('reviews.analytics', lecturer_id=lecturer.id) }}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block;">📊 View Analytics Dashboard</a>
+    <div style="max-width: 800px; margin-left: auto; margin-right: auto; margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
+    <a href="{{ url_for('reviews.lecturer_bio', lecturer_id=lecturer.id) }}" style="background-color: #6f42c1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">📝 View Bio</a>
+    <a href="{{ url_for('reviews.analytics', lecturer_id=lecturer.id) }}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">📊 View Analytics Dashboard</a>
     </div>
     {% else %}
-    <div style="max-width: 1000px; margin-left: auto; margin-right: auto; margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
-    <a href="{{ url_for('reviews.lecturer_bio', lecturer_id=lecturer.id) }}" style="background-color: #6f42c1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block;">📝 View Bio</a>
+    <div style="max-width: 800px; margin-left: auto; margin-right: auto; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; justify-content: space-between;">
+    <div style="display: flex; gap: 10px; align-items: center;">
+    <a href="{{ url_for('reviews.lecturer_bio', lecturer_id=lecturer.id) }}" style="background-color: #6f42c1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">📝 View Bio</a>
     {% if current_user.user_type == 'student' %}
-    <a href="{{ url_for('reviews.student_analytics', lecturer_id=lecturer.id) }}" style="background-color: #17a2b8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block;">📈 View Student Analytics</a>
+    <a href="{{ url_for('reviews.student_analytics', lecturer_id=lecturer.id) }}" style="background-color: #17a2b8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">📈 View Student Analytics</a>
+    {% endif %}
+    </div>
+    {% if current_user.user_type == 'student' %}
+    <a href="{{ url_for('reviews.create_review', lecturer_id=lecturer.id) }}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Write a Review</a>
     {% endif %}
     </div>
     {% endif %}
@@ -86,17 +65,20 @@
         {% for review in reviews %}
         <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 5px; max-width: 800px; margin-left: auto; margin-right: auto;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                <p style="color: #000; font-size: 1.1em; font-weight: 600; margin: 0;"><strong>By:</strong> 
+                <p style="color: #000; font-size: 1.1em; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 10px;"><strong>By:</strong> 
                     {% if review.is_anonymous and current_user.user_type != 'admin' %}
                         <span style="color: #000; font-weight: normal;">Anonymous Student</span>
                     {% else %}
                         <span style="font-weight: normal;">{{ review.author.email }}</span>
                         {% if review.is_anonymous and current_user.user_type == 'admin' %}
-                            <span style="color: #000; font-size: 0.85em; margin-left: 5px;">(Anonymous to others)</span>
+                            <span style="color: #000; font-size: 0.85em;">(Anonymous to others)</span>
                         {% endif %}
                     {% endif %}
                     {% if review.author == current_user %}
-                        <span style="color: #000; font-size: 0.9em; margin-left: 10px;">(You)</span>
+                        <span style="color: #000; font-size: 0.9em;">(You)</span>
+                    {% endif %}
+                    {% if review.is_pinned %}
+                    <span style="background-color: #999999; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; display: inline-block;">📌 Pinned</span>
                     {% endif %}
                 </p>
                 <p style="font-size: 0.85em; color: #666; margin: 0; text-align: right;">
@@ -114,30 +96,49 @@
                 <div style="margin: 2px 0;">Fairness: <strong>{{ review.rating_fairness }}/5</strong></div>
             </div>
 
-<div style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 15px 0;">
                 <div style="display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 3px; background-color: {% if review.recommend %}#d4edda{% else %}#f8d7da{% endif %};">
                     <span style="color: #000; font-weight: bold;">
                         {% if review.recommend %}Recommended{% else %}Not Recommended{% endif %}
                     </span>
                 </div>
                 
+                <div>
                 {% if review.author == current_user %}
                 <a href="{{ url_for('reviews.edit_review', review_id=review.id) }}" style="background-color: #828a91; color: white; padding: 8px 15px; text-decoration: none; border-radius: 3px; display: inline-block;">Edit</a>
                 <a href="{{ url_for('reviews.delete_review', review_id=review.id) }}" 
                    onclick="return confirm('Are you sure you want to delete this review? This cannot be undone.');" 
                    style="background-color: #dc3545; color: white; padding: 8px 15px; text-decoration: none; border-radius: 3px; display: inline-block;">Delete</a>
+                {% elif current_user.user_type == 'admin' %}
+                <form method="POST" style="display: inline;">
+                    {% if review.is_pinned %}
+                    <a href="{{ url_for('reviews.unpin_review', review_id=review.id) }}" onclick="return confirm('Unpin this review?');" style="background-color: #6c757d; color: white; padding: 8px 15px; text-decoration: none; border-radius: 3px; display: inline-block; margin-right: 5px;">Unpin</a>
+                    {% else %}
+                    <a href="{{ url_for('reviews.pin_review', review_id=review.id) }}" style="background-color: #ffc107; color: white; padding: 8px 15px; text-decoration: none; border-radius: 3px; display: inline-block; margin-right: 5px;">📌 Pin Review</a>
+                    {% endif %}
+                </form>
+                <a href="{{ url_for('reviews.delete_review', review_id=review.id) }}" 
+                   onclick="return confirm('Are you sure you want to delete this review? This cannot be undone.');" 
+                   style="background-color: #dc3545; color: white; padding: 8px 15px; text-decoration: none; border-radius: 3px; display: inline-block;">Delete</a>
                 {% endif %}
+                </div>
             </div>
             
             {% if current_user.user_type == 'student' and review.author != current_user %}
             <div style="max-width: 800px; margin-left: auto; margin-right: auto;">
-            <a href="#" onclick="document.getElementById('report-form-{{ review.id }}').style.display='block'; return false;" style="color: #6c757d; text-decoration: underline; cursor: pointer;">Report</a>
+            {% if review.id in reported_review_ids %}
+                <span style="color: #999; font-style: italic;">You have already reported this review.</span>
+            {% else %}
+                <a href="#" onclick="document.getElementById('report-form-{{ review.id }}').style.display='block'; return false;" style="color: #007bff; text-decoration: underline; cursor: pointer;">Report</a>
+            {% endif %}
             </div>
             <div id="report-form-{{ review.id }}" style="display: none; margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 3px;">
-                <form method="POST" action="{{ url_for('reviews.report_review', review_id=review.id) }}">
-                    <textarea name="reason" rows="2" placeholder="Why are you reporting this review?" style="width: 100%; padding: 8px; margin-bottom: 5px;" required></textarea>
-                    <button type="submit" style="background-color: #dc3545; color: white; padding: 5px 15px; border: none; border-radius: 3px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Submit Report</button>
-                    <button type="button" onclick="document.getElementById('report-form-{{ review.id }}').style.display='none'" style="background-color: #6c757d; color: white; padding: 5px 15px; border: none; border-radius: 3px; cursor: pointer; margin-left: 5px; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Cancel</button>
+                <form method="POST" action="{{ url_for('reviews.report_review', review_id=review.id) }}" style="display: flex; flex-direction: column;">
+                    <textarea name="reason" rows="2" placeholder="Why are you reporting this review?" style="width: 100%; padding: 8px; margin-bottom: 10px;" required></textarea>
+                    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="submit" style="background-color: #dc3545; color: white; padding: 5px 15px; border: none; border-radius: 3px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Submit Report</button>
+                        <button type="button" onclick="document.getElementById('report-form-{{ review.id }}').style.display='none'" style="background-color: #6c757d; color: white; padding: 5px 15px; border: none; border-radius: 3px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Cancel</button>
+                    </div>
                 </form>
             </div>
             {% endif %}
@@ -153,7 +154,9 @@
                                 Anonymous Student (OP)
                             {% else %}
                                 {{ reply.author.email }}
-                                {% if reply.author.user_type == 'lecturer' %}
+                                {% if reply.is_admin %}
+                                    <span style="background-color: #6c757d; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; margin-left: 5px; font-weight: bold; display: inline-block;">Moderator</span>
+                                {% elif reply.author.user_type == 'lecturer' %}
                                     (Lecturer)
                                 {% elif reply.author == review.author %}
                                     (OP)
@@ -193,10 +196,12 @@
             </div>
             {% endif %}
             
-            {% if (current_user.id == lecturer.id and current_user.user_type == 'lecturer') or (current_user.user_type == 'student' and review.author == current_user) %}
-            <form method="POST" action="{{ url_for('reviews.add_reply', review_id=review.id) }}" style="margin-top: 15px; max-width: 800px; margin-left: auto; margin-right: auto;">
-                <textarea name="reply_text" rows="2" placeholder="Write a reply..." style="width: 100%; padding: 8px;" required></textarea>
-                <button type="submit" style="background-color: #007bff; color: white; padding: 8px 15px; border: none; border-radius: 3px; margin-top: 5px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Post Reply</button>
+            {% if (current_user.id == lecturer.id and current_user.user_type == 'lecturer') or (current_user.user_type == 'student' and review.author == current_user) or current_user.user_type == 'admin' %}
+            <form method="POST" action="{{ url_for('reviews.add_reply', review_id=review.id) }}" style="margin-top: 15px; max-width: 800px; margin-left: auto; margin-right: auto; display: flex; flex-direction: column;">
+                <textarea name="reply_text" rows="2" placeholder="Write a reply..." style="width: 100%; padding: 8px; margin-bottom: 10px;" required></textarea>
+                <div style="display: flex; justify-content: flex-end;">
+                    <button type="submit" style="background-color: #007bff; color: white; padding: 8px 15px; border: none; border-radius: 3px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Post Reply</button>
+                </div>
             </form>
             {% endif %}
         </div>
@@ -204,12 +209,7 @@
     {% else %}
         <p>No reviews yet.</p>
     {% endif %}
-    
-    {% if current_user.user_type == 'student' %}
-    <div style="max-width: 800px; margin-left: auto; margin-right: auto; margin-bottom: 20px;">
-    <a href="{{ url_for('reviews.create_review', lecturer_id=lecturer.id) }}" style="background-color: #007bff; color: white; padding: 8px 15px; text-decoration: none; border-radius: 3px; display: inline-block;">Write a Review</a>
-    </div>
-    {% endif %}
+
     
     <div style="max-width: 800px; margin-left: auto; margin-right: auto;">
     <a href="{{ url_for('index') }}">Back to Home</a>
@@ -240,6 +240,36 @@ button:hover, a[style*="background-color"]:hover {
 button:active, a[style*="background-color"]:active {
     filter: brightness(1.05);
 }
+
+/* Remove upvote/downvote buttons */
+button:has(😍), button:contains("👍"), button:contains("👎"),
+[style*="#28a745"][style*="👍"], [style*="#dc3545"][style*="👎"],
+.upvote-btn, .downvote-btn, .vote-btn {
+    display: none !important;
+}
 </style>
+
+<script>
+// Remove any upvote/downvote buttons that may be dynamically added
+document.addEventListener('DOMContentLoaded', function() {
+    // Remove buttons with vote emojis
+    document.querySelectorAll('button').forEach(btn => {
+        if (btn.textContent.includes('👍') || btn.textContent.includes('👎')) {
+            btn.remove();
+        }
+    });
+    
+    // Remove divs that might contain vote buttons
+    document.querySelectorAll('div').forEach(div => {
+        const text = div.textContent;
+        if ((text.includes('👍') && text.includes('0')) || (text.includes('👎') && text.includes('0'))) {
+            // Check if this is likely a vote button container
+            if (div.style.backgroundColor === 'rgb(40, 167, 69)' || div.style.backgroundColor === 'rgb(220, 53, 69)') {
+                div.remove();
+            }
+        }
+    });
+});
+</script>
 
 {% endblock %}

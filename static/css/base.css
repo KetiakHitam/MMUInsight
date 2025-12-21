@@ -299,6 +299,53 @@ button:disabled,
     width: 100%;
 }
 
+/* Admin Button Styles with Opacity Animation */
+.admin-btn {
+    background-color: var(--primary);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    display: inline-block;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.admin-btn:hover {
+    opacity: 0.8;
+    text-decoration: none;
+    color: white;
+}
+
+.admin-btn:active {
+    opacity: 0.8;
+}
+
+.admin-btn-danger {
+    background-color: var(--danger);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    display: inline-block;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.admin-btn-danger:hover {
+    opacity: 0.8;
+    text-decoration: none;
+    color: white;
+}
+
+.admin-btn-danger:active {
+    opacity: 0.8;
+}
+
 /* ============================================
    CARDS & BOXES
    ============================================ */
@@ -449,4 +496,77 @@ button:disabled,
         width: 100%;
         justify-content: center;
     }
+}
+
+/* Rating Bar */
+.rating-bar {
+    display: flex;
+    gap: 0;
+    margin: 10px 0;
+    height: 40px;
+    background-color: #e5e7eb;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.rating-segment {
+    flex: 1;
+    background-color: #e5e7eb;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-right: 1px solid #d1d5db;
+}
+
+.rating-segment:last-child {
+    border-right: none;
+}
+
+.rating-segment.active {
+    background-color: #16a34a;
+}
+
+.rating-segment.preview {
+    opacity: 0.6;
+}
+
+/* Color gradient scheme */
+.rating-segment[data-value="1"].active {
+    background-color: #ef4444;
+}
+
+.rating-segment[data-value="1"].preview {
+    background-color: #ef4444;
+}
+
+.rating-segment[data-value="2"].active {
+    background-color: #fb923c;
+}
+
+.rating-segment[data-value="2"].preview {
+    background-color: #fb923c;
+}
+
+.rating-segment[data-value="3"].active {
+    background-color: #facc15;
+}
+
+.rating-segment[data-value="3"].preview {
+    background-color: #facc15;
+}
+
+.rating-segment[data-value="4"].active {
+    background-color: #6ce163;
+}
+
+.rating-segment[data-value="4"].preview {
+    background-color: #6ce163;
+}
+
+.rating-segment[data-value="5"].active {
+    background-color: #07a922;
+}
+
+.rating-segment[data-value="5"].preview {
+    background-color: #07a922;
 }
