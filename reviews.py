@@ -66,7 +66,14 @@ def lecturer_profile(lecturer_id):
         flash("Invalid lecturer", "error")
         return redirect(url_for('index'))
     
-    reviews = Review.query.filter_by(lecturer_id=lecturer_id).all()
+    # Sort reviews: pinned first, then by date (newest first)
+    reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.review_date.desc()).all()
+    
+    # Get list of review IDs that the current user has already reported
+    reported_review_ids = []
+    if current_user.user_type == 'student':
+        reported_reports = Report.query.filter_by(reporter_id=current_user.id).all()
+        reported_review_ids = [report.review_id for report in reported_reports]
     
     if reviews:
         avg_clarity = db.session.query(func.avg(Review.rating_clarity)).filter_by(lecturer_id=lecturer_id).scalar()
@@ -90,7 +97,7 @@ def lecturer_profile(lecturer_id):
         averages = None
         recommend_percentage = None
     
-    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage)
+    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage, reported_review_ids=reported_review_ids)
 
 @reviews_bp.route('/claim_profile/<int:lecturer_id>', methods=['POST'])
 @login_required
@@ -191,8 +198,8 @@ def delete_review(review_id):
 def add_reply(review_id):
     review = Review.query.get_or_404(review_id)
     
-    if current_user.user_type not in ['student', 'lecturer']:
-        flash("Only students and lecturers can reply", "error")
+    if current_user.user_type not in ['student', 'lecturer', 'admin']:
+        flash("Only students, lecturers, and admins can reply", "error")
         return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
     
     reply_text = request.form.get('reply_text', '').strip()
@@ -204,7 +211,8 @@ def add_reply(review_id):
     reply = Reply(
         reply_text=reply_text,
         user_id=current_user.id,
-        review_id=review_id
+        review_id=review_id,
+        is_admin=(current_user.user_type == 'admin')
     )
     
     db.session.add(reply)
@@ -482,3 +490,31 @@ def lecturer_bio(lecturer_id):
     can_edit = current_user.id == lecturer_id and current_user.user_type == 'lecturer'
     
     return render_template('lecturer_bio.html', lecturer=lecturer, can_edit=can_edit)
+
+@reviews_bp.route('/review/<int:review_id>/pin', methods=['GET', 'POST'])
+@login_required
+def pin_review(review_id):
+    if current_user.user_type != 'admin':
+        flash("Only admins can pin reviews", "error")
+        return redirect(request.referrer or url_for('index'))
+    
+    review = Review.query.get_or_404(review_id)
+    review.is_pinned = True
+    db.session.commit()
+    
+    flash("Review pinned to top", "success")
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
+
+@reviews_bp.route('/review/<int:review_id>/unpin', methods=['GET', 'POST'])
+@login_required
+def unpin_review(review_id):
+    if current_user.user_type != 'admin':
+        flash("Only admins can unpin reviews", "error")
+        return redirect(request.referrer or url_for('index'))
+    
+    review = Review.query.get_or_404(review_id)
+    review.is_pinned = False
+    db.session.commit()
+    
+    flash("Review unpinned", "success")
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))

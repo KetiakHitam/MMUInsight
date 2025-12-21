@@ -102,6 +102,7 @@ def admin_delete_reported_review(report_id):
     if report:
         review = report.review
         db.session.delete(review)
+        report.status = 'deleted'
         db.session.commit()
         flash("Review deleted", "success")
     return redirect(url_for("auth.admin_reports"))

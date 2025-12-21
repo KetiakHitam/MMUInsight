@@ -39,9 +39,10 @@ class Review(db.Model):
     subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=True)
     review_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     is_anonymous = db.Column(db.Boolean, nullable=False, default=False)
+    is_pinned = db.Column(db.Boolean, nullable=False, default=False)
     
     replies = db.relationship('Reply', backref='review', lazy=True, cascade='all, delete-orphan')
-    reports = db.relationship('Report', backref='review', lazy=True, cascade='all, delete-orphan')
+    reports = db.relationship('Report', backref='review', lazy=True)
 
 class Reply(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -50,10 +51,11 @@ class Reply(db.Model):
     review_id = db.Column(db.Integer, db.ForeignKey('review.id'), nullable=False)
     reply_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     is_edited = db.Column(db.Boolean, nullable=False, default=False)
+    is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
 class Report(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    review_id = db.Column(db.Integer, db.ForeignKey('review.id'), nullable=False)
+    review_id = db.Column(db.Integer, db.ForeignKey('review.id'), nullable=True)
     reporter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     reason = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(20), nullable=False, default='pending')
