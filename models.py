@@ -7,6 +7,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     user_type = db.Column(db.String(10), nullable=False, default='student')
+    role = db.Column(db.String(10), nullable=True)
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
     is_claimed = db.Column(db.Boolean, nullable=False, default=False)
     verification_token = db.Column(db.String(100), nullable=True)
@@ -17,6 +18,43 @@ class User(UserMixin, db.Model):
     reviews_received = db.relationship('Review', foreign_keys='Review.lecturer_id', backref='lecturer', lazy=True)
     replies = db.relationship('Reply', backref='author', lazy=True)
     reports_made = db.relationship('Report', backref='reporter', lazy=True)
+    
+    def is_owner(self):
+        return self.role == 'OWNER'
+    
+    def is_admin(self):
+        return self.role in ['OWNER', 'ADMIN']
+    
+    def is_mod(self):
+        return self.role in ['OWNER', 'ADMIN', 'MOD']
+    
+    def can_manage_user(self, target_user):
+        if self.is_owner():
+            return True
+        if self.is_admin():
+            return target_user.role not in ['OWNER', 'ADMIN']
+        return False
+    
+    def can_change_role(self, target_user, new_role):
+        if self.is_owner():
+            return new_role in ['OWNER', 'ADMIN', 'MOD']
+        if self.is_admin():
+            return new_role in ['MOD'] and target_user.role not in ['OWNER', 'ADMIN']
+        return False
+    
+    def can_delete_user(self, target_user):
+        if target_user.is_owner():
+            return False
+        if target_user.is_admin() and not self.is_owner():
+            return False
+        return self.is_mod()
+    
+    def can_suspend_user(self, target_user):
+        if target_user.is_owner():
+            return False
+        if target_user.is_admin() and not self.is_owner():
+            return False
+        return self.is_mod()
 
 class Subject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
