@@ -3,36 +3,216 @@
 {% block title %}Manage Users{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h2>👥 Manage Users</h2>
+<style>
+.filter-dropdown {
+    position: relative;
+    display: inline-block;
+}
+.filter-menu {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    min-width: 180px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    z-index: 1000;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
+}
+#type-filter {
+    background-color: #f5f5f5;
+}
+#role-filter {
+    background-color: #f5f5f5;
+}
+#verified-filter {
+    background-color: #f5f5f5;
+}
+.filter-menu.show {
+    display: block;
+}
+.filter-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    background-color: #e0e0e0;
+}
+.filter-menu-title {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.85em;
+}
+.filter-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    outline: none;
+}
+.filter-close-btn:hover {
+    color: #555;
+}
+.filter-close-btn:focus {
+    outline: none;
+    color: #555;
+}
+.filter-menu a {
+    color: #333;
+    padding: 10px 16px;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+    font-size: 0.9em;
+    background-color: #fff;
+}
+.filter-menu a:hover {
+    background-color: #e8e8e8;
+}
+.filter-menu a.active {
+    background-color: #e7f3ff;
+    color: #007bff;
+    font-weight: 600;
+}
+.filter-indicator {
+    color: #007bff;
+    font-weight: bold;
+    margin-left: 4px;
+}
+</style>
+
+<div class="container" style="max-width: 1200px;">
+    <h2 style="margin-bottom: 25px;">👥 Manage Users</h2>
     
-    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+    <table id="usersTable" style="width: 100%; border-collapse: collapse;">
         <thead>
             <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                <th style="padding: 10px; text-align: left;">Email</th>
-                <th style="padding: 10px; text-align: left;">User Type</th>
-                <th style="padding: 10px; text-align: left;">Verified</th>
-                <th style="padding: 10px; text-align: center;">Actions</th>
+                <th style="padding: 12px; text-align: left; font-weight: 600; color: #333; font-size: 0.95em; cursor: pointer; user-select: none;" onclick="sortTable('email')">Email <span id="email-sort" style="margin-left: 5px; color: #999; font-size: 0.8em;"></span></th>
+                <th style="padding: 12px; text-align: left; font-weight: 600; color: #333; font-size: 0.95em; cursor: pointer; user-select: none; position: relative;" onclick="toggleFilter(event, 'type')">Account Type <span id="type-sort" style="margin-left: 5px; color: #999; font-size: 0.8em;"></span><span id="type-filter-indicator" class="filter-indicator"></span>
+                    <div id="type-filter" class="filter-menu" onclick="event.stopPropagation()">
+                        <div class="filter-menu-header">
+                            <span class="filter-menu-title">Account Type</span>
+                            <button class="filter-close-btn" onclick="closeAllFilters()">✕</button>
+                        </div>
+                        <a onclick="setFilter('type', 'all')">All</a>
+                        <a onclick="setFilter('type', 'owner')">Owner</a>
+                        <a onclick="setFilter('type', 'admin')">Admin</a>
+                        <a onclick="setFilter('type', 'lecturer')">Lecturer</a>
+                        <a onclick="setFilter('type', 'student')">Student</a>
+                    </div>
+                </th>
+                <th style="padding: 12px; text-align: left; font-weight: 600; color: #333; font-size: 0.95em; cursor: pointer; user-select: none; position: relative;" onclick="toggleFilter(event, 'role')">Role <span id="role-sort" style="margin-left: 5px; color: #999; font-size: 0.8em;"></span><span id="role-filter-indicator" class="filter-indicator"></span>
+                    <div id="role-filter" class="filter-menu" onclick="event.stopPropagation()">
+                        <div class="filter-menu-header">
+                            <span class="filter-menu-title">Role</span>
+                            <button class="filter-close-btn" onclick="closeAllFilters()">✕</button>
+                        </div>
+                        <a onclick="setFilter('role', 'all')">All</a>
+                        <a onclick="setFilter('role', 'owner')">Owner</a>
+                        <a onclick="setFilter('role', 'admin')">ADMIN</a>
+                        <a onclick="setFilter('role', 'mod')">MOD</a>
+                        <a onclick="setFilter('role', 'none')">None / —</a>
+                    </div>
+                </th>
+                <th style="padding: 12px; text-align: left; font-weight: 600; color: #333; font-size: 0.95em; cursor: pointer; user-select: none; position: relative;" onclick="toggleFilter(event, 'verified')">Verified <span id="verified-sort" style="margin-left: 5px; color: #999; font-size: 0.8em;"></span><span id="verified-filter-indicator" class="filter-indicator"></span>
+                    <div id="verified-filter" class="filter-menu" onclick="event.stopPropagation()">
+                        <div class="filter-menu-header">
+                            <span class="filter-menu-title">Verified</span>
+                            <button class="filter-close-btn" onclick="closeAllFilters()">✕</button>
+                        </div>
+                        <a onclick="setFilter('verified', 'all')">All</a>
+                        <a onclick="setFilter('verified', 'yes')">Yes</a>
+                        <a onclick="setFilter('verified', 'no')">No</a>
+                    </div>
+                </th>
+                <th style="padding: 12px; text-align: center; font-weight: 600; color: #333; font-size: 0.95em;">Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for u in users %}
-            <tr style="border-bottom: 1px solid #dee2e6;">
-                <td style="padding: 10px; vertical-align: top;">{{ u.email }}</td>
-                <td style="padding: 10px; vertical-align: top;">{{ u.user_type|capitalize }}</td>
-                <td style="padding: 10px; vertical-align: top;">{{ "Yes" if u.is_verified else "No" }}</td>
-                <td style="padding: 10px; text-align: center; vertical-align: top; white-space: nowrap;">
-                    <div style="display: flex; gap: 10px; justify-content: center; align-items: flex-start; flex-wrap: wrap;">
+            <tr data-type="{% if u.role == 'OWNER' %}owner{% else %}{{ u.user_type }}{% endif %}" data-role="{% if u.role == 'OWNER' %}owner{% elif u.role == 'ADMIN' %}admin{% elif u.role == 'MOD' %}mod{% else %}none{% endif %}" data-verified="{% if u.is_verified %}yes{% else %}no{% endif %}" style="border-bottom: 1px solid #f0f0f0; transition: background-color 0.15s ease;" onmouseover="this.style.backgroundColor='#fafafa';" onmouseout="this.style.backgroundColor='transparent';">
+                <td style="padding: 12px; vertical-align: middle;">
+                    <span style="color: #333; font-weight: 500;">{{ u.email }}</span>
+                </td>
+                <td style="padding: 12px; vertical-align: middle;">
+                    <span style="color: #666; font-size: 0.9em;">
+                        {% if u.role == 'OWNER' %}
+                        Owner
+                        {% else %}
+                        {{ u.user_type|capitalize }}
+                        {% endif %}
+                    </span>
+                </td>
+                <td style="padding: 12px; vertical-align: middle;">
+                    <span style="color: #666; font-size: 0.9em; font-weight: 600;">
+                        {% if u.role == 'OWNER' %}
+                        Owner
+                        {% elif u.role == 'ADMIN' %}
+                        ADMIN
+                        {% elif u.role == 'MOD' %}
+                        MOD
+                        {% else %}
+                        —
+                        {% endif %}
+                    </span>
+                </td>
+                <td style="padding: 12px; vertical-align: middle;">
+                    <span style="color: #666; font-size: 0.9em;">{{ "✓ Yes" if u.is_verified else "✗ No" }}</span>
+                </td>
+                <td style="padding: 12px; text-align: center; vertical-align: middle;">
+                    <div style="display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                        {% if not u.is_verified and current_user.can_manage_user(u) %}
                         <a href="/admin/user/{{ u.id }}/verify" 
-                           style="background-color: #007bff; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.9em; display: inline-block;">Verify</a>
-                        <a href="/admin/user/{{ u.id }}/make-admin" 
-                           style="background-color: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.9em; display: inline-block;">Make Admin</a>
-                        <a href="/admin/user/{{ u.id }}/remove-admin" 
-                           style="background-color: #ffc107; color: black; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.9em; display: inline-block;">Remove Admin</a>
-                        <a href="/admin/user/{{ u.id }}/suspend" 
-                           style="background-color: #fd7e14; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.9em; display: inline-block;">Suspend</a>
-                        <a href="/admin/user/{{ u.id }}/delete" 
-                           style="background-color: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.9em; display: inline-block;">Delete</a>
+                           style="background-color: #007bff; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease;" 
+                           onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Verify</a>
+                        {% endif %}
+                        
+                        {% if u.id != current_user.id and not u.is_owner() and current_user.can_manage_user(u) %}
+                            {% if u.role in ['ADMIN', 'MOD'] %}
+                            <a href="/admin/user/{{ u.id }}/remove-role" 
+                               style="background-color: #ffc107; color: black; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease;" 
+                               onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Remove Role</a>
+                            {% else %}
+                            {% if current_user.is_owner() %}
+                            <div style="display: flex; gap: 6px;">
+                                <a href="/admin/user/{{ u.id }}/make-admin" 
+                                   style="background-color: #6f42c1; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease;" 
+                                   onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Make ADMIN</a>
+                                <a href="/admin/user/{{ u.id }}/make-mod" 
+                                   style="background-color: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease;" 
+                                   onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Make MOD</a>
+                            </div>
+                            {% elif current_user.role == 'ADMIN' %}
+                            <a href="/admin/user/{{ u.id }}/make-mod" 
+                               style="background-color: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease;" 
+                               onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Make MOD</a>
+                            {% endif %}
+                            {% endif %}
+                        {% endif %}
+                        
+                        {% if u.id != current_user.id and not u.is_owner() and (current_user.can_suspend_user(u) or current_user.can_delete_user(u)) %}
+                        <div style="display: flex; gap: 6px;">
+                            {% if current_user.can_suspend_user(u) %}
+                            <a href="/admin/user/{{ u.id }}/suspend" 
+                               style="background-color: #fd7e14; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease;" 
+                               onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Suspend</a>
+                            {% endif %}
+                            {% if current_user.can_delete_user(u) %}
+                            <a href="/admin/user/{{ u.id }}/delete" 
+                               onclick="return confirm('Permanently delete this user? This cannot be undone.');"
+                               style="background-color: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease;" 
+                               onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Delete</a>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <span style="color: #999; font-size: 0.85em;">—</span>
+                        {% endif %}
                     </div>
                 </td>
             </tr>
@@ -40,7 +220,125 @@
         </tbody>
     </table>
     
-    <br>
-    <a href="{{ url_for('auth.admin_dashboard') }}" style="color: #007bff; text-decoration: none;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Back to Admin Dashboard</a>
+    <div style="margin-top: 30px;">
+        <a href="{{ url_for('auth.admin_dashboard') }}" style="color: #007bff; text-decoration: none; font-size: 0.95em;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Back to Admin Dashboard</a>
+    </div>
 </div>
+
+<script>
+let currentSort = { column: null, direction: 'asc' };
+let currentFilters = { type: null, role: null, verified: null };
+
+function toggleFilter(event, column) {
+    event.stopPropagation();
+    closeAllFilters(column);
+    const filterMenu = document.getElementById(column + '-filter');
+    filterMenu.classList.toggle('show');
+}
+
+function closeAllFilters(exceptColumn = null) {
+    ['type', 'role', 'verified'].forEach(col => {
+        if (col !== exceptColumn) {
+            const menu = document.getElementById(col + '-filter');
+            if (menu) menu.classList.remove('show');
+        }
+    });
+}
+
+function setFilter(column, value) {
+    currentFilters[column] = value === 'all' ? null : value;
+    updateFilterUI(column);
+    applyFilters();
+    closeAllFilters();
+}
+
+function updateFilterUI(column) {
+    const menu = document.getElementById(column + '-filter');
+    const links = menu.querySelectorAll('a');
+    const filterValue = currentFilters[column];
+    
+    links.forEach(link => {
+        const linkValue = link.getAttribute('onclick').match(/'([^']+)'/)[1];
+        if (filterValue === null && linkValue === 'all') {
+            link.classList.add('active');
+        } else if (filterValue === linkValue) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+    
+    const indicator = document.getElementById(column + '-filter-indicator');
+    indicator.textContent = filterValue ? ' 🔍' : '';
+}
+
+function applyFilters() {
+    const tbody = document.getElementById('usersTable').querySelector('tbody');
+    const rows = tbody.querySelectorAll('tr');
+    
+    rows.forEach(row => {
+        const typeMatch = !currentFilters.type || row.getAttribute('data-type') === currentFilters.type;
+        const roleMatch = !currentFilters.role || row.getAttribute('data-role') === currentFilters.role;
+        const verifiedMatch = !currentFilters.verified || row.getAttribute('data-verified') === currentFilters.verified;
+        
+        row.style.display = (typeMatch && roleMatch && verifiedMatch) ? '' : 'none';
+    });
+}
+
+function sortTable(column) {
+    const table = document.getElementById('usersTable');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr:not([style*="display: none"])'));
+    
+    const isAscending = currentSort.column === column && currentSort.direction === 'asc';
+    currentSort.direction = isAscending ? 'desc' : 'asc';
+    currentSort.column = column;
+    
+    const columnIndex = {
+        'email': 0,
+        'type': 1,
+        'role': 2,
+        'verified': 3
+    }[column];
+    
+    rows.sort((a, b) => {
+        let aVal = a.children[columnIndex].textContent.trim();
+        let bVal = b.children[columnIndex].textContent.trim();
+        
+        if (column === 'verified') {
+            aVal = aVal === '✓ Yes' ? 1 : 0;
+            bVal = bVal === '✓ Yes' ? 1 : 0;
+        } else if (column === 'role') {
+            const roleOrder = { 'Owner': 3, 'ADMIN': 2, 'MOD': 1, '—': 0 };
+            aVal = roleOrder[aVal] || 0;
+            bVal = roleOrder[bVal] || 0;
+        }
+        
+        if (typeof aVal === 'string') {
+            aVal = aVal.toLowerCase();
+            bVal = bVal.toLowerCase();
+        }
+        
+        return currentSort.direction === 'asc' ? 
+            (aVal > bVal ? 1 : -1) : 
+            (aVal < bVal ? 1 : -1);
+    });
+    
+    rows.forEach(row => tbody.appendChild(row));
+    
+    document.getElementById('email-sort').textContent = '';
+    document.getElementById('type-sort').textContent = '';
+    document.getElementById('role-sort').textContent = '';
+    document.getElementById('verified-sort').textContent = '';
+    
+    document.getElementById(column + '-sort').textContent = 
+        currentSort.direction === 'asc' ? '▲' : '▼';
+}
+
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('th')) {
+        closeAllFilters();
+    }
+});
+</script>
 {% endblock %}
