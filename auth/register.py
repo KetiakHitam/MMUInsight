@@ -1,5 +1,6 @@
 import uuid
 from flask import render_template, request, redirect, url_for, flash
+from flask_babel import gettext as _
 from . import auth_bp
 from extensions import db, bcrypt
 from models import User
@@ -8,7 +9,7 @@ from models import User
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
-        return render_template("register.html")
+        return render_template("register.html")  # or return "Register page"
 
     email = request.form.get("email", "").strip()
     password = request.form.get("password", "")
@@ -16,18 +17,18 @@ def register():
     user_type = request.form.get("user_type", "student")
 
     if not email or not password or not confirm_password or not user_type:
-        flash("All fields are required", "error")
+        flash(_("All fields are required"), "error")
         return redirect(url_for("auth.register"))
 
     if not (
         email.endswith("@student.mmu.edu.my")
         or email.endswith("@mmu.edu.my")
     ):
-        flash("Email must be an MMU address", "error")
+        flash(_("Email must be an MMU address"), "error")
         return redirect(url_for("auth.register"))
 
     if password != confirm_password:
-        flash("Passwords do not match", "error")
+        flash(_("Passwords do not match"), "error")
         return redirect(url_for("auth.register"))
 
     pw_hash = bcrypt.generate_password_hash(password).decode("utf-8")
@@ -43,5 +44,5 @@ def register():
     db.session.add(user)
     db.session.commit()
 
-    flash(f"Account created. Verify at: /verify/{token}", "success")
+    flash(_("Account created. Verify at: /verify/") + token, "success")
     return redirect(url_for("auth.login"))

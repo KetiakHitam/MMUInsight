@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Review{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Edit Review for {{ review.lecturer.email }}</h2>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="review_text">Review:</label>
+            <textarea id="review_text" name="review_text" rows="5" required>{{ review.review_text }}</textarea>
+        </div>
+        
+        <h3>Rate the Lecturer</h3>
+        
+        <div class="form-group">
+            <label for="rating_clarity">Clarity (1-5):</label>
+            <input type="number" id="rating_clarity" name="rating_clarity" min="1" max="5" value="{{ review.rating_clarity }}" required>
+            <small>Explains concepts clearly and understandably</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="rating_engagement">Engagement (1-5):</label>
+            <input type="number" id="rating_engagement" name="rating_engagement" min="1" max="5" value="{{ review.rating_engagement }}" required>
+            <small>Makes classes interesting and interactive</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="rating_punctuality">Punctuality (1-5):</label>
+            <input type="number" id="rating_punctuality" name="rating_punctuality" min="1" max="5" value="{{ review.rating_punctuality }}" required>
+            <small>Starts and ends classes on time</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="rating_responsiveness">Responsiveness (1-5):</label>
+            <input type="number" id="rating_responsiveness" name="rating_responsiveness" min="1" max="5" value="{{ review.rating_responsiveness }}" required>
+            <small>Replies to emails/questions promptly</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="rating_fairness">Fairness (1-5):</label>
+            <input type="number" id="rating_fairness" name="rating_fairness" min="1" max="5" value="{{ review.rating_fairness }}" required>
+            <small>Assessments match taught content</small>
+        </div>
+
+        <div class="form-group" style="margin-top: 25px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+            <label style="display: flex; align-items: center; cursor: pointer; font-size: 1.05em;">
+                <input type="checkbox" name="is_anonymous" id="is_anonymous" {% if review.is_anonymous %}checked{% endif %} style="width: 20px; height: 20px; margin-right: 10px; cursor: pointer;">
+                <span>🕶️ Post this review anonymously</span>
+            </label>
+            <small style="color: #666; display: block; margin-top: 8px; margin-left: 30px;">Your email will be hidden from other students, but you can still edit/delete the review</small>
+        </div>
+
+        <div class="form-group">
+            <label>Would you recommend this lecturer to other students?</label>
+            <div style="margin-top: 10px;">
+                <label style="display: inline-block; margin-right: 20px;">
+                    <input type="radio" name="recommend" value="yes" {% if review.recommend %}checked{% endif %} required> 👍 Yes, I would recommend
+                </label>
+                <label style="display: inline-block;">
+                    <input type="radio" name="recommend" value="no" {% if not review.recommend %}checked{% endif %} required> 👎 No, I would not recommend
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="subject_code">Subject Code & Name (Optional):</label>
+            <input type="text" id="subject_code" name="subject_code" value="{{ review.subject_code if review.subject_code else '' }}" placeholder="e.g., CMT1134 - MATHEMATICS III" maxlength="100">
+            <small>You can specify which subject/course this review is for, or leave it blank</small>
+        </div>
+
+        <button type="submit">Update Review</button>
+        <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id) }}">Cancel</a>
+    </form>
+</div>
+{% endblock %}
