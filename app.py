@@ -1,10 +1,13 @@
-from flask import Flask, get_flashed_messages
+from flask import Flask, get_flashed_messages, render_template_string, render_template, request, jsonify, session, redirect, url_for
 from flask_login import LoginManager, current_user
+from flask_babel import Babel, gettext
 import os
 
-from extensions import db, bcrypt
-from models import User
+from extensions import db, bcrypt, login_manager
+from models import User, Subject, Review
 from auth import auth_bp
+from reviews import reviews_bp
+from lecturer_search import search_lecturers_by_email
 
 app = Flask(__name__)
 
@@ -13,46 +16,67 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(BASE_DIR, 'database', 'mmuinsight.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config['BABEL_DEFAULT_LOCALE'] = 'en'
+app.config['BABEL_DEFAULT_TIMEZONE'] = 'UTC'
+app.config['LANGUAGES'] = {
+    'en': 'English',
+    'ms': 'Malay',
+    'zh': 'Chinese'
+}
+
+def get_locale():
+    if 'language' in session:
+        return session['language']
+    return request.accept_languages.best_match(app.config['LANGUAGES'].keys()) or 'en'
 
 db.init_app(app)
 bcrypt.init_app(app)
-
-login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'auth.login'
+babel = Babel(app, locale_selector=get_locale)
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
 app.register_blueprint(auth_bp)
+app.register_blueprint(reviews_bp)
 
-@app.get("/")
+@app.route("/set-language/<language>")
+def set_language(language):
+    if language in app.config['LANGUAGES']:
+        session['language'] = language
+    return redirect(request.referrer or url_for('index'))
+
+@app.route("/", methods=["GET"])
 def index():
-    messages_html = ""
-    for category, message in get_flashed_messages(with_categories=True):
-        messages_html += f'<div class="alert alert-{category}">{message}</div>'
-    
-    if current_user.is_authenticated:
-        lecturers = User.query.filter_by(user_type='lecturer').all()
-        links = ""
-        if current_user.user_type == 'student':
-            links = '<h2>Lecturers:</h2><ul>' + ''.join([f'<li><a href="/lecturer/{l.id}">{l.email}</a> | <a href="/create_review/{l.id}">Write review</a></li>' for l in lecturers]) + '</ul>'
-        
-        return f"""
-        <style>
-            .alert {{ padding: 10px; margin: 10px 0; border-radius: 4px; }}
-            .alert-error {{ background-color: #f8d7da; color: #721c24; }}
-            .alert-success {{ background-color: #d4edda; color: #155724; }}
-        </style>
-        {messages_html}
-        <h1>MMUInsight Running</h1>
-        <p>Logged in as: {current_user.email} ({current_user.user_type})</p>
-        {links}
-        <a href="/logout">Logout</a>
-        """
-    return '<a href="/login">Login</a> | <a href="/register">Register</a>'
+    return render_template('index.html')
+
+@app.route("/search", methods=["GET"])
+def search_page():
+    q = request.args.get("q", "").strip()
+    results = search_lecturers_by_email(q)
+
+    return render_template(
+        "index.html",
+        search_query=q,
+        search_results=results
+    )
+
+@app.get("/test")
+def test():
+    return "<h1>TESTING WORKS</h1>"
+
+@app.route("/login.html")
+def login():
+    return render_template('login.html')
+
+@app.route("/register.html")
+def register():
+    return render_template('register.html')
+
+@app.route("/Professor-info.html")
+def Professors():
+    return render_template('Professor-info.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
-
