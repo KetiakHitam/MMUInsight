@@ -30,13 +30,10 @@
     <br>
     <br>
     <div class="div-2">
-        <!--<h3 class="description">
-            Description is WIP. In the mean time, look at Isac sleeping his ass off before 10.
-            <img src="C:\Users\Jimha\Projects\MMUInsight\templates\Sleeping.jpg">
-        </h3>-->
     <form method="GET" action="/search">
         <p class="search-bar">Type your Professor's Name here</p>
         <input id="search-input" name="q" type="search" placeholder="Names go here..." value="{{ search_query or '' }}">
+        <input type="hidden" name="sort" value="{{ sort or 'az' }}">
         <button type="submit">Search</button>
         {% if current_user.is_authenticated %}
         <p class="Account">Logged in as: {{ current_user.email }}</p>
@@ -62,9 +59,8 @@
             <div class="Filter">
                 <button class="Filter-button">Filter</button>
                 <div class="Filter-options">
-                    <p>Template</p>
-                    <p>Template</p>
-                    <p>Template</p>
+                    <a href="{{ url_for('search_page', q=search_query or '', sort='az') }}" class="{% if sort=='az' %}active{% endif %}">A → Z</a>
+                    <a href="{{ url_for('search_page', q=search_query or '', sort='za') }}" class="{% if sort=='za' %}active{% endif %}">Z → A</a>
                 </div>
             </div>
             {% for lecturer in search_results %}

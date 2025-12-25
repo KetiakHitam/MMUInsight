@@ -252,7 +252,6 @@ button:hover{
 .Filter{
     position: relative;
     display: inline-block;
-    border: 1px solid red;
 }
 .Filter-button{
     position: fixed;
@@ -275,6 +274,8 @@ button:hover{
 .Filter:hover .Filter-button{
     background-color: blue;
 }
+.Filter-options a { display:block; padding:8px; color:black; text-decoration:none; }
+.Filter-options a.active { font-weight:bold; background:#d0e7ff; }
 /* create_review.css */
 
 h2{ 
