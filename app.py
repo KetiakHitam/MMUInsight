@@ -39,13 +39,18 @@ def index():
 @app.route("/search", methods=["GET"])
 def search_page():
     q = request.args.get("q", "").strip()
+    sort = request.args.get("sort", "az")
     results = search_lecturers_by_email(q)
+
+    # Sort results by email (case-insensitive) on the server
+    results = sorted(results, key=lambda u: u.email.lower(), reverse=(sort == "za"))
 
     return render_template(
         "index.html",
         lecturers=current_user.is_authenticated and User.query.filter_by(user_type='lecturer').all() or None,
         search_query=q,
-        search_results=results
+        search_results=results,
+        sort=sort
     )
 
 @app.get("/test")
