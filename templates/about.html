@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}About - MMUInsight{% endblock %}
+{% block title %}About Us - MMUInsight{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h2>About MMUInsight</h2>
+    <h2>About Us</h2>
     
     <h3>What is MMUInsight?</h3>
     <p>MMUInsight is a lecturer review platform designed for Multimedia University (MMU) students. It provides a space where students can share honest, constructive feedback about their academic experiences with lecturers.</p>
@@ -45,6 +45,9 @@
     <h3>Privacy and Security</h3>
     <p>Your privacy is important to us. Please review our <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a> to understand how we collect, use, and protect your information.</p>
     
-    <p style="margin-top: 30px;"><strong>Last updated: December 2024</strong></p>
+    <p style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">
+        <strong>&copy; 2025 MMUInsight. All Rights Reserved.</strong><br>
+        <strong>Last updated: December 2024</strong>
+    </p>
 </div>
 {% endblock %}
