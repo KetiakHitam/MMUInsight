@@ -13,6 +13,7 @@ class User(UserMixin, db.Model):
     verification_token = db.Column(db.String(100), nullable=True)
     reset_token = db.Column(db.String(100), nullable=True)
     bio = db.Column(db.Text, nullable=True)
+    last_online = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
 
     reviews_written = db.relationship('Review', foreign_keys='Review.user_id', backref='author', lazy=True)
     reviews_received = db.relationship('Review', foreign_keys='Review.lecturer_id', backref='lecturer', lazy=True)
