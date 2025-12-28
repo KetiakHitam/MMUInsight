@@ -174,9 +174,14 @@
                 </div>
             </div>
             
+<<<<<<< HEAD
             <div style="margin-bottom: 18px; padding: 15px; background-color: #fafafa; border-radius: 3px;">
                 <p style="color: #333; font-size: 1.05em; line-height: 1.7; margin: 0;">{{ review.review_text }}</p>
             </div>
+            
+            {% if review.subject_code %}
+            <p style="margin-bottom: 12px;"><strong>Subject:</strong> <span style="background-color: #e7f3ff; padding: 4px 10px; border-radius: 3px; font-size: 0.95em;">{{ review.subject_code }}</span></p>
+            {% endif %}
             
             <div style="margin-bottom: 15px;">
                 <p style="color: #000; font-size: 0.95em; font-weight: 600; margin: 0 0 8px 0;">Ratings:</p>
@@ -298,6 +303,7 @@
             </div>
             {% endif %}
             
+<<<<<<< HEAD
             {% if (current_user.id == lecturer.id and current_user.user_type == 'lecturer') or (current_user.user_type == 'student' and review.author == current_user) or current_user.user_type == 'admin' %}
             <div style="margin-top: 18px; padding-top: 15px; border-top: 1px solid #f0f0f0; background-color: #fafafa; padding: 15px; border-radius: 4px; margin-left: -25px; margin-right: -25px; margin-bottom: -25px; padding-left: 25px; padding-right: 25px; padding-bottom: 25px;">
                 <form method="POST" action="{{ url_for('reviews.add_reply', review_id=review.id) }}" style="display: flex; flex-direction: column; gap: 10px;">
@@ -307,6 +313,13 @@
                     </div>
                 </form>
             </div>
+=======
+            {% if current_user.user_type in ['student', 'lecturer'] %}
+            <form method="POST" action="{{ url_for('reviews.add_reply', review_id=review.id) }}" style="margin-top: 15px;">
+                <textarea name="reply_text" rows="2" placeholder="Write a reply..." style="width: 100%; padding: 8px;" required></textarea>
+                <button type="submit" style="background-color: #007bff; color: white; padding: 8px 15px; border: none; border-radius: 3px; margin-top: 5px; cursor: pointer;">Post Reply</button>
+            </form>
+>>>>>>> 101acc4ec3453d8118fb3f81366839d7458348f1
             {% endif %}
         </div>
         {% endfor %}
@@ -331,6 +344,7 @@ function hideEditForm(replyId) {
     document.getElementById('reply-edit-' + replyId).style.display = 'none';
 }
 </script>
+<<<<<<< HEAD
 
 <style>
 button, a[style*="background-color"] {
@@ -377,3 +391,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 {% endblock %}
+=======
+{% endblock %}
+>>>>>>> 101acc4ec3453d8118fb3f81366839d7458348f1
