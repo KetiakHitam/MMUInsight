@@ -1,6 +1,7 @@
 from flask import Flask, get_flashed_messages, render_template_string, render_template, request, jsonify, session, redirect, url_for
 from flask_login import LoginManager, current_user
 from flask_babel import Babel, gettext
+from datetime import datetime
 import os
 
 from extensions import db, bcrypt, login_manager
@@ -37,6 +38,12 @@ babel = Babel(app, locale_selector=get_locale)
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+@app.before_request
+def update_last_online():
+    if current_user.is_authenticated:
+        current_user.last_online = datetime.utcnow()
+        db.session.commit()
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(reviews_bp)

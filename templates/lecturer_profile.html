@@ -12,6 +12,19 @@
         {% endif %}
     </h2>
     <p style="text-align: left;">Lecturer Profile</p>
+    {% if lecturer.last_online %}
+    <p style="text-align: left; color: #666; font-size: 0.9em;">Last online: 
+        {% if (now - lecturer.last_online).total_seconds() < 60 %}
+            Just now
+        {% elif (now - lecturer.last_online).total_seconds() < 3600 %}
+            {{ ((now - lecturer.last_online).total_seconds() / 60) | int }} minutes ago
+        {% elif (now - lecturer.last_online).total_seconds() < 86400 %}
+            {{ ((now - lecturer.last_online).total_seconds() / 3600) | int }} hours ago
+        {% else %}
+            {{ lecturer.last_online.strftime('%b %d, %Y') }}
+        {% endif %}
+    </p>
+    {% endif %}
     </div>
     
     {% if current_user.is_authenticated and current_user.user_type == 'lecturer' and not lecturer.is_claimed and not current_user.is_claimed %}
@@ -170,7 +183,15 @@
                     </div>
                 </div>
                 <div style="color: #999; font-size: 0.9em;">
-                    {{ review.review_date.strftime('%b ') }}{% set day = review.review_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ review.review_date.strftime(', %Y') }}
+                    {% if (now - review.review_date).total_seconds() < 60 %}
+                        Just now
+                    {% elif (now - review.review_date).total_seconds() < 3600 %}
+                        {{ ((now - review.review_date).total_seconds() / 60) | int }} minutes ago
+                    {% elif (now - review.review_date).total_seconds() < 86400 %}
+                        {{ ((now - review.review_date).total_seconds() / 3600) | int }} hours ago
+                    {% else %}
+                        {{ review.review_date.strftime('%b ') }}{% set day = review.review_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ review.review_date.strftime(', %Y at %I:%M %p') }}
+                    {% endif %}
                 </div>
             </div>
             
@@ -268,10 +289,18 @@
                             {% endif %}
                         </p>
                         <p style="font-size: 0.85em; color: #999; margin: 0; text-align: right;">
-                            {{ reply.reply_date.strftime('%b ') }}{% set day = reply.reply_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ reply.reply_date.strftime(', %Y') }}
-                            {% if reply.is_edited %}
-                            <span style="font-style: italic; margin-left: 5px;">(edited)</span>
-                            {% endif %}
+                           {% if (now - reply.reply_date).total_seconds() < 60 %}
+                               Just now
+                           {% elif (now - reply.reply_date).total_seconds() < 3600 %}
+                               {{ ((now - reply.reply_date).total_seconds() / 60) | int }} minutes ago
+                           {% elif (now - reply.reply_date).total_seconds() < 86400 %}
+                               {{ ((now - reply.reply_date).total_seconds() / 3600) | int }} hours ago
+                           {% else %}
+                               {{ reply.reply_date.strftime('%b ') }}{% set day = reply.reply_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ reply.reply_date.strftime(', %Y at %I:%M %p') }}
+                           {% endif %}
+                           {% if reply.is_edited %}
+                           <span style="font-style: italic; margin-left: 5px;">(edited)</span>
+                           {% endif %}
                         </p>
                     </div>
                     
