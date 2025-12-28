@@ -20,6 +20,11 @@ def create_review(lecturer_id):
         flash(_("Invalid lecturer"), "error")
         return redirect(url_for('index'))
     
+    existing_review = Review.query.filter_by(user_id=current_user.id, lecturer_id=lecturer_id).first()
+    if existing_review:
+        flash("You have already written a review for this lecturer. You can only write one review per lecturer.", "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+    
     if request.method == 'GET':
         return render_template('create_review.html', lecturer=lecturer)
     
@@ -69,7 +74,23 @@ def lecturer_profile(lecturer_id):
         flash(_("Invalid lecturer"), "error")
         return redirect(url_for('index'))
     
-    reviews = Review.query.filter_by(lecturer_id=lecturer_id).all()
+    reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.review_date.desc()).all()
+    
+    user_review = None
+    student_has_review = False
+    if current_user.user_type == 'student':
+        user_review = Review.query.filter_by(user_id=current_user.id, lecturer_id=lecturer_id).first()
+        student_has_review = user_review is not None
+    
+    if user_review and user_review in reviews:
+        reviews.remove(user_review)
+        pinned_count = sum(1 for r in reviews if r.is_pinned)
+        reviews.insert(pinned_count, user_review)
+    
+    reported_review_ids = []
+    if current_user.user_type == 'student':
+        reported_reports = Report.query.filter_by(reporter_id=current_user.id).all()
+        reported_review_ids = [report.review_id for report in reported_reports]
     
     if reviews:
         avg_clarity = db.session.query(func.avg(Review.rating_clarity)).filter_by(lecturer_id=lecturer_id).scalar()
@@ -86,14 +107,13 @@ def lecturer_profile(lecturer_id):
             'fairness': round(avg_fairness, 1) if avg_fairness else 0,
         }
         
-        # Calculate recommendation percentage
         recommend_count = Review.query.filter_by(lecturer_id=lecturer_id, recommend=True).count()
         recommend_percentage = round((recommend_count / len(reviews)) * 100) if reviews else None
     else:
         averages = None
         recommend_percentage = None
     
-    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage)
+    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage, reported_review_ids=reported_review_ids, student_has_review=student_has_review, user_review_id=user_review.id if user_review else None)
 
 @reviews_bp.route('/claim_profile/<int:lecturer_id>', methods=['POST'])
 @login_required
@@ -196,8 +216,13 @@ def delete_review(review_id):
 def add_reply(review_id):
     review = Review.query.get_or_404(review_id)
     
+<<<<<<< HEAD
+    if current_user.user_type not in ['student', 'lecturer'] and not current_user.is_mod():
+        flash("Only students, lecturers, and admins can reply", "error")
+=======
     if current_user.user_type not in ['student', 'lecturer']:
         flash(_("Only students and lecturers can reply"), "error")
+>>>>>>> 101acc4ec3453d8118fb3f81366839d7458348f1
         return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
     
     reply_text = request.form.get('reply_text', '').strip()
@@ -209,7 +234,8 @@ def add_reply(review_id):
     reply = Reply(
         reply_text=reply_text,
         user_id=current_user.id,
-        review_id=review_id
+        review_id=review_id,
+        is_admin=current_user.is_mod()
     )
     
     db.session.add(reply)
@@ -255,8 +281,13 @@ def report_review(review_id):
 def analytics(lecturer_id):
     lecturer = User.query.get_or_404(lecturer_id)
     
+<<<<<<< HEAD
+    if current_user.id != lecturer_id and not current_user.is_admin():
+        flash("You don't have permission to view this analytics page", "error")
+=======
     if current_user.id != lecturer_id and current_user.user_type != 'admin':
         flash(_("You don't have permission to view this analytics page"), "error")
+>>>>>>> 101acc4ec3453d8118fb3f81366839d7458348f1
         return redirect(url_for('index'))
     
     if lecturer.user_type != 'lecturer':
@@ -291,7 +322,7 @@ def analytics(lecturer_id):
         strongest = None
         weakest = None
     
-    if current_user.user_type == 'admin':
+    if current_user.is_admin():
         all_lecturers = User.query.filter_by(user_type='lecturer').all()
         lecturer_stats = []
         
@@ -479,3 +510,31 @@ def lecturer_bio(lecturer_id):
     can_edit = current_user.id == lecturer_id and current_user.user_type == 'lecturer'
     
     return render_template('lecturer_bio.html', lecturer=lecturer, can_edit=can_edit)
+
+@reviews_bp.route('/review/<int:review_id>/pin', methods=['GET', 'POST'])
+@login_required
+def pin_review(review_id):
+    if not current_user.is_mod():
+        flash("Only admins can pin reviews", "error")
+        return redirect(request.referrer or url_for('index'))
+    
+    review = Review.query.get_or_404(review_id)
+    review.is_pinned = True
+    db.session.commit()
+    
+    flash("Review pinned to top", "success")
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
+
+@reviews_bp.route('/review/<int:review_id>/unpin', methods=['GET', 'POST'])
+@login_required
+def unpin_review(review_id):
+    if not current_user.is_mod():
+        flash("Only admins can unpin reviews", "error")
+        return redirect(request.referrer or url_for('index'))
+    
+    review = Review.query.get_or_404(review_id)
+    review.is_pinned = False
+    db.session.commit()
+    
+    flash("Review unpinned", "success")
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))

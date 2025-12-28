@@ -9,21 +9,21 @@ from models import User
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
-        return render_template("register.html")  # or return "Register page"
+        return render_template("register.html") 
 
     email = request.form.get("email", "").strip()
     password = request.form.get("password", "")
     confirm_password = request.form.get("confirm_password", "")
-    user_type = request.form.get("user_type", "student")
 
-    if not email or not password or not confirm_password or not user_type:
+    if not email or not password or not confirm_password:
         flash(_("All fields are required"), "error")
         return redirect(url_for("auth.register"))
 
-    if not (
-        email.endswith("@student.mmu.edu.my")
-        or email.endswith("@mmu.edu.my")
-    ):
+    if email.endswith("@student.mmu.edu.my"):
+        user_type = "student"
+    elif email.endswith("@mmu.edu.my"):
+        user_type = "lecturer"
+    else:
         flash(_("Email must be an MMU address"), "error")
         return redirect(url_for("auth.register"))
 
