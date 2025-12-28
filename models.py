@@ -58,7 +58,7 @@ class User(UserMixin, db.Model):
 
 class Subject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    subject_code = db.Column(db.String(20), unique=True, nullable=False)
+    subject_code = db.Column(db.String(100), nullable=True)
     subject_name = db.Column(db.String(100), nullable=False)
 
     reviews = db.relationship('Review', backref='subject', lazy=True)
@@ -78,6 +78,7 @@ class Review(db.Model):
     review_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     is_anonymous = db.Column(db.Boolean, nullable=False, default=False)
     is_pinned = db.Column(db.Boolean, nullable=False, default=False)
+    subject_code = db.Column(db.String(100), nullable=True)
     
     replies = db.relationship('Reply', backref='review', lazy=True, cascade='all, delete-orphan')
     reports = db.relationship('Report', backref='review', lazy=True)
