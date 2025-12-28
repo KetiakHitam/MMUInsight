@@ -168,6 +168,28 @@
             margin-bottom: 6px;
             line-height: 1.5;
         }
+        
+        footer {
+            background-color: #1a1a1a;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+            border-top: 1px solid #333;
+        }
+        
+        footer a {
+            color: #bbbbbb;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.95em;
+            transition: color 0.2s;
+        }
+        
+        footer a:hover {
+            color: white;
+            text-decoration: underline;
+        }
     </style>
 </head>
 
@@ -203,6 +225,12 @@
     {% endwith %}
     
     {% block content %}{% endblock %}
+    
+    <footer>
+        <a href="{{ url_for('terms_of_service') }}">Terms of Service</a>
+        <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>
+        <a href="{{ url_for('about') }}">About</a>
+    </footer>
 </body>
 
 </html>
