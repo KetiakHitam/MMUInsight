@@ -245,7 +245,6 @@ button:hover{
     float: left;
 }
 .search-results{
-    border:1px solid red;
     margin: auto;
     width: 60%;
 }
@@ -294,4 +293,11 @@ h2{
     text-decoration: none;
     float: right;
  }
+}
+/* fuzzy search hint */
+.did-mean {
+    font-weight: bold;
+    text-align: center;
+    margin-top: 8px;
+    color: #333;
 }

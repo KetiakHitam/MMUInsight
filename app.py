@@ -1,4 +1,4 @@
-from flask import Flask, get_flashed_messages, render_template_string, render_template, request, jsonify
+from flask import Flask, get_flashed_messages, render_template_string, render_template, request
 from flask_login import LoginManager, current_user
 import os
 
@@ -40,18 +40,35 @@ def index():
 def search_page():
     q = request.args.get("q", "").strip()
     sort = request.args.get("sort", "az")
-    results = search_lecturers_by_email(q)
+    matches = search_lecturers_by_email(q)  # list of (User, score)
 
-    # Sort results by email (case-insensitive) on the server
-    results = sorted(results, key=lambda u: u.email.lower(), reverse=(sort == "za"))
+    # determine results list and whether this was a fuzzy match (no exact 100% match)
+    if sort in ("az", "za"):
+        results = sorted([u for u, s in matches], key=lambda u: u.email.lower(), reverse=(sort == "za"))
+    else:
+        # default: sort by relevance score descending
+        results = [u for u, s in sorted(matches, key=lambda x: x[1], reverse=True)]
+
+    # Determine fuzzy: if any returned lecturer email exactly matches the query (case-insensitive),
+    # treat it as a non-fuzzy exact match. Otherwise, consider it fuzzy when the best score < 100.
+    fuzzy = False
+    if matches:
+        if any(u.email.lower() == q.lower() for u, s in matches):
+            fuzzy = False
+        else:
+            best_score = max(s for u, s in matches)
+            fuzzy = best_score < 100
 
     return render_template(
         "index.html",
         lecturers=current_user.is_authenticated and User.query.filter_by(user_type='lecturer').all() or None,
         search_query=q,
         search_results=results,
-        sort=sort
+        sort=sort,
+        fuzzy=fuzzy
     )
+
+
 
 @app.get("/test")
 def test():
