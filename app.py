@@ -1,4 +1,4 @@
-from flask import Flask, get_flashed_messages, render_template_string, render_template, request
+from flask import Flask, get_flashed_messages, render_template_string, render_template, request, jsonify
 from flask_login import LoginManager, current_user
 import os
 
@@ -49,15 +49,8 @@ def search_page():
         # default: sort by relevance score descending
         results = [u for u, s in sorted(matches, key=lambda x: x[1], reverse=True)]
 
-    # Determine fuzzy: if any returned lecturer email exactly matches the query (case-insensitive),
-    # treat it as a non-fuzzy exact match. Otherwise, consider it fuzzy when the best score < 100.
-    fuzzy = False
-    if matches:
-        if any(u.email.lower() == q.lower() for u, s in matches):
-            fuzzy = False
-        else:
-            best_score = max(s for u, s in matches)
-            fuzzy = best_score < 100
+    best_score = max([s for u, s in matches]) if matches else None
+    fuzzy = bool(matches and best_score < 100)
 
     return render_template(
         "index.html",
