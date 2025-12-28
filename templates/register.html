@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,28 +9,44 @@
 <body>
     <div>
     <h1>Register</h1>
+=======
+{% extends 'base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Register</h2>
+>>>>>>> 358feec7b630d68773468add0923a3fcf54d0b37
 
     <form method="POST" action="/register">
-        <label>Email:</label>
-        <input class="email-input" type="email" name="email" required><br><br>
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" name="email" required>
+        </div>
 
-        <label>Password:</label>
-        <input type="password" name="password" required><br><br>
-        <label class="Confirm-password">Confirm Password:</label>
-        <input type="password" name="confirm_password" required><br><br>
+        <div class="form-group">
+            <label>Password:</label>
+            <input type="password" name="password" required>
+        </div>
 
-        <label class="User-type">User Type:</label><br>
-        <select name="user_type" required>
-            <option value="student">Student</option>
-            <option value="lecturer">Lecturer</option>
-        </select>
-        <button class="register-button" type="submit">Register</button>
-        <br>
-        <br>
-        <br>
-        <p class="Warning">PLEASE DON'T USE YOUR REAL MMU PASSWORD!</p>
-        <p class="Login">Already registered? <a href="login.html">Login</a> now</p>
+        <div class="form-group">
+            <label>Confirm Password:</label>
+            <input type="password" name="confirm_password" required>
+        </div>
+
+        <div class="form-group">
+            <label>User Type:</label>
+            <select name="user_type" required>
+                <option value="student">Student</option>
+                <option value="lecturer">Lecturer</option>
+            </select>
+        </div>
+
+        <button type="submit">Register</button>
+        <br><br>
+        <p style="color: #dc3545; font-weight: bold;">⚠️ PLEASE DON'T USE YOUR REAL MMU PASSWORD!</p>
+        <a href="{{ url_for('auth.login') }}">Already have an account? Login</a>
     </form>
-    </div>
-</body>
-</html>
+</div>
+{% endblock %}
