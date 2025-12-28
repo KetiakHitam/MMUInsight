@@ -174,9 +174,8 @@
                 </div>
             </div>
             
-<<<<<<< HEAD
             <div style="margin-bottom: 18px; padding: 15px; background-color: #fafafa; border-radius: 3px;">
-                <p style="color: #333; font-size: 1.05em; line-height: 1.7; margin: 0;">{{ review.review_text }}</p>
+            <p style="color: #333; font-size: 1.05em; line-height: 1.7; margin: 0;">{{ review.review_text }}</p>
             </div>
             
             {% if review.subject_code %}
@@ -184,20 +183,20 @@
             {% endif %}
             
             <div style="margin-bottom: 15px;">
-                <p style="color: #000; font-size: 0.95em; font-weight: 600; margin: 0 0 8px 0;">Ratings:</p>
-                <div style="font-size: 0.9em; line-height: 1.4;">
-                    <div style="color: #555; margin: 2px 0;">Clarity: <strong>{{ review.rating_clarity }}/5</strong></div>
-                    <div style="color: #555; margin: 2px 0;">Engagement: <strong>{{ review.rating_engagement }}/5</strong></div>
-                    <div style="color: #555; margin: 2px 0;">Punctuality: <strong>{{ review.rating_punctuality }}/5</strong></div>
-                    <div style="color: #555; margin: 2px 0;">Responsiveness: <strong>{{ review.rating_responsiveness }}/5</strong></div>
-                    <div style="color: #555; margin: 2px 0;">Fairness: <strong>{{ review.rating_fairness }}/5</strong></div>
-                </div>
+            <p style="color: #000; font-size: 0.95em; font-weight: 600; margin: 0 0 8px 0;">Ratings:</p>
+            <div style="font-size: 0.9em; line-height: 1.4;">
+            <div style="color: #555; margin: 2px 0;">Clarity: <strong>{{ review.rating_clarity }}/5</strong></div>
+            <div style="color: #555; margin: 2px 0;">Engagement: <strong>{{ review.rating_engagement }}/5</strong></div>
+            <div style="color: #555; margin: 2px 0;">Punctuality: <strong>{{ review.rating_punctuality }}/5</strong></div>
+            <div style="color: #555; margin: 2px 0;">Responsiveness: <strong>{{ review.rating_responsiveness }}/5</strong></div>
+            <div style="color: #555; margin: 2px 0;">Fairness: <strong>{{ review.rating_fairness }}/5</strong></div>
+            </div>
             </div>
 
             <div style="display: inline-block; padding: 6px 14px; border-radius: 4px; background-color: {% if review.recommend %}#d4edda{% else %}#f8d7da{% endif %}; margin-bottom: 18px;">
-                <span style="color: {% if review.recommend %}#155724{% else %}#721c24{% endif %}; font-weight: 600; font-size: 0.95em;">
-                    {% if review.recommend %}✓ Recommended{% else %}✗ Not Recommended{% endif %}
-                </span>
+            <span style="color: {% if review.recommend %}#155724{% else %}#721c24{% endif %}; font-weight: 600; font-size: 0.95em;">
+            {% if review.recommend %}✓ Recommended{% else %}✗ Not Recommended{% endif %}
+            </span>
             </div>
             
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 20px; padding-top: 12px; border-top: 1px solid #f0f0f0;">
@@ -248,11 +247,11 @@
                 {% for reply in review.replies %}
                 <div id="reply-{{ reply.id }}" style="margin-bottom: 15px; margin-left: 15px; padding: 12px; background-color: #f8f9fa; border-radius: 3px; position: relative; border: 1px solid #e9ecef;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                        <p style="margin: 0; font-weight: 600; color: #333; font-size: 0.95em;">
+                        <p style="margin: 0; font-weight: 600; font-size: 0.95em;">
                             {% if reply.author == review.author and review.is_anonymous and not current_user.is_admin() %}
-                                Anonymous Student (OP)
+                                <span style="color: #d32f2f;">Anonymous Student (OP)</span>
                             {% else %}
-                                {{ reply.author.email }}
+                                <span style="color: {% if reply.author.user_type == 'lecturer' %}#0056b3{% elif reply.author == review.author %}#d32f2f{% else %}#333{% endif %};">{{ reply.author.email }}</span>
                                 {% if reply.is_admin and reply.author.role != 'OWNER' %}
                                     {% if reply.author.role == 'ADMIN' %}
                                     <span style="color: #6f42c1; font-weight: bold; font-size: 0.85em; margin-left: 5px; display: inline-block;">ADMIN</span>
@@ -303,23 +302,15 @@
             </div>
             {% endif %}
             
-<<<<<<< HEAD
-            {% if (current_user.id == lecturer.id and current_user.user_type == 'lecturer') or (current_user.user_type == 'student' and review.author == current_user) or current_user.user_type == 'admin' %}
-            <div style="margin-top: 18px; padding-top: 15px; border-top: 1px solid #f0f0f0; background-color: #fafafa; padding: 15px; border-radius: 4px; margin-left: -25px; margin-right: -25px; margin-bottom: -25px; padding-left: 25px; padding-right: 25px; padding-bottom: 25px;">
-                <form method="POST" action="{{ url_for('reviews.add_reply', review_id=review.id) }}" style="display: flex; flex-direction: column; gap: 10px;">
-                    <textarea name="reply_text" rows="3" placeholder="Write a reply..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 0.95em;" required></textarea>
-                    <div style="display: flex; justify-content: flex-end;">
-                        <button type="submit" style="background-color: #007bff; color: white; padding: 8px 16px; border: none; border-radius: 3px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important; font-size: 0.9em;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Post Reply</button>
-                    </div>
-                </form>
-            </div>
-=======
             {% if current_user.user_type in ['student', 'lecturer'] %}
-            <form method="POST" action="{{ url_for('reviews.add_reply', review_id=review.id) }}" style="margin-top: 15px;">
-                <textarea name="reply_text" rows="2" placeholder="Write a reply..." style="width: 100%; padding: 8px;" required></textarea>
-                <button type="submit" style="background-color: #007bff; color: white; padding: 8px 15px; border: none; border-radius: 3px; margin-top: 5px; cursor: pointer;">Post Reply</button>
+            <div style="margin-top: 18px; padding-top: 15px; border-top: 1px solid #f0f0f0; background-color: #fafafa; padding: 15px; border-radius: 4px; margin-left: -25px; margin-right: -25px; margin-bottom: -25px; padding-left: 25px; padding-right: 25px; padding-bottom: 25px;">
+            <form method="POST" action="{{ url_for('reviews.add_reply', review_id=review.id) }}" style="display: flex; flex-direction: column; gap: 10px;">
+            <textarea name="reply_text" rows="3" placeholder="Write a reply..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 0.95em;" required></textarea>
+            <div style="display: flex; justify-content: flex-end;">
+            <button type="submit" style="background-color: #007bff; color: white; padding: 8px 16px; border: none; border-radius: 3px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important; font-size: 0.9em;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Post Reply</button>
+            </div>
             </form>
->>>>>>> 101acc4ec3453d8118fb3f81366839d7458348f1
+            </div>
             {% endif %}
         </div>
         {% endfor %}
@@ -344,53 +335,5 @@ function hideEditForm(replyId) {
     document.getElementById('reply-edit-' + replyId).style.display = 'none';
 }
 </script>
-<<<<<<< HEAD
-
-<style>
-button, a[style*="background-color"] {
-    transition: filter 0.2s ease;
-}
-
-button:hover, a[style*="background-color"]:hover {
-    filter: brightness(1.1);
-}
-
-button:active, a[style*="background-color"]:active {
-    filter: brightness(1.05);
-}
-
-/* Remove upvote/downvote buttons */
-button:has(😍), button:contains("👍"), button:contains("👎"),
-[style*="#28a745"][style*="👍"], [style*="#dc3545"][style*="👎"],
-.upvote-btn, .downvote-btn, .vote-btn {
-    display: none !important;
-}
-</style>
-
-<script>
-// Remove any upvote/downvote buttons that may be dynamically added
-document.addEventListener('DOMContentLoaded', function() {
-    // Remove buttons with vote emojis
-    document.querySelectorAll('button').forEach(btn => {
-        if (btn.textContent.includes('👍') || btn.textContent.includes('👎')) {
-            btn.remove();
-        }
-    });
-    
-    // Remove divs that might contain vote buttons
-    document.querySelectorAll('div').forEach(div => {
-        const text = div.textContent;
-        if ((text.includes('👍') && text.includes('0')) || (text.includes('👎') && text.includes('0'))) {
-            // Check if this is likely a vote button container
-            if (div.style.backgroundColor === 'rgb(40, 167, 69)' || div.style.backgroundColor === 'rgb(220, 53, 69)') {
-                div.remove();
-            }
-        }
-    });
-});
-</script>
 
 {% endblock %}
-=======
-{% endblock %}
->>>>>>> 101acc4ec3453d8118fb3f81366839d7458348f1
