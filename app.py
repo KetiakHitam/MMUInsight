@@ -78,5 +78,17 @@ def register():
 def Professors():
     return render_template('Professor-info.html')
 
+@app.route("/terms-of-service")
+def terms_of_service():
+    return render_template('terms_of_service.html')
+
+@app.route("/privacy-policy")
+def privacy_policy():
+    return render_template('privacy_policy.html')
+
+@app.route("/about")
+def about():
+    return render_template('about.html')
+
 if __name__ == "__main__":
     app.run(debug=True)
