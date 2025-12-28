@@ -216,13 +216,8 @@ def delete_review(review_id):
 def add_reply(review_id):
     review = Review.query.get_or_404(review_id)
     
-<<<<<<< HEAD
-    if current_user.user_type not in ['student', 'lecturer'] and not current_user.is_mod():
-        flash("Only students, lecturers, and admins can reply", "error")
-=======
     if current_user.user_type not in ['student', 'lecturer']:
         flash(_("Only students and lecturers can reply"), "error")
->>>>>>> 101acc4ec3453d8118fb3f81366839d7458348f1
         return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
     
     reply_text = request.form.get('reply_text', '').strip()
@@ -281,13 +276,8 @@ def report_review(review_id):
 def analytics(lecturer_id):
     lecturer = User.query.get_or_404(lecturer_id)
     
-<<<<<<< HEAD
-    if current_user.id != lecturer_id and not current_user.is_admin():
-        flash("You don't have permission to view this analytics page", "error")
-=======
     if current_user.id != lecturer_id and current_user.user_type != 'admin':
         flash(_("You don't have permission to view this analytics page"), "error")
->>>>>>> 101acc4ec3453d8118fb3f81366839d7458348f1
         return redirect(url_for('index'))
     
     if lecturer.user_type != 'lecturer':
