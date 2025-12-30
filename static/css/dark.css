@@ -1,0 +1,148 @@
+/* Dark Mode Styles */
+
+body.dark-mode {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+body.dark-mode .navbar {
+    background-color: #121212;
+    border-bottom: 1px solid #333;
+}
+
+body.dark-mode .navbar a {
+    color: #e0e0e0;
+}
+
+body.dark-mode .navbar a:hover {
+    background-color: #2a2a2a;
+}
+
+body.dark-mode .navbar .admin-link {
+    background-color: #8b3a3a;
+}
+
+body.dark-mode .navbar .admin-link:hover {
+    background-color: #a84545;
+}
+
+body.dark-mode .language-switcher a {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .language-switcher a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-mode .container {
+    background-color: #2a2a2a;
+    border-radius: 6px;
+    padding: 25px;
+}
+
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+    background-color: #3a3a3a;
+    color: #e0e0e0;
+    border: 1px solid #555;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: #999;
+}
+
+body.dark-mode button {
+    background-color: #1f5a8f;
+}
+
+body.dark-mode button:hover {
+    background-color: #2a7bb9;
+}
+
+body.dark-mode label {
+    color: #e0e0e0;
+}
+
+body.dark-mode .alert {
+    color: #e0e0e0;
+}
+
+body.dark-mode .alert-error {
+    background-color: #4a2a2a;
+    color: #ff9999;
+    border: 1px solid #664444;
+}
+
+body.dark-mode .alert-success {
+    background-color: #2a4a2a;
+    color: #99ff99;
+    border: 1px solid #446644;
+}
+
+body.dark-mode a {
+    color: #64b5f6;
+}
+
+body.dark-mode a:hover {
+    color: #90caf9;
+}
+
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+    color: #e0e0e0;
+}
+
+body.dark-mode footer {
+    background-color: #0a0a0a;
+    border-top: 1px solid #333;
+}
+
+body.dark-mode footer a {
+    color: #888;
+}
+
+body.dark-mode footer a:hover {
+    color: #bbb;
+}
+
+body.dark-mode .review-card {
+    background-color: #3a3a3a;
+    border: 1px solid #555;
+}
+
+body.dark-mode .review-text {
+    color: #e0e0e0;
+}
+
+body.dark-mode .rating-box {
+    background-color: #2a2a2a;
+    border: 1px solid #555;
+}
+
+body.dark-mode .reply {
+    background-color: #3a3a3a;
+    border-left: 3px solid #1f5a8f;
+}
+
+body.dark-mode .reply-author {
+    color: #64b5f6;
+}
+
+body.dark-mode table {
+    color: #e0e0e0;
+    border-color: #555;
+}
+
+body.dark-mode tr:hover {
+    background-color: #3a3a3a;
+}
+
+body.dark-mode .badge {
+    background-color: #1f5a8f;
+    color: white;
+}
