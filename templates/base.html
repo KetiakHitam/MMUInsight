@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MMUInsight{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark.css') }}">
     
     <style>
         * {
@@ -200,7 +201,7 @@
     </style>
 </head>
 
-<body>
+<body{% if session.get('theme') == 'dark' %} class="dark-mode"{% endif %}>
     {% if current_user.is_authenticated %}
     <nav class="navbar">
         <div class="navbar-left">
