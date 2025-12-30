@@ -276,7 +276,7 @@ def report_review(review_id):
 def analytics(lecturer_id):
     lecturer = User.query.get_or_404(lecturer_id)
     
-    if current_user.id != lecturer_id and current_user.user_type != 'admin':
+    if current_user.id != lecturer_id and not current_user.is_admin():
         flash(_("You don't have permission to view this analytics page"), "error")
         return redirect(url_for('index'))
     
