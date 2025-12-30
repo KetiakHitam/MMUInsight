@@ -45,6 +45,13 @@ def update_last_online():
         current_user.last_online = datetime.utcnow()
         db.session.commit()
 
+@app.before_request
+def load_theme():
+    if current_user.is_authenticated:
+        session['theme'] = 'dark' if current_user.dark_mode else 'light'
+    elif 'theme' not in session:
+        session['theme'] = 'light'
+
 app.register_blueprint(auth_bp)
 app.register_blueprint(reviews_bp)
 
@@ -52,6 +59,15 @@ app.register_blueprint(reviews_bp)
 def set_language(language):
     if language in app.config['LANGUAGES']:
         session['language'] = language
+    return redirect(request.referrer or url_for('index'))
+
+@app.route("/set-theme/<theme>")
+def set_theme(theme):
+    if theme in ['light', 'dark']:
+        session['theme'] = theme
+        if current_user.is_authenticated:
+            current_user.dark_mode = (theme == 'dark')
+            db.session.commit()
     return redirect(request.referrer or url_for('index'))
 
 @app.route("/", methods=["GET"])
