@@ -81,6 +81,19 @@
             background-color: rgba(255, 255, 255, 0.4);
         }
         
+        .theme-toggle {
+            padding: 6px 10px !important;
+            border-radius: 3px;
+            font-size: 1.2em;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: background-color 0.2s;
+            margin-right: 10px;
+        }
+        
+        .theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        
         .container {
             max-width: 1000px;
             margin: 25px auto;
@@ -214,6 +227,9 @@
                 <a href="{{ url_for('set_language', language='ms') }}">MS</a>
                 <a href="{{ url_for('set_language', language='zh') }}">中文</a>
             </div>
+            <a href="{{ url_for('set_theme', theme='dark' if session.get('theme') == 'light' else 'light') }}" class="theme-toggle">
+                {% if session.get('theme') == 'dark' %}☀️{% else %}🌙{% endif %}
+            </a>
             {% if current_user.is_mod() %}
             <a href="{{ url_for('auth.admin_dashboard') }}" class="admin-link">🔧 Admin Panel</a>
             {% elif current_user.user_type == 'lecturer' %}
