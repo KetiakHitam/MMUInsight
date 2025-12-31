@@ -365,6 +365,42 @@ body.dark-mode .card-footer {
     border-top: 1px solid #555 !important;
 }
 
+/* Progress bar containers - override inline #e0e0e0 to dark */
+body.dark-mode div[style*="background-color: #e0e0e0"][style*="height: 10px"] {
+    background-color: #555 !important;
+}
+
+/* Progress bar fills - keep same blue as light mode */
+body.dark-mode div[style*="background-color: #007bff"] {
+    background-color: #007bff !important;
+}
+
+/* Analytics performance visual - container backgrounds */
+body.dark-mode div[style*="background-color: #e9ecef"] {
+    background-color: #555 !important;
+}
+
+/* Analytics performance visual - keep all bar colors */
+body.dark-mode div[style*="background-color: #36a2eb"] {
+    background-color: #36a2eb !important;
+}
+
+body.dark-mode div[style*="background-color: #4bc0c0"] {
+    background-color: #4bc0c0 !important;
+}
+
+body.dark-mode div[style*="background-color: #ffce56"] {
+    background-color: #ffce56 !important;
+}
+
+body.dark-mode div[style*="background-color: #9966ff"] {
+    background-color: #9966ff !important;
+}
+
+body.dark-mode div[style*="background-color: #ff6384"] {
+    background-color: #ff6384 !important;
+}
+
 /* Theme toggle button */
 body.dark-mode .theme-toggle {
     background-color: rgba(255, 255, 255, 0.2) !important;
