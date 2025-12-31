@@ -212,6 +212,12 @@ body.dark-mode a[style*="background-color"]:hover {
     text-decoration: none !important;
 }
 
+/* Rating bars - override inline #e0e0e0 colors to dark */
+body.dark-mode [style*="background-color: #e0e0e0"],
+body.dark-mode [style*="background-color:#e0e0e0"] {
+    background-color: #555 !important;
+}
+
 /* Rating bars - darken inactive, FORCE show active colors */
 body.dark-mode .rating-bar {
     background-color: #555 !important;
