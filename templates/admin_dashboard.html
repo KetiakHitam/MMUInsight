@@ -37,6 +37,12 @@
             <p style="font-size: 2.2em; font-weight: bold; color: #333; margin: 0;">{{ lecturer_count }}</p>
         </div>
         
+        <!-- Unverified Lecturers Card -->
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; border-left: 4px solid {% if unverified_lecturers > 0 %}#ffc107{% else %}#6c757d{% endif %};">
+            <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Unverified Lecturers</p>
+            <p style="font-size: 2.2em; font-weight: bold; color: {% if unverified_lecturers > 0 %}#ff9800{% else %}#333{% endif %}; margin: 0;">{{ unverified_lecturers }}</p>
+        </div>
+        
         <!-- Pending Reports Card -->
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; border-left: 4px solid {% if pending_reports > 0 %}#dc3545{% else %}#6c757d{% endif %};">
             <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Pending Reports</p>
