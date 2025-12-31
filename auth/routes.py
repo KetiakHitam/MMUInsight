@@ -18,6 +18,7 @@ def admin_dashboard():
     admin_count = sum(1 for u in users if u.is_admin())
     student_count = sum(1 for u in users if u.user_type == 'student')
     lecturer_count = sum(1 for u in users if u.user_type == 'lecturer')
+    unverified_lecturers = sum(1 for u in users if u.user_type == 'lecturer' and not u.is_claimed)
     
     pending_reports = Report.query.filter_by(status='pending').count()
 
@@ -30,6 +31,7 @@ def admin_dashboard():
         pending_reports=pending_reports,
         student_count=student_count,
         lecturer_count=lecturer_count,
+        unverified_lecturers=unverified_lecturers,
     )
 
 @auth_bp.route("/admin/users")
