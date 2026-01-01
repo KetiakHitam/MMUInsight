@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from flask_babel import gettext as _
+from auth.decorators import admin_required
 from extensions import db
 from models import Suggestion, SuggestionVote
 from datetime import datetime
@@ -102,3 +103,25 @@ def downvote_suggestion(suggestion_id):
     
     db.session.commit()
     return redirect(url_for('suggestions.suggestions_list'))
+
+@suggestions_bp.route('/admin/suggestions')
+@admin_required
+def admin_suggestions():
+    suggestions = Suggestion.query.order_by(desc(Suggestion.created_at)).all()
+    return render_template('admin_suggestions.html', suggestions=suggestions, now=datetime.utcnow())
+
+@suggestions_bp.route('/admin/suggestion/<int:suggestion_id>/status/<new_status>', methods=['POST'])
+@admin_required
+def change_suggestion_status(suggestion_id, new_status):
+    suggestion = Suggestion.query.get_or_404(suggestion_id)
+    
+    valid_statuses = ['pending', 'reviewing', 'planned', 'rejected']
+    if new_status not in valid_statuses:
+        flash("Invalid status", "error")
+        return redirect(url_for('suggestions.admin_suggestions'))
+    
+    suggestion.status = new_status
+    db.session.commit()
+    
+    flash(f"Suggestion status updated to {new_status.title()}", "success")
+    return redirect(url_for('suggestions.admin_suggestions'))
