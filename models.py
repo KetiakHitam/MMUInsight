@@ -113,6 +113,7 @@ class Suggestion(db.Model):
     status = db.Column(db.String(20), nullable=False, default='pending')
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     
+    user = db.relationship('User', backref='suggestions', lazy=True)
     votes = db.relationship('SuggestionVote', backref='suggestion', lazy=True, cascade='all, delete-orphan')
 
 class SuggestionVote(db.Model):
