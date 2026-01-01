@@ -230,6 +230,7 @@
             <a href="{{ url_for('set_theme', theme='dark' if session.get('theme') == 'light' else 'light') }}" class="theme-toggle">
                 {% if session.get('theme') == 'dark' %}☀️{% else %}🌙{% endif %}
             </a>
+            <a href="{{ url_for('suggestions.suggestions_list') }}">💡 Suggestions</a>
             {% if current_user.is_mod() %}
             <a href="{{ url_for('auth.admin_dashboard') }}" class="admin-link">🔧 Admin Panel</a>
             {% elif current_user.user_type == 'lecturer' %}
