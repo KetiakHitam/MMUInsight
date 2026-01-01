@@ -401,6 +401,15 @@ body.dark-mode div[style*="background-color: #ff6384"] {
     background-color: #ff6384 !important;
 }
 
+/* Student's own review highlight in dark mode */
+body.dark-mode div[style*="background-color: #f0f7ff"] {
+    background-color: #1a3a4a !important;
+}
+
+body.dark-mode div[style*="border: 1px solid #b3d9ff"] {
+    border: 1px solid #2a5a7a !important;
+}
+
 /* Theme toggle button */
 body.dark-mode .theme-toggle {
     background-color: rgba(255, 255, 255, 0.2) !important;
