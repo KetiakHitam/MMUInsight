@@ -19,11 +19,13 @@
                 <label for="description" style="display: block; font-weight: 600; margin-bottom: 5px;">Description</label>
                 <textarea id="description" name="description" rows="4" placeholder="Describe your feature idea..." required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 0.95em;"></textarea>
             </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <input type="checkbox" id="is_anonymous" name="is_anonymous">
-                <label for="is_anonymous" style="margin: 0;">Submit anonymously</label>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                <label style="display: flex; align-items: center; gap: 6px; margin: 0; font-weight: 400; cursor: pointer;">
+                    <input type="checkbox" id="is_anonymous" name="is_anonymous">
+                    <span>Submit anonymously</span>
+                </label>
+                <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Submit Suggestion</button>
             </div>
-            <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; align-self: flex-start; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Submit Suggestion</button>
         </form>
     </div>
     {% else %}
