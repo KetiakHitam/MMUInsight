@@ -5,9 +5,10 @@ from datetime import datetime
 import os
 
 from extensions import db, bcrypt, login_manager
-from models import User, Subject, Review
+from models import User, Subject, Review, Suggestion
 from auth import auth_bp
 from reviews import reviews_bp
+from suggestions import suggestions_bp
 from lecturer_search import search_lecturers_by_email
 
 app = Flask(__name__)
@@ -54,6 +55,7 @@ def load_theme():
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(reviews_bp)
+app.register_blueprint(suggestions_bp)
 
 @app.route("/set-language/<language>")
 def set_language(language):
