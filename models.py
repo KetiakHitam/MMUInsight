@@ -112,3 +112,12 @@ class Suggestion(db.Model):
     downvotes = db.Column(db.Integer, nullable=False, default=0)
     status = db.Column(db.String(20), nullable=False, default='pending')
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    
+    votes = db.relationship('SuggestionVote', backref='suggestion', lazy=True, cascade='all, delete-orphan')
+
+class SuggestionVote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    suggestion_id = db.Column(db.Integer, db.ForeignKey('suggestion.id'), nullable=False)
+    vote_type = db.Column(db.String(10), nullable=False)  # 'upvote' or 'downvote'
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

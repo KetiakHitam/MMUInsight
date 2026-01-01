@@ -5,7 +5,7 @@ from datetime import datetime
 import os
 
 from extensions import db, bcrypt, login_manager
-from models import User, Subject, Review, Suggestion
+from models import User, Subject, Review, Suggestion, SuggestionVote
 from auth import auth_bp
 from reviews import reviews_bp
 from suggestions import suggestions_bp
