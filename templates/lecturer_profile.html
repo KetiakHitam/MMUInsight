@@ -162,9 +162,12 @@
     
     {% if reviews %}
         {% for review in reviews %}
-        <div style="border: 1px solid #ddd; padding: 25px; margin-bottom: 25px; border-radius: 6px; max-width: 800px; margin-left: auto; margin-right: auto; background-color: #ffffff;">
+        <div style="border: 1px solid {% if review.author == current_user %}#b3d9ff{% else %}#ddd{% endif %}; padding: 25px; margin-bottom: 25px; border-radius: 6px; max-width: 800px; margin-left: auto; margin-right: auto; background-color: {% if review.author == current_user %}#f0f7ff{% else %}#ffffff{% endif %};">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
                 <div style="display: flex; align-items: center; gap: 10px; color: #666; font-size: 0.95em; flex-wrap: wrap;">
+                    {% if review.author == current_user %}
+                    <span style="background-color: #007bff; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.75em; font-weight: bold; white-space: nowrap;">✓ Your Review</span>
+                    {% endif %}
                     {% if review.is_anonymous and not current_user.is_admin() %}
                         <span>Anonymous Student</span>
                     {% else %}
