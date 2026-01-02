@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - MMUInsight{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>About Us</h2>
+    
+    <h3>What is MMUInsight?</h3>
+    <p>MMUInsight is a centralized lecturer review platform designed for Multimedia University (MMU) students. It provides a safe, anonymous space where students can share honest feedback about their lecturers without fear of retaliation or bias.</p>
+    
+    <h3>Why We Built This</h3>
+    <p>Traditional one-on-one evaluations between students and lecturers can be unfair and biased. Students may hesitate to give honest feedback due to fear that lecturers might retaliate with lower grades or unfair treatment. This creates a power imbalance that prevents genuine feedback. MMUInsight solves this by providing an anonymous, centralized platform where students can discuss lecturers openly and honestly, creating a fair and transparent evaluation system.</p>
+    
+    <h3>Our Mission</h3>
+    <p>To empower students with a voice in their educational journey by enabling them to share honest, constructive feedback in a safe environment. We believe transparent, collective feedback from the student community helps improve teaching quality, holds lecturers accountable, and creates a fair evaluation system that benefits everyone.</p>
+    
+    <h3>Key Features</h3>
+    <ul>
+        <li><strong>Comprehensive Ratings:</strong> Students rate lecturers on clarity, engagement, punctuality, responsiveness, and fairness</li>
+        <li><strong>Anonymous Reviews:</strong> Option to submit reviews anonymously for honest feedback</li>
+        <li><strong>Lecturer Verification:</strong> Lecturers can claim and verify their profiles using official MMU email addresses</li>
+        <li><strong>Two-Way Dialogue:</strong> Lecturers can reply to reviews and students can engage in constructive discussion</li>
+        <li><strong>Analytics Dashboard:</strong> Lecturers and administrators can view detailed analytics about feedback</li>
+        <li><strong>Multi-Language Support:</strong> Available in English, Malay, and Chinese</li>
+    </ul>
+    
+    <h3>User Types</h3>
+    <ul>
+        <li><strong>Students:</strong> Can write reviews, reply to reviews, and report inappropriate content</li>
+        <li><strong>Lecturers:</strong> Can view feedback, claim profiles, reply to reviews, and access analytics</li>
+        <li><strong>Administrators:</strong> Can manage users, moderate content, and view platform-wide analytics</li>
+    </ul>
+    
+    <h3>Community Guidelines</h3>
+    <p>We are committed to maintaining a respectful and constructive community. All users are expected to:</p>
+    <ul>
+        <li>Provide honest, constructive feedback based on personal experience</li>
+        <li>Treat others with respect and courtesy</li>
+        <li>Avoid posting personal attacks, harassment, or discriminatory content</li>
+        <li>Not share confidential or sensitive information</li>
+        <li>Report any inappropriate content or behavior to administrators</li>
+    </ul>
+    
+    <h3>Feedback and Support</h3>
+    <p>We welcome your feedback and suggestions for improving MMUInsight. If you have questions, encounter issues, or would like to report inappropriate content, please contact the platform administrators.</p>
+    
+    <h3>Privacy and Security</h3>
+    <p>Your privacy is important to us. Please review our <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a> to understand how we collect, use, and protect your information.</p>
+    
+    <p style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">
+        <strong>&copy; 2025 MMUInsight. All Rights Reserved.</strong><br>
+        <strong>Last updated: December 2025</strong>
+    </p>
+</div>
+{% endblock %}

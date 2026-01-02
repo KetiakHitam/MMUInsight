@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Feature Suggestions{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 900px;">
+    <h2 style="margin-bottom: 30px;">Feature Suggestions</h2>
+    
+    <!-- Submit Suggestion Form (logged in users only) -->
+    {% if current_user.is_authenticated %}
+    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px; border: 1px solid #ddd;">
+        <h3 style="margin-top: 0;">Submit a Suggestion</h3>
+        <form method="POST" action="{{ url_for('suggestions.create_suggestion') }}" style="display: flex; flex-direction: column; gap: 12px;">
+            <div>
+                <label for="title" style="display: block; font-weight: 600; margin-bottom: 5px;">Title</label>
+                <input type="text" id="title" name="title" placeholder="e.g., Dark mode theme" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 0.95em;">
+            </div>
+            <div>
+                <label for="description" style="display: block; font-weight: 600; margin-bottom: 5px;">Description</label>
+                <textarea id="description" name="description" rows="4" placeholder="Describe your feature idea..." required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 0.95em;"></textarea>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                <label style="display: flex; align-items: center; gap: 6px; margin: 0; font-weight: 400; cursor: pointer;">
+                    <input type="checkbox" id="is_anonymous" name="is_anonymous">
+                    <span>Submit anonymously</span>
+                </label>
+                <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Submit Suggestion</button>
+            </div>
+        </form>
+    </div>
+    {% else %}
+    <div style="background-color: #f0f7ff; padding: 15px; border-radius: 4px; border-left: 4px solid #007bff; margin-bottom: 30px;">
+        <p style="margin: 0;"><a href="{{ url_for('auth.login') }}" style="color: #007bff; font-weight: 500;">Login</a> to submit a suggestion.</p>
+    </div>
+    {% endif %}
+    
+    <!-- Sort Options -->
+    <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+        <a href="{{ url_for('suggestions.suggestions_list', sort='upvotes') }}" style="background-color: {% if sort_by == 'upvotes' %}#007bff{% else %}#e9ecef{% endif %}; color: {% if sort_by == 'upvotes' %}white{% else %}#333{% endif %}; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 0.9em; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">👍 Most Upvoted</a>
+        <a href="{{ url_for('suggestions.suggestions_list', sort='newest') }}" style="background-color: {% if sort_by == 'newest' %}#007bff{% else %}#e9ecef{% endif %}; color: {% if sort_by == 'newest' %}white{% else %}#333{% endif %}; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 0.9em; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">⏰ Newest</a>
+    </div>
+    
+    <!-- Suggestions List -->
+    {% if suggestions %}
+        {% for suggestion in suggestions %}
+        <div style="border: 1px solid #ddd; padding: 20px; margin-bottom: 15px; border-radius: 6px; background-color: #ffffff;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <div>
+                    <h3 style="margin: 0 0 5px 0; font-size: 1.1em;">{{ suggestion.title }}</h3>
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 0.85em; color: #666;">
+                        {% if suggestion.is_anonymous %}
+                            <span>Anonymous User</span>
+                        {% else %}
+                            <span>{{ suggestion.user.email if suggestion.user else 'Deleted User' }}</span>
+                        {% endif %}
+                        <span>•</span>
+                        <span>
+                            {% if (now - suggestion.created_at).total_seconds() < 3600 %}
+                                {{ ((now - suggestion.created_at).total_seconds() / 60) | int }} minutes ago
+                            {% elif (now - suggestion.created_at).total_seconds() < 86400 %}
+                                {{ ((now - suggestion.created_at).total_seconds() / 3600) | int }} hours ago
+                            {% else %}
+                                {{ suggestion.created_at.strftime('%b %d, %Y') }}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span style="background-color: 
+                        {% if suggestion.status == 'planned' %}#d1f4e0
+                        {% elif suggestion.status == 'reviewing' %}#fff0cc
+                        {% elif suggestion.status == 'pending' %}#e3f2fd
+                        {% else %}#e7f3ff{% endif %}; 
+                        color: 
+                        {% if suggestion.status == 'planned' %}#0d8a4d
+                        {% elif suggestion.status == 'reviewing' %}#d97706
+                        {% elif suggestion.status == 'pending' %}#1565c0
+                        {% else %}#0056b3{% endif %}; 
+                        padding: 4px 12px; border-radius: 12px; font-size: 0.8em; font-weight: 600;">{{ suggestion.status.title() }}</span>
+                </div>
+            </div>
+            
+            <p style="color: #333; line-height: 1.6; margin-bottom: 15px;">{{ suggestion.description }}</p>
+            
+            <div style="display: flex; align-items: center; gap: 15px; padding-top: 12px; border-top: 1px solid #eee;">
+                {% if current_user.is_authenticated %}
+                <form method="POST" action="{{ url_for('suggestions.upvote_suggestion', suggestion_id=suggestion.id) }}" style="display: inline;">
+                    <button type="submit" style="background-color: #f0f0f0; color: #333; padding: 6px 12px; border-radius: 4px; font-size: 0.9em; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.7';" onmouseout="this.style.opacity='1';">👍 {{ suggestion.upvotes }}</button>
+                </form>
+                <form method="POST" action="{{ url_for('suggestions.downvote_suggestion', suggestion_id=suggestion.id) }}" style="display: inline;">
+                    <button type="submit" style="background-color: #f0f0f0; color: #333; padding: 6px 12px; border-radius: 4px; font-size: 0.9em; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.7';" onmouseout="this.style.opacity='1';">👎 {{ suggestion.downvotes }}</button>
+                </form>
+                {% else %}
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="background-color: #f0f0f0; padding: 6px 12px; border-radius: 4px; font-size: 0.9em; font-weight: 600;">👍 {{ suggestion.upvotes }}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="background-color: #f0f0f0; padding: 6px 12px; border-radius: 4px; font-size: 0.9em; font-weight: 600;">👎 {{ suggestion.downvotes }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align: center; color: #666; padding: 40px 0;">No suggestions yet. Be the first to suggest a feature!</p>
+    {% endif %}
+    
+    <br>
+    <a href="{{ url_for('index') }}" style="color: #007bff; text-decoration: none; font-size: 0.95em;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Back to Home</a>
+</div>
+{% endblock %}

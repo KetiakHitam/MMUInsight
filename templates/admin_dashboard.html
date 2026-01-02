@@ -25,6 +25,30 @@
             <p style="font-size: 2.2em; font-weight: bold; color: #333; margin: 0;">{{ admin_count }}</p>
         </div>
         
+        <!-- Students Card -->
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; border-left: 4px solid #17a2b8;">
+            <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Students</p>
+            <p style="font-size: 2.2em; font-weight: bold; color: #333; margin: 0;">{{ student_count }}</p>
+        </div>
+        
+        <!-- Lecturers Card -->
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; border-left: 4px solid #fd7e14;">
+            <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Lecturers</p>
+            <p style="font-size: 2.2em; font-weight: bold; color: #333; margin: 0;">{{ lecturer_count }}</p>
+        </div>
+        
+        <!-- Unverified Lecturers Card -->
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; border-left: 4px solid {% if unverified_lecturers > 0 %}#ffc107{% else %}#6c757d{% endif %};">
+            <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Unverified Lecturers</p>
+            <p style="font-size: 2.2em; font-weight: bold; color: {% if unverified_lecturers > 0 %}#ff9800{% else %}#333{% endif %}; margin: 0;">{{ unverified_lecturers }}</p>
+        </div>
+        
+        <!-- Total Reviews Card -->
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; border-left: 4px solid #20c997;">
+            <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Total Reviews</p>
+            <p style="font-size: 2.2em; font-weight: bold; color: #333; margin: 0;">{{ total_reviews }}</p>
+        </div>
+        
         <!-- Pending Reports Card -->
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; border-left: 4px solid {% if pending_reports > 0 %}#dc3545{% else %}#6c757d{% endif %};">
             <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Pending Reports</p>
@@ -33,9 +57,10 @@
     </div>
     
     <!-- Navigation Buttons -->
-    <div style="display: flex; gap: 12px; margin-bottom: 30px;">
+    <div style="display: flex; gap: 12px; margin-bottom: 30px; flex-wrap: wrap;">
         <a href="{{ url_for('auth.admin_users') }}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 500; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">👥 Manage Users</a>
         <a href="{{ url_for('auth.admin_reports') }}" style="background-color: {% if pending_reports > 0 %}#dc3545{% else %}#6c757d{% endif %}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 500; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">🚩 View Reports</a>
+        <a href="{{ url_for('suggestions.admin_suggestions') }}" style="background-color: #6f42c1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 500; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">💡 Manage Suggestions</a>
     </div>
     
     <a href="{{ url_for('index') }}" style="color: #007bff; text-decoration: none; font-size: 0.95em;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Back to Home</a>
