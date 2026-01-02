@@ -1,17 +1,22 @@
 from flask import Flask, get_flashed_messages, render_template_string, render_template, request, jsonify, session, redirect, url_for
 from flask_login import LoginManager, current_user
 from flask_babel import Babel, gettext
+from datetime import datetime
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from extensions import db, bcrypt, login_manager
-from models import User, Subject, Review
+from models import User, Subject, Review, Suggestion, SuggestionVote
 from auth import auth_bp
 from reviews import reviews_bp
+from suggestions import suggestions_bp
 from lecturer_search import search_lecturers_by_email
 
 app = Flask(__name__)
 
-app.config["SECRET_KEY"] = "isac_is_a_monkey67"
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-key-please-change-in-production")
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(BASE_DIR, 'database', 'mmuinsight.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path

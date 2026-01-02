@@ -4,14 +4,27 @@
 
 {% block content %}
 <div class="container" style="max-width: 900px; margin: 0 auto;">
-    <div style="max-width: 800px; margin-left: auto; margin-right: auto;">
-    <h2>
+    <div style="max-width: 800px; margin: 0 auto 30px auto; text-align: center;">
+    <h2 style="margin-bottom: 8px;">
         {{ lecturer.email }}
         {% if lecturer.is_claimed %}
         <span style="color: #28a745; font-size: 0.8em;">✓ Verified</span>
         {% endif %}
     </h2>
-    <p style="text-align: left;">Lecturer Profile</p>
+    <p style="margin: 5px 0; color: #666;">Lecturer Profile</p>
+    {% if lecturer.last_online %}
+    <p style="margin: 5px 0; color: #999; font-size: 0.9em;">Last online: 
+        {% if (now - lecturer.last_online).total_seconds() < 60 %}
+            Just now
+        {% elif (now - lecturer.last_online).total_seconds() < 3600 %}
+            {{ ((now - lecturer.last_online).total_seconds() / 60) | int }} minutes ago
+        {% elif (now - lecturer.last_online).total_seconds() < 86400 %}
+            {{ ((now - lecturer.last_online).total_seconds() / 3600) | int }} hours ago
+        {% else %}
+            {{ lecturer.last_online.strftime('%b %d, %Y') }}
+        {% endif %}
+    </p>
+    {% endif %}
     </div>
     
     {% if current_user.is_authenticated and current_user.user_type == 'lecturer' and not lecturer.is_claimed and not current_user.is_claimed %}
@@ -118,40 +131,39 @@
     {% endif %}
     
     {% if (current_user.id == lecturer.id and current_user.user_type == 'lecturer') or current_user.is_admin() %}
-    <div style="max-width: 800px; margin-left: auto; margin-right: auto; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; justify-content: space-between;">
-    <div style="display: flex; gap: 10px; align-items: center;">
+    <div style="max-width: 800px; margin: 0 auto 25px auto; display: flex; gap: 10px; align-items: center; justify-content: center;">
     <a href="{{ url_for('reviews.lecturer_bio', lecturer_id=lecturer.id) }}" style="background-color: #6f42c1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">📝 View Bio</a>
     <a href="{{ url_for('reviews.analytics', lecturer_id=lecturer.id) }}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">📊 View Analytics Dashboard</a>
     </div>
-    </div>
     {% else %}
-    <div style="max-width: 800px; margin-left: auto; margin-right: auto; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; justify-content: space-between;">
-    <div style="display: flex; gap: 10px; align-items: center;">
-    <a href="{{ url_for('reviews.lecturer_bio', lecturer_id=lecturer.id) }}" style="background-color: #6f42c1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">📝 View Bio</a>
-    {% if current_user.user_type == 'student' %}
-    <a href="{{ url_for('reviews.student_analytics', lecturer_id=lecturer.id) }}" style="background-color: #17a2b8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">📈 View Student Analytics</a>
-    {% endif %}
-    </div>
-    {% if current_user.user_type == 'student' %}
-    {% if student_has_review %}
-    <div style="display: flex; flex-direction: column; justify-content: center; padding: 10px 20px; background-color: #f0f7ff; border: 1px solid #bbddff; border-radius: 3px; color: #2a69a0; font-size: 0.95em; line-height: 1.4;">
-        <div style="font-weight: 500;">✓ Review submitted</div>
-        <div style="font-size: 0.8em; color: #4a7ba3; margin-top: 2px;">You can edit or delete it below</div>
-    </div>
-    {% else %}
-    <a href="{{ url_for('reviews.create_review', lecturer_id=lecturer.id) }}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Write a Review</a>
-    {% endif %}
-    {% endif %}
+    <div style="max-width: 800px; margin: 0 auto 25px auto;">
+        <div style="display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap;">
+            <a href="{{ url_for('reviews.lecturer_bio', lecturer_id=lecturer.id) }}" style="background-color: #6f42c1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">📝 View Bio</a>
+            {% if current_user.user_type == 'student' %}
+            <a href="{{ url_for('reviews.student_analytics', lecturer_id=lecturer.id) }}" style="background-color: #17a2b8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">📈 View Student Analytics</a>
+            {% if student_has_review %}
+            <div style="display: flex; flex-direction: column; justify-content: center; padding: 10px 20px; background-color: #f0f7ff; border: 1px solid #bbddff; border-radius: 3px; color: #2a69a0; font-size: 0.85em; line-height: 1.3;">
+                <div style="font-weight: 500;">✓ Review submitted</div>
+                <div style="font-size: 0.9em; color: #4a7ba3; margin-top: 2px;">You can edit or delete it below</div>
+            </div>
+            {% else %}
+            <a href="{{ url_for('reviews.create_review', lecturer_id=lecturer.id) }}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Write a Review</a>
+            {% endif %}
+            {% endif %}
+        </div>
     </div>
     {% endif %}
 
-    <h3 style="max-width: 800px; margin-left: auto; margin-right: auto;">Reviews ({{ reviews|length }})</h3>
+    <h3 style="max-width: 800px; margin: 30px auto 20px auto; text-align: left;">Reviews ({{ reviews|length }})</h3>
     
     {% if reviews %}
         {% for review in reviews %}
-        <div style="border: 1px solid #ddd; padding: 25px; margin-bottom: 25px; border-radius: 6px; max-width: 800px; margin-left: auto; margin-right: auto; background-color: #ffffff;">
+        <div style="border: 1px solid {% if review.author == current_user %}#b3d9ff{% else %}#ddd{% endif %}; padding: 25px; margin-bottom: 25px; border-radius: 6px; max-width: 800px; margin-left: auto; margin-right: auto; background-color: {% if review.author == current_user %}#f0f7ff{% else %}#ffffff{% endif %};">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
                 <div style="display: flex; align-items: center; gap: 10px; color: #666; font-size: 0.95em; flex-wrap: wrap;">
+                    {% if review.author == current_user %}
+                    <span style="background-color: #007bff; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.75em; font-weight: bold; white-space: nowrap;">✓ Your Review</span>
+                    {% endif %}
                     {% if review.is_anonymous and not current_user.is_admin() %}
                         <span>Anonymous Student</span>
                     {% else %}
@@ -170,12 +182,20 @@
                     </div>
                 </div>
                 <div style="color: #999; font-size: 0.9em;">
-                    {{ review.review_date.strftime('%b ') }}{% set day = review.review_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ review.review_date.strftime(', %Y') }}
+                    {% if (now - review.review_date).total_seconds() < 60 %}
+                        Just now
+                    {% elif (now - review.review_date).total_seconds() < 3600 %}
+                        {{ ((now - review.review_date).total_seconds() / 60) | int }} minutes ago
+                    {% elif (now - review.review_date).total_seconds() < 86400 %}
+                        {{ ((now - review.review_date).total_seconds() / 3600) | int }} hours ago
+                    {% else %}
+                        {{ review.review_date.strftime('%b ') }}{% set day = review.review_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ review.review_date.strftime(', %Y at %I:%M %p') }}
+                    {% endif %}
                 </div>
             </div>
             
             <div style="margin-bottom: 18px; padding: 15px; background-color: #fafafa; border-radius: 3px;">
-                <p style="color: #333; font-size: 1.05em; line-height: 1.7; margin: 0;">{{ review.review_text }}</p>
+            <p style="color: #333; font-size: 1.05em; line-height: 1.7; margin: 0;">{{ review.review_text }}</p>
             </div>
             
             {% if review.subject_code %}
@@ -183,20 +203,20 @@
             {% endif %}
             
             <div style="margin-bottom: 15px;">
-                <p style="color: #000; font-size: 0.95em; font-weight: 600; margin: 0 0 8px 0;">Ratings:</p>
-                <div style="font-size: 0.9em; line-height: 1.4;">
-                    <div style="color: #555; margin: 2px 0;">Clarity: <strong>{{ review.rating_clarity }}/5</strong></div>
-                    <div style="color: #555; margin: 2px 0;">Engagement: <strong>{{ review.rating_engagement }}/5</strong></div>
-                    <div style="color: #555; margin: 2px 0;">Punctuality: <strong>{{ review.rating_punctuality }}/5</strong></div>
-                    <div style="color: #555; margin: 2px 0;">Responsiveness: <strong>{{ review.rating_responsiveness }}/5</strong></div>
-                    <div style="color: #555; margin: 2px 0;">Fairness: <strong>{{ review.rating_fairness }}/5</strong></div>
-                </div>
+            <p style="color: #000; font-size: 0.95em; font-weight: 600; margin: 0 0 8px 0;">Ratings:</p>
+            <div style="font-size: 0.9em; line-height: 1.4;">
+            <div style="color: #555; margin: 2px 0;">Clarity: <strong>{{ review.rating_clarity }}/5</strong></div>
+            <div style="color: #555; margin: 2px 0;">Engagement: <strong>{{ review.rating_engagement }}/5</strong></div>
+            <div style="color: #555; margin: 2px 0;">Punctuality: <strong>{{ review.rating_punctuality }}/5</strong></div>
+            <div style="color: #555; margin: 2px 0;">Responsiveness: <strong>{{ review.rating_responsiveness }}/5</strong></div>
+            <div style="color: #555; margin: 2px 0;">Fairness: <strong>{{ review.rating_fairness }}/5</strong></div>
+            </div>
             </div>
 
             <div style="display: inline-block; padding: 6px 14px; border-radius: 4px; background-color: {% if review.recommend %}#d4edda{% else %}#f8d7da{% endif %}; margin-bottom: 18px;">
-                <span style="color: {% if review.recommend %}#155724{% else %}#721c24{% endif %}; font-weight: 600; font-size: 0.95em;">
-                    {% if review.recommend %}✓ Recommended{% else %}✗ Not Recommended{% endif %}
-                </span>
+            <span style="color: {% if review.recommend %}#155724{% else %}#721c24{% endif %}; font-weight: 600; font-size: 0.95em;">
+            {% if review.recommend %}✓ Recommended{% else %}✗ Not Recommended{% endif %}
+            </span>
             </div>
             
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 20px; padding-top: 12px; border-top: 1px solid #f0f0f0;">
@@ -247,11 +267,11 @@
                 {% for reply in review.replies %}
                 <div id="reply-{{ reply.id }}" style="margin-bottom: 15px; margin-left: 15px; padding: 12px; background-color: #f8f9fa; border-radius: 3px; position: relative; border: 1px solid #e9ecef;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                        <p style="margin: 0; font-weight: 600; color: #333; font-size: 0.95em;">
+                        <p style="margin: 0; font-weight: 600; font-size: 0.95em;">
                             {% if reply.author == review.author and review.is_anonymous and not current_user.is_admin() %}
-                                Anonymous Student (OP)
+                                <span style="color: #d32f2f;">Anonymous Student (OP)</span>
                             {% else %}
-                                {{ reply.author.email }}
+                                <span style="color: {% if reply.author.user_type == 'lecturer' %}#0056b3{% elif reply.author == review.author %}#d32f2f{% else %}#333{% endif %};">{{ reply.author.email }}</span>
                                 {% if reply.is_admin and reply.author.role != 'OWNER' %}
                                     {% if reply.author.role == 'ADMIN' %}
                                     <span style="color: #6f42c1; font-weight: bold; font-size: 0.85em; margin-left: 5px; display: inline-block;">ADMIN</span>
@@ -268,10 +288,18 @@
                             {% endif %}
                         </p>
                         <p style="font-size: 0.85em; color: #999; margin: 0; text-align: right;">
-                            {{ reply.reply_date.strftime('%b ') }}{% set day = reply.reply_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ reply.reply_date.strftime(', %Y') }}
-                            {% if reply.is_edited %}
-                            <span style="font-style: italic; margin-left: 5px;">(edited)</span>
-                            {% endif %}
+                           {% if (now - reply.reply_date).total_seconds() < 60 %}
+                               Just now
+                           {% elif (now - reply.reply_date).total_seconds() < 3600 %}
+                               {{ ((now - reply.reply_date).total_seconds() / 60) | int }} minutes ago
+                           {% elif (now - reply.reply_date).total_seconds() < 86400 %}
+                               {{ ((now - reply.reply_date).total_seconds() / 3600) | int }} hours ago
+                           {% else %}
+                               {{ reply.reply_date.strftime('%b ') }}{% set day = reply.reply_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ reply.reply_date.strftime(', %Y at %I:%M %p') }}
+                           {% endif %}
+                           {% if reply.is_edited %}
+                           <span style="font-style: italic; margin-left: 5px;">(edited)</span>
+                           {% endif %}
                         </p>
                     </div>
                     

@@ -113,7 +113,7 @@ def lecturer_profile(lecturer_id):
         averages = None
         recommend_percentage = None
     
-    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage, reported_review_ids=reported_review_ids, student_has_review=student_has_review, user_review_id=user_review.id if user_review else None)
+    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage, reported_review_ids=reported_review_ids, student_has_review=student_has_review, user_review_id=user_review.id if user_review else None, now=datetime.utcnow())
 
 @reviews_bp.route('/claim_profile/<int:lecturer_id>', methods=['POST'])
 @login_required
@@ -217,7 +217,7 @@ def add_reply(review_id):
     review = Review.query.get_or_404(review_id)
     
     if current_user.user_type not in ['student', 'lecturer'] and not current_user.is_mod():
-        flash("Only students, lecturers, and admins can reply", "error")
+        flash(_("Only students, lecturers, and admins can reply"), "error")
         return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
     
     reply_text = request.form.get('reply_text', '').strip()
@@ -277,7 +277,7 @@ def analytics(lecturer_id):
     lecturer = User.query.get_or_404(lecturer_id)
     
     if current_user.id != lecturer_id and not current_user.is_admin():
-        flash("You don't have permission to view this analytics page", "error")
+        flash(_("You don't have permission to view this analytics page"), "error")
         return redirect(url_for('index'))
     
     if lecturer.user_type != 'lecturer':

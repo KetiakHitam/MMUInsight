@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Suggestions - Admin{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1000px;">
+    <h2 style="margin-bottom: 30px;">Manage Feature Suggestions</h2>
+    
+    {% if suggestions %}
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+            <tr style="background-color: #f8f9fa; border-bottom: 2px solid #ddd;">
+                <th style="text-align: left; padding: 12px; font-weight: 600;">Title</th>
+                <th style="text-align: left; padding: 12px; font-weight: 600;">Author</th>
+                <th style="text-align: center; padding: 12px; font-weight: 600;">Votes</th>
+                <th style="text-align: center; padding: 12px; font-weight: 600;">Status</th>
+                <th style="text-align: center; padding: 12px; font-weight: 600;">Actions</th>
+            </tr>
+            {% for suggestion in suggestions %}
+            <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 12px;">
+                    <strong>{{ suggestion.title }}</strong><br>
+                    <span style="color: #666; font-size: 0.9em;">{{ suggestion.description[:60] }}...</span>
+                </td>
+                <td style="padding: 12px;">
+                    {% if suggestion.is_anonymous %}
+                        <span style="color: #666;">Anonymous</span>
+                    {% else %}
+                        {{ suggestion.user.email if suggestion.user else 'Deleted User' }}
+                    {% endif %}
+                </td>
+                <td style="padding: 12px; text-align: center;">
+                    <span style="background-color: #e7f3ff; color: #0056b3; padding: 4px 8px; border-radius: 3px; font-size: 0.9em;">👍 {{ suggestion.upvotes }} 👎 {{ suggestion.downvotes }}</span>
+                </td>
+                <td style="padding: 12px; text-align: center;">
+                    <span style="background-color: 
+                        {% if suggestion.status == 'pending' %}#fff3cd
+                        {% elif suggestion.status == 'reviewing' %}#cfe2ff
+                        {% elif suggestion.status == 'planned' %}#d1e7dd
+                        {% elif suggestion.status == 'rejected' %}#f8d7da
+                        {% endif %};
+                        color: 
+                        {% if suggestion.status == 'pending' %}#664d03
+                        {% elif suggestion.status == 'reviewing' %}#084298
+                        {% elif suggestion.status == 'planned' %}#0f5132
+                        {% elif suggestion.status == 'rejected' %}#842029
+                        {% endif %};
+                        padding: 4px 12px; border-radius: 3px; font-size: 0.9em; font-weight: 600;">{{ suggestion.status.title() }}</span>
+                </td>
+                <td style="padding: 12px; text-align: center;">
+                    <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                        {% if suggestion.status != 'reviewing' %}
+                        <form method="POST" action="{{ url_for('suggestions.change_suggestion_status', suggestion_id=suggestion.id, new_status='reviewing') }}" style="display: inline;">
+                            <button type="submit" style="background-color: #0d6efd; color: white; padding: 4px 8px; border: none; border-radius: 3px; font-size: 0.8em; cursor: pointer; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Review</button>
+                        </form>
+                        {% endif %}
+                        
+                        {% if suggestion.status != 'planned' %}
+                        <form method="POST" action="{{ url_for('suggestions.change_suggestion_status', suggestion_id=suggestion.id, new_status='planned') }}" style="display: inline;">
+                            <button type="submit" style="background-color: #198754; color: white; padding: 4px 8px; border: none; border-radius: 3px; font-size: 0.8em; cursor: pointer; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Plan</button>
+                        </form>
+                        {% endif %}
+                        
+                        {% if suggestion.status != 'rejected' %}
+                        <form method="POST" action="{{ url_for('suggestions.change_suggestion_status', suggestion_id=suggestion.id, new_status='rejected') }}" style="display: inline;">
+                            <button type="submit" style="background-color: #dc3545; color: white; padding: 4px 8px; border: none; border-radius: 3px; font-size: 0.8em; cursor: pointer; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Reject</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p style="text-align: center; color: #666; padding: 40px 0;">No suggestions yet.</p>
+    {% endif %}
+    
+    <a href="{{ url_for('auth.admin_dashboard') }}" style="color: #007bff; text-decoration: none; font-size: 0.95em;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Back to Admin Dashboard</a>
+</div>
+{% endblock %}
