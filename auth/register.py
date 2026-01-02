@@ -2,11 +2,12 @@ import uuid
 from flask import render_template, request, redirect, url_for, flash
 from flask_babel import gettext as _
 from . import auth_bp
-from extensions import db, bcrypt
+from extensions import db, bcrypt, limiter
 from models import User
 
 
 @auth_bp.route("/register", methods=["GET", "POST"])
+@limiter.limit("10 per hour")
 def register():
     if request.method == "GET":
         return render_template("register.html") 

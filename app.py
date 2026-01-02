@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from extensions import db, bcrypt, login_manager
+from extensions import db, bcrypt, login_manager, limiter
 from models import User, Subject, Review, Suggestion, SuggestionVote
 from auth import auth_bp
 from reviews import reviews_bp
@@ -37,6 +37,7 @@ def get_locale():
 db.init_app(app)
 bcrypt.init_app(app)
 login_manager.init_app(app)
+limiter.init_app(app)
 babel = Babel(app, locale_selector=get_locale)
 
 @login_manager.user_loader
