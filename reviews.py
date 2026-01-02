@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from flask_babel import gettext as _
-from extensions import db
+from extensions import db, limiter
 from models import Review, User, Reply, Report
 from datetime import datetime
 from sqlalchemy import func
@@ -10,6 +10,7 @@ reviews_bp = Blueprint('reviews', __name__)
 
 @reviews_bp.route('/create_review/<int:lecturer_id>', methods=['GET', 'POST'])
 @login_required
+@limiter.limit("10 per hour")
 def create_review(lecturer_id):
     if current_user.user_type != 'student':
         flash(_("Only students can write reviews"), "error")
@@ -213,6 +214,7 @@ def delete_review(review_id):
 
 @reviews_bp.route('/review/<int:review_id>/reply', methods=['POST'])
 @login_required
+@limiter.limit("20 per hour")
 def add_reply(review_id):
     review = Review.query.get_or_404(review_id)
     
@@ -241,6 +243,7 @@ def add_reply(review_id):
 
 @reviews_bp.route('/review/<int:review_id>/report', methods=['POST'])
 @login_required
+@limiter.limit("5 per hour")
 def report_review(review_id):
     review = Review.query.get_or_404(review_id)
     

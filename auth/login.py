@@ -2,10 +2,11 @@ from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_user, current_user
 from flask_babel import gettext as _
 from . import auth_bp
-from extensions import bcrypt
+from extensions import bcrypt, limiter
 from models import User
 
 @auth_bp.route("/login", methods=["GET", "POST"])
+@limiter.limit("5 per minute")
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))

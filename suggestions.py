@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from flask_babel import gettext as _
 from auth.decorators import admin_required
-from extensions import db
+from extensions import db, limiter
 from models import Suggestion, SuggestionVote
 from datetime import datetime
 from sqlalchemy import desc
@@ -22,6 +22,7 @@ def suggestions_list():
 
 @suggestions_bp.route('/suggestions', methods=['POST'])
 @login_required
+@limiter.limit("5 per hour")
 def create_suggestion():
     title = request.form.get('title', '').strip()
     description = request.form.get('description', '').strip()
@@ -46,6 +47,7 @@ def create_suggestion():
 
 @suggestions_bp.route('/suggestion/<int:suggestion_id>/upvote', methods=['POST'])
 @login_required
+@limiter.limit("30 per minute")
 def upvote_suggestion(suggestion_id):
     suggestion = Suggestion.query.get_or_404(suggestion_id)
     
@@ -76,6 +78,7 @@ def upvote_suggestion(suggestion_id):
 
 @suggestions_bp.route('/suggestion/<int:suggestion_id>/downvote', methods=['POST'])
 @login_required
+@limiter.limit("30 per minute")
 def downvote_suggestion(suggestion_id):
     suggestion = Suggestion.query.get_or_404(suggestion_id)
     
