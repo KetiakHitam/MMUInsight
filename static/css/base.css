@@ -241,9 +241,7 @@ button,
 
 button:hover,
 .btn:hover {
-    background-color: var(--primary-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    opacity: 0.8;
 }
 
 button:active,
