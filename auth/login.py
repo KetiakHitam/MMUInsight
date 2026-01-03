@@ -28,7 +28,7 @@ def login():
         return redirect(url_for("auth.login"))
 
     if not user.is_verified:
-        flash(_("Account not verified yet"), "error")
+        flash(_("Account not verified. Please check your email for the verification link."), "error")
         return redirect(url_for("auth.login"))
 
     if not bcrypt.check_password_hash(user.password_hash, password):

@@ -30,6 +30,7 @@
     {% if current_user.is_authenticated and current_user.user_type == 'lecturer' and not lecturer.is_claimed and not current_user.is_claimed %}
     <div style="max-width: 800px; margin-left: auto; margin-right: auto; margin-bottom: 20px;">
         <form method="POST" action="{{ url_for('reviews.claim_profile', lecturer_id=lecturer.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">
                 🔐 Claim This Profile
             </button>
@@ -229,6 +230,7 @@
                    style="background-color: #dc3545; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.9em; height: 32px; box-sizing: border-box; margin: 0;">Delete</a>
                 {% elif current_user.is_mod() %}
                 <form method="POST" style="display: inline; margin: 0;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     {% if review.is_pinned %}
                     <a href="{{ url_for('reviews.unpin_review', review_id=review.id) }}" onclick="return confirm('Unpin this review?');" style="background-color: #6c757d; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; display: flex; align-items: center; justify-content: center; margin-right: 8px; font-size: 0.9em; height: 32px; box-sizing: border-box;">Unpin</a>
                     {% else %}
@@ -252,6 +254,7 @@
             </div>
             <div id="report-form-{{ review.id }}" style="display: none; margin-top: 10px; padding: 12px; background-color: #f8f9fa; border-radius: 4px; border: 1px solid #e9ecef;">
                 <form method="POST" action="{{ url_for('reviews.report_review', review_id=review.id) }}" style="display: flex; flex-direction: column;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <textarea name="reason" rows="2" placeholder="Why are you reporting this review?" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 3px;" required></textarea>
                     <div style="display: flex; justify-content: flex-end; gap: 8px;">
                         <button type="submit" style="background-color: #dc3545; color: white; padding: 6px 14px; border: none; border-radius: 3px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important; font-size: 0.9em;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Submit</button>
@@ -318,6 +321,7 @@
                     
                     <div id="reply-edit-{{ reply.id }}" style="display: none;">
                         <form method="POST" action="{{ url_for('reviews.edit_reply', reply_id=reply.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <textarea name="reply_text" rows="3" style="width: 100%; padding: 8px; margin: 8px 0; border: 1px solid #ddd; border-radius: 3px;">{{ reply.reply_text }}</textarea>
                             <div style="display: flex; gap: 8px; align-items: center;">
                                 <button type="submit" style="background-color: #28a745; color: white; padding: 5px 12px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85em; display: flex; align-items: center; justify-content: center; height: 28px; box-sizing: border-box; margin: 0;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Save</button>
@@ -333,6 +337,7 @@
             {% if current_user.is_authenticated and (current_user.user_type in ['student', 'lecturer'] or current_user.is_mod()) %}
             <div style="margin-top: 18px; padding-top: 15px; border-top: 1px solid #f0f0f0; background-color: #fafafa; padding: 15px; border-radius: 4px; margin-left: -25px; margin-right: -25px; margin-bottom: -25px; padding-left: 25px; padding-right: 25px; padding-bottom: 25px;">
                 <form method="POST" action="{{ url_for('reviews.add_reply', review_id=review.id) }}" style="display: flex; flex-direction: column; gap: 10px;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <textarea name="reply_text" rows="3" placeholder="Write a reply..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 0.95em;" required></textarea>
                     <div style="display: flex; justify-content: flex-end;">
                         <button type="submit" style="background-color: #007bff; color: white; padding: 8px 16px; border: none; border-radius: 3px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important; font-size: 0.9em;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Post Reply</button>

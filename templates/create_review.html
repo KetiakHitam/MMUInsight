@@ -7,6 +7,7 @@
     <h2>Write a Review for {{ lecturer.email }}</h2>
     
     <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="form-group">
             <label for="review_text">Review:</label>
             <textarea id="review_text" name="review_text" rows="5" required></textarea>

@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from extensions import db, bcrypt, login_manager, limiter
+from extensions import db, bcrypt, login_manager, limiter, csrf, mail
 from models import User, Subject, Review, Suggestion, SuggestionVote
 from auth import auth_bp
 from reviews import reviews_bp
@@ -21,6 +21,14 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(BASE_DIR, 'database', 'mmuinsight.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Email configuration
+app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', 'on', '1']
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@mmuinsight.edu.my')
 app.config['BABEL_DEFAULT_LOCALE'] = 'en'
 app.config['BABEL_DEFAULT_TIMEZONE'] = 'UTC'
 app.config['LANGUAGES'] = {
@@ -38,6 +46,8 @@ db.init_app(app)
 bcrypt.init_app(app)
 login_manager.init_app(app)
 limiter.init_app(app)
+csrf.init_app(app)
+mail.init_app(app)
 babel = Babel(app, locale_selector=get_locale)
 
 @login_manager.user_loader
@@ -46,11 +56,18 @@ def load_user(user_id):
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(reviews_bp)
+app.register_blueprint(suggestions_bp)
 
 @app.route("/set-language/<language>")
 def set_language(language):
     if language in app.config['LANGUAGES']:
         session['language'] = language
+    return redirect(request.referrer or url_for('index'))
+
+@app.route("/set-theme/<theme>")
+def set_theme(theme):
+    if theme in ['light', 'dark']:
+        session['theme'] = theme
     return redirect(request.referrer or url_for('index'))
 
 @app.route("/", methods=["GET"])
@@ -83,6 +100,18 @@ def register():
 @app.route("/Professor-info.html")
 def Professors():
     return render_template('Professor-info.html')
+
+@app.route("/terms-of-service")
+def terms_of_service():
+    return render_template('terms_of_service.html')
+
+@app.route("/privacy-policy")
+def privacy_policy():
+    return render_template('privacy_policy.html')
+
+@app.route("/about")
+def about_us():
+    return render_template('about_us.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
