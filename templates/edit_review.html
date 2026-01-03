@@ -44,6 +44,32 @@
             <small>Assessments match taught content</small>
         </div>
 
+        <div class="form-group" style="margin-top: 25px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+            <label style="display: flex; align-items: center; cursor: pointer; font-size: 1.05em;">
+                <input type="checkbox" name="is_anonymous" id="is_anonymous" {% if review.is_anonymous %}checked{% endif %} style="width: 20px; height: 20px; margin-right: 10px; cursor: pointer;">
+                <span>🕶️ Post this review anonymously</span>
+            </label>
+            <small style="color: #666; display: block; margin-top: 8px; margin-left: 30px;">Your email will be hidden from other students, but you can still edit/delete the review</small>
+        </div>
+
+        <div class="form-group">
+            <label>Would you recommend this lecturer to other students?</label>
+            <div style="margin-top: 10px;">
+                <label style="display: inline-block; margin-right: 20px;">
+                    <input type="radio" name="recommend" value="yes" {% if review.recommend %}checked{% endif %} required> 👍 Yes, I would recommend
+                </label>
+                <label style="display: inline-block;">
+                    <input type="radio" name="recommend" value="no" {% if not review.recommend %}checked{% endif %} required> 👎 No, I would not recommend
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="subject_code">Subject Code & Name (Optional):</label>
+            <input type="text" id="subject_code" name="subject_code" value="{{ review.subject_code if review.subject_code else '' }}" placeholder="e.g., CMT1134 - MATHEMATICS III" maxlength="100">
+            <small>You can specify which subject/course this review is for, or leave it blank</small>
+        </div>
+
         <button type="submit">Update Review</button>
         <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id) }}">Cancel</a>
     </form>
