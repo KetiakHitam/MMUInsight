@@ -8,8 +8,10 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     user_type = db.Column(db.String(10), nullable=False, default='student')
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
+    is_claimed = db.Column(db.Boolean, nullable=False, default=False)
     verification_token = db.Column(db.String(100), nullable=True)
     reset_token = db.Column(db.String(100), nullable=True)
+    bio = db.Column(db.Text, nullable=True)
 
     reviews_written = db.relationship('Review', foreign_keys='Review.user_id', backref='author', lazy=True)
     reviews_received = db.relationship('Review', foreign_keys='Review.lecturer_id', backref='lecturer', lazy=True)
@@ -18,7 +20,7 @@ class User(UserMixin, db.Model):
 
 class Subject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    subject_code = db.Column(db.String(20), unique=True, nullable=False)
+    subject_code = db.Column(db.String(100), nullable=True)
     subject_name = db.Column(db.String(100), nullable=False)
 
     reviews = db.relationship('Review', backref='subject', lazy=True)
@@ -31,10 +33,13 @@ class Review(db.Model):
     rating_punctuality = db.Column(db.Integer, nullable=False)
     rating_responsiveness = db.Column(db.Integer, nullable=False)
     rating_fairness = db.Column(db.Integer, nullable=False)
+    recommend = db.Column(db.Boolean, nullable=False, default=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     lecturer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=True)
     review_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    is_anonymous = db.Column(db.Boolean, nullable=False, default=False)
+    subject_code = db.Column(db.String(100), nullable=True)
     
     replies = db.relationship('Reply', backref='review', lazy=True, cascade='all, delete-orphan')
     reports = db.relationship('Report', backref='review', lazy=True, cascade='all, delete-orphan')
@@ -45,6 +50,7 @@ class Reply(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     review_id = db.Column(db.Integer, db.ForeignKey('review.id'), nullable=False)
     reply_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    is_edited = db.Column(db.Boolean, nullable=False, default=False)
 
 class Report(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -1,8 +1,9 @@
-from flask import Flask, get_flashed_messages, render_template_string, render_template, request, jsonify
+from flask import Flask, get_flashed_messages, render_template_string, render_template, request, jsonify, session, redirect, url_for
 from flask_login import LoginManager, current_user
+from flask_babel import Babel, gettext
 import os
 
-from extensions import db, bcrypt
+from extensions import db, bcrypt, login_manager
 from models import User, Subject, Review
 from auth import auth_bp
 from reviews import reviews_bp
@@ -15,13 +16,23 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(BASE_DIR, 'database', 'mmuinsight.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config['BABEL_DEFAULT_LOCALE'] = 'en'
+app.config['BABEL_DEFAULT_TIMEZONE'] = 'UTC'
+app.config['LANGUAGES'] = {
+    'en': 'English',
+    'ms': 'Malay',
+    'zh': 'Chinese'
+}
+
+def get_locale():
+    if 'language' in session:
+        return session['language']
+    return request.accept_languages.best_match(app.config['LANGUAGES'].keys()) or 'en'
 
 db.init_app(app)
 bcrypt.init_app(app)
-
-login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'auth.login'
+babel = Babel(app, locale_selector=get_locale)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -30,11 +41,15 @@ def load_user(user_id):
 app.register_blueprint(auth_bp)
 app.register_blueprint(reviews_bp)
 
+@app.route("/set-language/<language>")
+def set_language(language):
+    if language in app.config['LANGUAGES']:
+        session['language'] = language
+    return redirect(request.referrer or url_for('index'))
+
 @app.route("/", methods=["GET"])
 def index():
-    if current_user.is_authenticated:
-        return render_template('index.html')
-    
+    return render_template('index.html')
 
 @app.route("/search", methods=["GET"])
 def search_page():
@@ -54,7 +69,6 @@ def search_page():
 
     return render_template(
         "index.html",
-        lecturers=current_user.is_authenticated and User.query.filter_by(user_type='lecturer').all() or None,
         search_query=q,
         search_results=results,
         sort=sort,
@@ -78,25 +92,6 @@ def register():
 @app.route("/Professor-info.html")
 def Professors():
     return render_template('Professor-info.html')
-
-
-'''@app.route('/search')
-def search():
-    """Search users by email (case-insensitive partial match).
-
-    Query param: q
-    Returns JSON list of objects: {id, email, user_type}
-    """
-    q = request.args.get('q', '')
-    q = q.strip()
-    if not q:
-        return jsonify([])
-
-    # only return lecturers so student emails aren't exposed
-    matches = User.query.filter(User.user_type == 'lecturer', User.email.ilike(f"%{q}%")).limit(20).all()
-    results = [{'id': u.id, 'email': u.email, 'user_type': u.user_type} for u in matches]
-    return jsonify(results)
-'''
 
 if __name__ == "__main__":
     app.run(debug=True)

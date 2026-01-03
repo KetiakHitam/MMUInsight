@@ -8,8 +8,21 @@
 
 {% block content %}
 <div class="container">
-    <h2>{{ lecturer.email }}</h2>
+    <h2>
+        {{ lecturer.email }}
+        {% if lecturer.is_claimed %}
+        <span style="color: #28a745; font-size: 0.8em;">✓ Verified</span>
+        {% endif %}
+    </h2>
     <p>Lecturer Profile</p>
+    
+    {% if current_user.is_authenticated and current_user.user_type == 'lecturer' and not lecturer.is_claimed and not current_user.is_claimed %}
+    <form method="POST" action="{{ url_for('reviews.claim_profile', lecturer_id=lecturer.id) }}" style="margin-bottom: 20px;">
+        <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer;">
+            🔐 Claim This Profile
+        </button>
+    </form>
+    {% endif %}
     
     {% if averages %}
     <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #dee2e6;">
@@ -21,12 +34,17 @@
             <li><strong>Responsiveness:</strong> {{ averages.responsiveness }}/5</li>
             <li><strong>Fairness:</strong> {{ averages.fairness }}/5</li>
         </ul>
+        {% if recommend_percentage is not none %}
+        <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;"><strong>Would Recommend:</strong> <span style="font-size: 1.3em; color: #28a745;">{{ recommend_percentage }}%</span> of students</p>
+        {% endif %}
     </div>
     {% endif %}
     
     {% if (current_user.id == lecturer.id and current_user.user_type == 'lecturer') or current_user.user_type == 'admin' %}
     <a href="{{ url_for('reviews.analytics', lecturer_id=lecturer.id) }}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; margin-bottom: 20px;">📊 View Analytics Dashboard</a>
     {% endif %}
+    
+    <a href="{{ url_for('reviews.lecturer_bio', lecturer_id=lecturer.id) }}" style="background-color: #6f42c1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; margin-bottom: 20px; margin-left: 10px;">📝 View Bio</a>
     
     {% if current_user.user_type == 'student' %}
     <a href="{{ url_for('reviews.student_analytics', lecturer_id=lecturer.id) }}" style="background-color: #17a2b8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; margin-bottom: 20px;">📈 View Student Analytics</a>
@@ -37,8 +55,24 @@
     {% if reviews %}
         {% for review in reviews %}
         <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 5px;">
-            <p><strong>By:</strong> {{ review.author.email }}</p>
+            <p><strong>By:</strong> 
+                {% if review.is_anonymous and current_user.user_type != 'admin' %}
+                    <span style="color: #6c757d;">🕶️ Anonymous Student</span>
+                {% else %}
+                    {{ review.author.email }}
+                    {% if review.is_anonymous and current_user.user_type == 'admin' %}
+                        <span style="color: #dc3545; font-size: 0.85em; margin-left: 5px;">(Anonymous to others)</span>
+                    {% endif %}
+                {% endif %}
+                {% if review.author == current_user %}
+                    <span style="color: #999; font-size: 0.9em; margin-left: 10px;">(You)</span>
+                {% endif %}
+            </p>
             <p><strong>Review:</strong> {{ review.review_text }}</p>
+            
+            {% if review.subject_code %}
+            <p><strong>Subject:</strong> <span style="background-color: #e7f3ff; padding: 4px 10px; border-radius: 3px; font-size: 0.95em;">{{ review.subject_code }}</span></p>
+            {% endif %}
             
             <p><strong>Ratings:</strong></p>
             <ul>
@@ -48,6 +82,13 @@
                 <li>Responsiveness: {{ review.rating_responsiveness }}/5</li>
                 <li>Fairness: {{ review.rating_fairness }}/5</li>
             </ul>
+
+            <div style="display: inline-block; padding: 5px 10px; margin: 5px 0; border-radius: 3px; background-color: {% if review.recommend %}#d4edda{% else %}#f8d7da{% endif %};">
+                <span style="font-size: 1.2em;">{% if review.recommend %}👍{% else %}👎{% endif %}</span>
+                <span style="color: {% if review.recommend %}#155724{% else %}#721c24{% endif %}; margin-left: 5px;">
+                    {% if review.recommend %}Would recommend{% else %}Would not recommend{% endif %}
+                </span>
+            </div>
             
             {% if review.author == current_user %}
             <a href="{{ url_for('reviews.edit_review', review_id=review.id) }}" style="background-color: #ffc107; color: black; padding: 5px 10px; text-decoration: none; border-radius: 3px;">Edit</a>
@@ -71,19 +112,52 @@
             <div style="margin-top: 20px; padding-left: 20px; border-left: 3px solid #dee2e6;">
                 <h4 style="margin-bottom: 10px;">💬 Discussion Thread:</h4>
                 {% for reply in review.replies %}
-                <div style="margin-bottom: 15px; padding: 10px; background-color: {% if reply.author.user_type == 'lecturer' %}#e7f3ff{% else %}#f8f9fa{% endif %}; border-radius: 3px;">
-                    <p style="margin: 0; font-weight: bold; color: {% if reply.author.user_type == 'lecturer' %}#007bff{% else %}#333{% endif %};">
-                        {{ reply.author.email }} 
-                        {% if reply.author.user_type == 'lecturer' %}(Lecturer){% endif %}
+                <div id="reply-{{ reply.id }}" style="margin-bottom: 15px; padding: 10px; background-color: {% if reply.author.user_type == 'lecturer' %}#e7f3ff{% elif reply.author == review.author and review.is_anonymous and current_user.user_type != 'admin' %}#ffe7e7{% elif reply.author == review.author %}#ffe7e7{% else %}#f8f9fa{% endif %}; border-radius: 3px; position: relative;">
+                    <p style="margin: 0; font-weight: bold; color: {% if reply.author.user_type == 'lecturer' %}#007bff{% elif reply.author == review.author %}#dc3545{% else %}#333{% endif %};">
+                        {% if reply.author == review.author and review.is_anonymous and current_user.user_type != 'admin' %}
+                            🕶️ Anonymous Student (OP)
+                        {% else %}
+                            {{ reply.author.email }}
+                            {% if reply.author.user_type == 'lecturer' %}
+                                (Lecturer)
+                            {% elif reply.author == review.author %}
+                                (OP)
+                            {% endif %}
+                        {% endif %}
                     </p>
-                    <p style="margin: 5px 0;">{{ reply.reply_text }}</p>
-                    <p style="font-size: 0.9em; color: #666; margin: 0;">{{ reply.reply_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                    
+                    <div id="reply-display-{{ reply.id }}">
+                        <p style="margin: 5px 0;">{{ reply.reply_text }}</p>
+                        <p style="font-size: 0.9em; color: #666; margin: 0;">
+                            {{ reply.reply_date.strftime('%Y-%m-%d %H:%M') }}
+                            {% if reply.is_edited %}
+                            <span style="font-style: italic; color: #999; margin-left: 5px;">(edited)</span>
+                            {% endif %}
+                        </p>
+                        
+                        {% if reply.author == current_user %}
+                        <div style="margin-top: 8px;">
+                            <button onclick="showEditForm({{ reply.id }})" style="background-color: #ffc107; color: black; padding: 4px 10px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85em;">Edit</button>
+                            <a href="{{ url_for('reviews.delete_reply', reply_id=reply.id) }}" 
+                               onclick="return confirm('Delete this reply?');"
+                               style="background-color: #dc3545; color: white; padding: 4px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; margin-left: 5px; display: inline-block;">Delete</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div id="reply-edit-{{ reply.id }}" style="display: none;">
+                        <form method="POST" action="{{ url_for('reviews.edit_reply', reply_id=reply.id) }}">
+                            <textarea name="reply_text" rows="3" style="width: 100%; padding: 8px; margin: 5px 0;">{{ reply.reply_text }}</textarea>
+                            <button type="submit" style="background-color: #28a745; color: white; padding: 5px 12px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.9em;">Save</button>
+                            <button type="button" onclick="hideEditForm({{ reply.id }})" style="background-color: #6c757d; color: white; padding: 5px 12px; border: none; border-radius: 3px; cursor: pointer; margin-left: 5px; font-size: 0.9em;">Cancel</button>
+                        </form>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
             {% endif %}
             
-            {% if (current_user.id == lecturer.id and current_user.user_type == 'lecturer') or (current_user.user_type == 'student' and review.author == current_user) %}
+            {% if current_user.user_type in ['student', 'lecturer'] %}
             <form method="POST" action="{{ url_for('reviews.add_reply', review_id=review.id) }}" style="margin-top: 15px;">
                 <textarea name="reply_text" rows="2" placeholder="Write a reply..." style="width: 100%; padding: 8px;" required></textarea>
                 <button type="submit" style="background-color: #007bff; color: white; padding: 8px 15px; border: none; border-radius: 3px; margin-top: 5px; cursor: pointer;">Post Reply</button>
@@ -102,4 +176,16 @@
     <br><br>
     <a href="{{ url_for('index') }}">Back to Home</a>
 </div>
+
+<script>
+function showEditForm(replyId) {
+    document.getElementById('reply-display-' + replyId).style.display = 'none';
+    document.getElementById('reply-edit-' + replyId).style.display = 'block';
+}
+
+function hideEditForm(replyId) {
+    document.getElementById('reply-display-' + replyId).style.display = 'block';
+    document.getElementById('reply-edit-' + replyId).style.display = 'none';
+}
+</script>
 {% endblock %}
