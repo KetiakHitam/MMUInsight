@@ -22,7 +22,6 @@ db_path = os.path.join(BASE_DIR, 'database', 'mmuinsight.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# Email configuration
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', 'on', '1']
@@ -114,4 +113,7 @@ def about_us():
     return render_template('about_us.html')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # use DEBUG from environment variable (.env file)
+    # never hardcode debug=True - it's a critical security risk in production
+    debug_mode = os.environ.get("DEBUG", "False").lower() in ['true', '1', 'yes']
+    app.run(debug=debug_mode)
