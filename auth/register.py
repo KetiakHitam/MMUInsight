@@ -1,10 +1,25 @@
 import uuid
+import re
 from flask import render_template, request, redirect, url_for, flash
 from flask_babel import gettext as _
 from flask_mail import Message
 from . import auth_bp
 from extensions import db, bcrypt, limiter, mail
 from models import User
+
+def validate_password_strength(password):
+    """Validate password meets security requirements"""
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters long"
+    if not re.search(r'[A-Z]', password):
+        return False, "Password must contain at least one uppercase letter"
+    if not re.search(r'[a-z]', password):
+        return False, "Password must contain at least one lowercase letter"
+    if not re.search(r'[0-9]', password):
+        return False, "Password must contain at least one number"
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        return False, "Password must contain at least one special character (!@#$%^&*)"
+    return True, "Password is strong"
 
 
 @auth_bp.route("/register", methods=["GET", "POST"])
@@ -31,6 +46,12 @@ def register():
 
     if password != confirm_password:
         flash(_("Passwords do not match"), "error")
+        return redirect(url_for("auth.register"))
+    
+    # Validate password strength
+    is_valid, message = validate_password_strength(password)
+    if not is_valid:
+        flash(_(message), "error")
         return redirect(url_for("auth.register"))
     
     # Check if user already exists
