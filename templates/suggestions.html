@@ -67,17 +67,12 @@
                     </div>
                 </div>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <span style="background-color: 
-                        {% if suggestion.status == 'planned' %}#d1f4e0
-                        {% elif suggestion.status == 'reviewing' %}#fff0cc
-                        {% elif suggestion.status == 'pending' %}#e3f2fd
-                        {% else %}#e7f3ff{% endif %}; 
-                        color: 
-                        {% if suggestion.status == 'planned' %}#0d8a4d
-                        {% elif suggestion.status == 'reviewing' %}#d97706
-                        {% elif suggestion.status == 'pending' %}#1565c0
-                        {% else %}#0056b3{% endif %}; 
-                        padding: 4px 12px; border-radius: 12px; font-size: 0.8em; font-weight: 600;">{{ suggestion.status.title() }}</span>
+                    <span style="
+                        background-color: {% if suggestion.status == 'planned' %}#d1f4e0{% else %}{% if suggestion.status == 'reviewing' %}#fff0cc{% else %}{% if suggestion.status == 'pending' %}#e3f2fd{% else %}{% if suggestion.status == 'rejected' %}#ffe5e5{% else %}#e7f3ff{% endif %}{% endif %}{% endif %}{% endif %};
+                        color: {% if suggestion.status == 'planned' %}#0d8a4d{% else %}{% if suggestion.status == 'reviewing' %}#d97706{% else %}{% if suggestion.status == 'pending' %}#1565c0{% else %}{% if suggestion.status == 'rejected' %}#c62828{% else %}#0056b3{% endif %}{% endif %}{% endif %}{% endif %};
+                        padding: 4px 12px; border-radius: 12px; font-size: 0.8em; font-weight: 600;">
+                        {{ suggestion.status.title() }}
+                    </span>
                 </div>
             </div>
             

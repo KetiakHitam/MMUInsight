@@ -1,3 +1,8 @@
+/* Category label for review breakdown */
+.review-category-label {
+    color: var(--gray-400);
+    font-weight: 400;
+}
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
 :root {
@@ -418,6 +423,32 @@ button:disabled,
 }
 
 /* ============================================
+   RECOMMENDATION BADGES
+   ============================================ */
+
+.recommend-badge {
+    display: inline-block;  
+    padding: 3px 11px;
+    border-radius: 3px;
+    font-size: 0.97em;
+    font-weight: 500;
+    margin-left: 12px;
+    border: 1px solid transparent;
+}
+
+.recommend-badge--yes {
+    background-color: #bfffbd;
+    color: #166534;
+    border-color: #2ac522;
+}
+
+.recommend-badge--no {
+    background-color: #ffc9c9;
+    color: #991b1b;
+    border-color: #fba2a2;
+}
+
+/* ============================================
    UTILITY CLASSES
    ============================================ */
 
@@ -629,4 +660,21 @@ body.dark-mode a {
 
 body.dark-mode a:hover {
     color: #90caf9 !important;
+}
+
+/* Updated admin table styles for robust layout */
+.admin-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.admin-table td.title-cell,
+.admin-table td.description-cell {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px; /* Fixed column width */
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Clamp text to 3 lines */
+    -webkit-box-orient: vertical;
 }
