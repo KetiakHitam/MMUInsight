@@ -230,11 +230,16 @@
 
             <div style="margin-bottom: 15px;">
                 <div style="border-top: 1px solid #eee; margin: 8px 0 8px 0; padding-top: 8px;">
-                    <div style="display: flex; align-items: baseline; gap: 8px; font-size: 1.13em; color: #222; margin-bottom: 2px;">
-                        <span style="font-weight: 500;">Overall:</span>
-                        <span style="font-weight: bold; font-size: 1.35em; letter-spacing: 0.5px;">{{ review.overall_score }}/5</span>
+                    <div style="display: flex; align-items: center; justify-content: space-between; font-size: 1.13em; color: #222; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: baseline; gap: 8px;">
+                            <span style="font-weight: 500;">Overall:</span>
+                            <span style="font-weight: bold; font-size: 1.35em; letter-spacing: 0.5px;">{{ review.overall_score }}/5</span>
+                        </div>
+                        <div style="display: inline-block; padding: 3px 10px; border-radius: 3px; background-color: {% if review.recommend %}#eaf7ec{% else %}#fbeaea{% endif %}; font-size: 0.92em; color: {% if review.recommend %}#155724{% else %}#721c24{% endif %}; font-weight: 500; opacity: 0.85; margin-left: 12px;">
+                            {% if review.recommend %}✓ Recommended{% else %}✗ Not Recommended{% endif %}
+                        </div>
                     </div>
-                    <dl style="margin: 0; padding: 0; font-size: 0.93em; color: #555; display: grid; grid-template-columns: auto max-content; row-gap: 2px; column-gap: 12px;">
+                    <dl style="margin: 0; padding: 0; font-size: 0.93em; color: #555; display: grid; grid-template-columns: auto max-content; row-gap: 0.5px; column-gap: 12px;">
                         <dt style="font-weight: 400; margin: 0;">Clarity</dt>
                         <dd style="font-weight: 600; margin: 0; text-align: right;">{{ review.rating_clarity }}/5</dd>
                         <dt style="font-weight: 400; margin: 0;">Engagement</dt>
@@ -249,9 +254,7 @@
                 </div>
             </div>
 
-            <div style="display: inline-block; padding: 3px 10px; border-radius: 3px; background-color: {% if review.recommend %}#eaf7ec{% else %}#fbeaea{% endif %}; margin-bottom: 10px; font-size: 0.92em; color: {% if review.recommend %}#155724{% else %}#721c24{% endif %}; font-weight: 500; opacity: 0.85;">
-                {% if review.recommend %}✓ Recommended{% else %}✗ Not Recommended{% endif %}
-            </div>
+
             
 
             </style>
