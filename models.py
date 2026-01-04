@@ -66,6 +66,16 @@ class Subject(db.Model):
     reviews = db.relationship('Review', backref='subject', lazy=True)
 
 class Review(db.Model):
+    @property
+    def overall_score(self):
+        ratings = [
+            self.rating_clarity,
+            self.rating_engagement,
+            self.rating_punctuality,
+            self.rating_responsiveness,
+            self.rating_fairness
+        ]
+        return round(sum(ratings) / len(ratings), 1)
     id = db.Column(db.Integer, primary_key=True)
     review_text = db.Column(db.Text, nullable=False)
     rating_clarity = db.Column(db.Integer, nullable=False)

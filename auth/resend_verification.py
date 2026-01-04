@@ -23,7 +23,6 @@ def resend_verification():
     user = User.query.filter_by(email=email).first()
     
     if not user:
-        # Don't reveal if user exists or not
         flash(_("If an unverified account exists with this email, a verification link has been sent."), "info")
         return redirect(url_for("auth.login"))
     
@@ -31,12 +30,10 @@ def resend_verification():
         flash(_("This account is already verified. Please log in."), "info")
         return redirect(url_for("auth.login"))
     
-    # Generate new token
     token = str(uuid.uuid4())
     user.verification_token = token
     db.session.commit()
     
-    # Send verification email
     verification_url = url_for('auth.verify_email', token=token, _external=True)
     
     try:
@@ -82,7 +79,6 @@ The MMUInsight Team
         mail.send(msg)
         flash(_("If an unverified account exists with this email, a verification link has been sent."), "info")
     except Exception as e:
-        # For development: show link if email fails
         flash(f"Email failed to send. Verification link: {verification_url}", "warning")
     
     return redirect(url_for("auth.login"))

@@ -39,7 +39,6 @@ def create_review(lecturer_id):
     
     review_text = request.form.get('review_text', '').strip()
     
-    # Validate all ratings are integers
     try:
         rating_clarity = int(request.form.get('rating_clarity', 0))
         rating_engagement = int(request.form.get('rating_engagement', 0))
@@ -50,7 +49,6 @@ def create_review(lecturer_id):
         flash(_("Invalid rating value. Ratings must be numbers."), "error")
         return redirect(url_for('reviews.create_review', lecturer_id=lecturer_id))
     
-    # Check that all ratings are in valid range (1-5)
     if not all([validate_rating(rating_clarity), validate_rating(rating_engagement), 
                 validate_rating(rating_punctuality), validate_rating(rating_responsiveness),
                 validate_rating(rating_fairness)]):
