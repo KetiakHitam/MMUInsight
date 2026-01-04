@@ -64,7 +64,7 @@
             <div style="color: {{ label_color }}; font-size: 1.15em; margin-top: 8px; font-weight: bold;">{{ rating_label }}</div>
         </div>
         
-        <!-- Rating Categories with Progress Bars -->
+
         <div style="margin-bottom: 22px;">
             <h3 style="margin: 0 0 15px 0; font-size: 1em; color: #333;">Rating Breakdown:</h3>
             
@@ -253,15 +253,15 @@
                 {% if review.recommend %}✓ Recommended{% else %}✗ Not Recommended{% endif %}
             </div>
             
-            <!-- ...existing code... -->
+
             </style>
             <script>
             function toggleKebabMenu(btn) {
-                // Hide all other open menus
+
                 document.querySelectorAll('.review-kebab-dropdown').forEach(function(menu) {
                     if (!menu.contains(btn)) menu.style.display = 'none';
                 });
-                // Toggle this one
+
                 var dropdown = btn.parentElement.querySelector('.review-kebab-dropdown');
                 if (dropdown) {
                     dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
@@ -282,7 +282,7 @@
             .review-kebab-btn:hover {
                 background: #f0f0f0;
             }
-            /* Kebab dropdown menu style refinement */
+
             .review-kebab-dropdown {
                 font-family: inherit;
                 font-size: 0.98em;
