@@ -182,15 +182,40 @@
                         {% endif %}
                     </div>
                 </div>
-                <div style="color: #999; font-size: 0.9em;">
-                    {% if (now - review.review_date).total_seconds() < 60 %}
-                        Just now
-                    {% elif (now - review.review_date).total_seconds() < 3600 %}
-                        {{ ((now - review.review_date).total_seconds() / 60) | int }} minutes ago
-                    {% elif (now - review.review_date).total_seconds() < 86400 %}
-                        {{ ((now - review.review_date).total_seconds() / 3600) | int }} hours ago
-                    {% else %}
-                        {{ review.review_date.strftime('%b ') }}{% set day = review.review_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ review.review_date.strftime(', %Y at %I:%M %p') }}
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="color: #999; font-size: 0.9em;">
+                        {% if (now - review.review_date).total_seconds() < 60 %}
+                            Just now
+                        {% elif (now - review.review_date).total_seconds() < 3600 %}
+                            {{ ((now - review.review_date).total_seconds() / 60) | int }} minutes ago
+                        {% elif (now - review.review_date).total_seconds() < 86400 %}
+                            {{ ((now - review.review_date).total_seconds() / 3600) | int }} hours ago
+                        {% else %}
+                            {{ review.review_date.strftime('%b ') }}{% set day = review.review_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ review.review_date.strftime(', %Y at %I:%M %p') }}
+                        {% endif %}
+                    </div>
+                    {% if current_user.is_authenticated %}
+                    <div class="review-kebab-menu-container" style="position: relative;">
+                        <button class="review-kebab-btn" aria-label="Actions" onclick="toggleKebabMenu(this)" style="background: none; border: none; padding: 4px; cursor: pointer; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">
+                            <span style="font-size: 1.5em; color: #888;">&#8942;</span>
+                        </button>
+                        <div class="review-kebab-dropdown" style="display: none; position: absolute; top: 36px; right: 0; min-width: 160px; background: rgba(255,255,255,0.97); box-shadow: 0 4px 16px rgba(0,0,0,0.13); border-radius: 8px; border: 1px solid #e0e0e0; z-index: 10;">
+                            {% if review.author == current_user %}
+                                <a href="{{ url_for('reviews.edit_review', review_id=review.id) }}" style="display: block; padding: 10px 18px; color: #333; text-decoration: none; font-size: 0.97em; border-bottom: 1px solid #f0f0f0;">Edit</a>
+                                <a href="{{ url_for('reviews.delete_review', review_id=review.id) }}" onclick="return confirm('Are you sure you want to delete this review? This cannot be undone.');" style="display: block; padding: 10px 18px; color: #d32f2f; text-decoration: none; font-size: 0.97em; border-bottom: 1px solid #f0f0f0;">Delete</a>
+                            {% elif current_user.is_mod() %}
+                                {% if review.is_pinned %}
+                                    <a href="{{ url_for('reviews.unpin_review', review_id=review.id) }}" onclick="return confirm('Unpin this review?');" style="display: block; padding: 10px 18px; color: #333; text-decoration: none; font-size: 0.97em; border-bottom: 1px solid #f0f0f0;">Unpin</a>
+                                {% else %}
+                                    <a href="{{ url_for('reviews.pin_review', review_id=review.id) }}" style="display: block; padding: 10px 18px; color: #333; text-decoration: none; font-size: 0.97em; border-bottom: 1px solid #f0f0f0;">Pin</a>
+                                {% endif %}
+                                <a href="{{ url_for('reviews.delete_review', review_id=review.id) }}" onclick="return confirm('Are you sure you want to delete this review? This cannot be undone.');" style="display: block; padding: 10px 18px; color: #d32f2f; text-decoration: none; font-size: 0.97em; border-bottom: 1px solid #f0f0f0;">Delete</a>
+                            {% endif %}
+                            {% if review.author != current_user %}
+                                <a href="#" onclick="document.getElementById('report-form-{{ review.id }}').style.display='block'; hideAllKebabMenus(); return false;" style="display: block; padding: 10px 18px; color: #007bff; text-decoration: none; font-size: 0.97em;">Report</a>
+                            {% endif %}
+                        </div>
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -202,56 +227,103 @@
             {% if review.subject_code %}
             <p style="margin-bottom: 12px;"><strong>Subject:</strong> <span style="background-color: #e7f3ff; padding: 4px 10px; border-radius: 3px; font-size: 0.95em;">{{ review.subject_code }}</span></p>
             {% endif %}
-            
-            <div style="margin-bottom: 15px;">
-            <p style="color: #000; font-size: 0.95em; font-weight: 600; margin: 0 0 8px 0;">Ratings:</p>
-            <div style="font-size: 0.9em; line-height: 1.4;">
-            <div style="color: #555; margin: 2px 0;">Clarity: <strong>{{ review.rating_clarity }}/5</strong></div>
-            <div style="color: #555; margin: 2px 0;">Engagement: <strong>{{ review.rating_engagement }}/5</strong></div>
-            <div style="color: #555; margin: 2px 0;">Punctuality: <strong>{{ review.rating_punctuality }}/5</strong></div>
-            <div style="color: #555; margin: 2px 0;">Responsiveness: <strong>{{ review.rating_responsiveness }}/5</strong></div>
-            <div style="color: #555; margin: 2px 0;">Fairness: <strong>{{ review.rating_fairness }}/5</strong></div>
-            </div>
-            </div>
 
-            <div style="display: inline-block; padding: 6px 14px; border-radius: 4px; background-color: {% if review.recommend %}#d4edda{% else %}#f8d7da{% endif %}; margin-bottom: 18px;">
-            <span style="color: {% if review.recommend %}#155724{% else %}#721c24{% endif %}; font-weight: 600; font-size: 0.95em;">
-            {% if review.recommend %}✓ Recommended{% else %}✗ Not Recommended{% endif %}
-            </span>
-            </div>
-            
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 20px; padding-top: 12px; border-top: 1px solid #f0f0f0;">
-                <div></div>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                {% if review.author == current_user %}
-                <a href="{{ url_for('reviews.edit_review', review_id=review.id) }}" style="background-color: #828a91; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.9em; height: 32px; box-sizing: border-box; margin: 0;">Edit</a>
-                <a href="{{ url_for('reviews.delete_review', review_id=review.id) }}" 
-                   onclick="return confirm('Are you sure you want to delete this review? This cannot be undone.');" 
-                   style="background-color: #dc3545; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.9em; height: 32px; box-sizing: border-box; margin: 0;">Delete</a>
-                {% elif current_user.is_mod() %}
-                <form method="POST" style="display: inline; margin: 0;">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    {% if review.is_pinned %}
-                    <a href="{{ url_for('reviews.unpin_review', review_id=review.id) }}" onclick="return confirm('Unpin this review?');" style="background-color: #6c757d; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; display: flex; align-items: center; justify-content: center; margin-right: 8px; font-size: 0.9em; height: 32px; box-sizing: border-box;">Unpin</a>
-                    {% else %}
-                    <a href="{{ url_for('reviews.pin_review', review_id=review.id) }}" style="background-color: #ffc107; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; display: flex; align-items: center; justify-content: center; margin-right: 8px; font-size: 0.9em; height: 32px; box-sizing: border-box;">📌 Pin</a>
-                    {% endif %}
-                </form>
-                <a href="{{ url_for('reviews.delete_review', review_id=review.id) }}" 
-                   onclick="return confirm('Are you sure you want to delete this review? This cannot be undone.');" 
-                   style="background-color: #dc3545; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.9em; height: 32px; box-sizing: border-box; margin: 0;">Delete</a>
-                {% endif %}
+            <div style="margin-bottom: 15px;">
+                <div style="border-top: 1px solid #eee; margin: 8px 0 8px 0; padding-top: 8px;">
+                    <div style="display: flex; align-items: baseline; gap: 8px; font-size: 1.13em; color: #222; margin-bottom: 2px;">
+                        <span style="font-weight: 500;">Overall:</span>
+                        <span style="font-weight: bold; font-size: 1.35em; letter-spacing: 0.5px;">{{ review.overall_score }}/5</span>
+                    </div>
+                    <dl style="margin: 0; padding: 0; font-size: 0.93em; color: #555; display: grid; grid-template-columns: auto max-content; row-gap: 2px; column-gap: 12px;">
+                        <dt style="font-weight: 400; margin: 0;">Clarity</dt>
+                        <dd style="font-weight: 600; margin: 0; text-align: right;">{{ review.rating_clarity }}/5</dd>
+                        <dt style="font-weight: 400; margin: 0;">Engagement</dt>
+                        <dd style="font-weight: 600; margin: 0; text-align: right;">{{ review.rating_engagement }}/5</dd>
+                        <dt style="font-weight: 400; margin: 0;">Punctuality</dt>
+                        <dd style="font-weight: 600; margin: 0; text-align: right;">{{ review.rating_punctuality }}/5</dd>
+                        <dt style="font-weight: 400; margin: 0;">Responsiveness</dt>
+                        <dd style="font-weight: 600; margin: 0; text-align: right;">{{ review.rating_responsiveness }}/5</dd>
+                        <dt style="font-weight: 400; margin: 0;">Fairness</dt>
+                        <dd style="font-weight: 600; margin: 0; text-align: right;">{{ review.rating_fairness }}/5</dd>
+                    </dl>
                 </div>
             </div>
+
+            <div style="display: inline-block; padding: 3px 10px; border-radius: 3px; background-color: {% if review.recommend %}#eaf7ec{% else %}#fbeaea{% endif %}; margin-bottom: 10px; font-size: 0.92em; color: {% if review.recommend %}#155724{% else %}#721c24{% endif %}; font-weight: 500; opacity: 0.85;">
+                {% if review.recommend %}✓ Recommended{% else %}✗ Not Recommended{% endif %}
+            </div>
+            
+            <!-- ...existing code... -->
+            </style>
+            <script>
+            function toggleKebabMenu(btn) {
+                // Hide all other open menus
+                document.querySelectorAll('.review-kebab-dropdown').forEach(function(menu) {
+                    if (!menu.contains(btn)) menu.style.display = 'none';
+                });
+                // Toggle this one
+                var dropdown = btn.parentElement.querySelector('.review-kebab-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
+                }
+            }
+            function hideAllKebabMenus() {
+                document.querySelectorAll('.review-kebab-dropdown').forEach(function(menu) {
+                    menu.style.display = 'none';
+                });
+            }
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.review-kebab-menu-container')) {
+                    hideAllKebabMenus();
+                }
+            });
+            </script>
+            <style>
+            .review-kebab-btn:hover {
+                background: #f0f0f0;
+            }
+            /* Kebab dropdown menu style refinement */
+            .review-kebab-dropdown {
+                font-family: inherit;
+                font-size: 0.98em;
+                color: #222;
+                background: #fff;
+                border-radius: 8px;
+                border: 1px solid #e0e0e0;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+                padding: 4px 0;
+                animation: fadeInKebab 0.18s;
+            }
+            .review-kebab-dropdown a {
+                display: block;
+                padding: 10px 20px;
+                color: #222;
+                text-decoration: none;
+                font-weight: 400;
+                border-bottom: 1px solid #f3f3f3;
+                transition: background 0.15s, color 0.15s;
+            }
+            .review-kebab-dropdown a:last-child {
+                border-bottom: none;
+            }
+            .review-kebab-dropdown a:hover {
+                background: #f6f8fa;
+                color: #007bff;
+            }
+            .review-kebab-dropdown a[style*="color: #d32f2f"] {
+                color: #d32f2f;
+            }
+            .review-kebab-dropdown a[style*="color: #007bff"] {
+                color: #007bff;
+            }
+            @keyframes fadeInKebab {
+                from { opacity: 0; transform: translateY(-8px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            </style>
             
             {% if current_user.user_type == 'student' and review.author != current_user %}
-            <div style="max-width: 800px; margin-left: auto; margin-right: auto; padding: 10px 0; margin-bottom: 15px;">
-            {% if review.id in reported_review_ids %}
-                <span style="color: #999; font-style: italic; font-size: 0.9em;">You have already reported this review.</span>
-            {% else %}
-                <a href="#" onclick="document.getElementById('report-form-{{ review.id }}').style.display='block'; return false;" style="color: #007bff; text-decoration: underline; cursor: pointer; font-size: 0.9em;">Report</a>
-            {% endif %}
-            </div>
+            <div style="max-width: 800px; margin-left: auto; margin-right: auto; padding: 10px 0; margin-bottom: 15px;"></div>
             <div id="report-form-{{ review.id }}" style="display: none; margin-top: 10px; padding: 12px; background-color: #f8f9fa; border-radius: 4px; border: 1px solid #e9ecef;">
                 <form method="POST" action="{{ url_for('reviews.report_review', review_id=review.id) }}" style="display: flex; flex-direction: column;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
