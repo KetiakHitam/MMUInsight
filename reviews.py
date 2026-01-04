@@ -18,7 +18,7 @@ def validate_rating(value):
 
 @reviews_bp.route('/create_review/<int:lecturer_id>', methods=['GET', 'POST'])
 @login_required
-@limiter.limit("10 per hour")
+# @limiter.limit("10 per hour")  # Disabled for development
 def create_review(lecturer_id):
     if current_user.user_type != 'student':
         flash(_("Only students can write reviews"), "error")
@@ -234,7 +234,7 @@ def delete_review(review_id):
 
 @reviews_bp.route('/review/<int:review_id>/reply', methods=['POST'])
 @login_required
-@limiter.limit("20 per hour")
+# @limiter.limit("20 per hour")  # Disabled for development
 def add_reply(review_id):
     review = Review.query.get_or_404(review_id)
     
@@ -263,7 +263,7 @@ def add_reply(review_id):
 
 @reviews_bp.route('/review/<int:review_id>/report', methods=['POST'])
 @login_required
-@limiter.limit("5 per hour")
+# @limiter.limit("5 per hour")  # Disabled for development
 def report_review(review_id):
     review = Review.query.get_or_404(review_id)
     

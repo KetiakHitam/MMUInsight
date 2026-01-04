@@ -159,7 +159,7 @@
     
     {% if reviews %}
         {% for review in reviews %}
-        <div style="border: 1px solid {% if review.author == current_user %}#b3d9ff{% else %}#ddd{% endif %}; padding: 25px; margin-bottom: 25px; border-radius: 6px; max-width: 800px; margin-left: auto; margin-right: auto; background-color: {% if review.author == current_user %}#f0f7ff{% else %}#ffffff{% endif %};">
+        <div class="review-card" style="border: 1px solid {% if review.author == current_user %}#b3d9ff{% else %}#ddd{% endif %}; padding: 25px; margin-bottom: 25px; border-radius: 6px; max-width: 800px; margin-left: auto; margin-right: auto; background-color: {% if review.author == current_user %}#f0f7ff{% else %}#ffffff{% endif %};">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
                 <div style="display: flex; align-items: center; gap: 10px; color: #666; font-size: 0.95em; flex-wrap: wrap;">
                     {% if review.author == current_user %}
@@ -230,26 +230,26 @@
 
             <div style="margin-bottom: 15px;">
                 <div style="border-top: 1px solid #eee; margin: 8px 0 8px 0; padding-top: 8px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; font-size: 1.13em; color: #222; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; font-size: 1.19em; color: #222; margin-bottom: 10px;">
                         <div style="display: flex; align-items: baseline; gap: 8px;">
                             <span style="font-weight: 500;">Overall:</span>
-                            <span style="font-weight: bold; font-size: 1.35em; letter-spacing: 0.5px;">{{ review.overall_score }}/5</span>
+                            <span style="font-weight: bold; font-size: 1.42em; letter-spacing: 0.5px;">{{ review.overall_score }}/5</span>
                         </div>
-                        <div style="display: inline-block; padding: 3px 10px; border-radius: 3px; background-color: {% if review.recommend %}#eaf7ec{% else %}#fbeaea{% endif %}; font-size: 0.92em; color: {% if review.recommend %}#155724{% else %}#721c24{% endif %}; font-weight: 500; opacity: 0.85; margin-left: 12px;">
+                        <div style="display: inline-block; padding: 3px 11px; border-radius: 3px; background-color: {% if review.recommend %}#eaf7ec{% else %}#fbeaea{% endif %}; font-size: 0.97em; color: {% if review.recommend %}#155724{% else %}#721c24{% endif %}; font-weight: 500; opacity: 0.85; margin-left: 12px;">
                             {% if review.recommend %}✓ Recommended{% else %}✗ Not Recommended{% endif %}
                         </div>
                     </div>
-                    <dl style="margin: 0; padding: 0; font-size: 0.93em; color: #555; display: grid; grid-template-columns: auto max-content; row-gap: 0.5px; column-gap: 12px;">
-                        <dt style="font-weight: 400; margin: 0;">Clarity</dt>
-                        <dd style="font-weight: 600; margin: 0; text-align: right;">{{ review.rating_clarity }}/5</dd>
-                        <dt style="font-weight: 400; margin: 0;">Engagement</dt>
-                        <dd style="font-weight: 600; margin: 0; text-align: right;">{{ review.rating_engagement }}/5</dd>
-                        <dt style="font-weight: 400; margin: 0;">Punctuality</dt>
-                        <dd style="font-weight: 600; margin: 0; text-align: right;">{{ review.rating_punctuality }}/5</dd>
-                        <dt style="font-weight: 400; margin: 0;">Responsiveness</dt>
-                        <dd style="font-weight: 600; margin: 0; text-align: right;">{{ review.rating_responsiveness }}/5</dd>
-                        <dt style="font-weight: 400; margin: 0;">Fairness</dt>
-                        <dd style="font-weight: 600; margin: 0; text-align: right;">{{ review.rating_fairness }}/5</dd>
+                    <dl style="margin: 0; padding: 0; font-size: 0.93em; color: #555; display: grid; grid-template-columns: auto max-content; row-gap: 0; column-gap: 12px;">
+                        <dt style="font-weight: 400; margin: 0; padding: 2px 0; line-height: 1.1;">Clarity</dt>
+                        <dd style="font-weight: 600; margin: 0; padding: 2px 0; line-height: 1.1; text-align: right;">{{ review.rating_clarity }}/5</dd>
+                        <dt style="font-weight: 400; margin: 0; padding: 2px 0; line-height: 1.1;">Engagement</dt>
+                        <dd style="font-weight: 600; margin: 0; padding: 2px 0; line-height: 1.1; text-align: right;">{{ review.rating_engagement }}/5</dd>
+                        <dt style="font-weight: 400; margin: 0; padding: 2px 0; line-height: 1.1;">Punctuality</dt>
+                        <dd style="font-weight: 600; margin: 0; padding: 2px 0; line-height: 1.1; text-align: right;">{{ review.rating_punctuality }}/5</dd>
+                        <dt style="font-weight: 400; margin: 0; padding: 2px 0; line-height: 1.1;">Responsiveness</dt>
+                        <dd style="font-weight: 600; margin: 0; padding: 2px 0; line-height: 1.1; text-align: right;">{{ review.rating_responsiveness }}/5</dd>
+                        <dt style="font-weight: 400; margin: 0; padding: 2px 0; line-height: 1.1;">Fairness</dt>
+                        <dd style="font-weight: 600; margin: 0; padding: 2px 0; line-height: 1.1; text-align: right;">{{ review.rating_fairness }}/5</dd>
                     </dl>
                 </div>
             </div>
@@ -349,7 +349,7 @@
                             {% if reply.author == review.author and review.is_anonymous and not current_user.is_admin() %}
                                 <span style="color: #d32f2f;">Anonymous Student (OP)</span>
                             {% else %}
-                                <span style="color: {% if reply.author.user_type == 'lecturer' %}#0056b3{% elif reply.author == review.author %}#d32f2f{% else %}#333{% endif %};">{{ reply.author.email }}</span>
+                                <span style="color: #000;">{{ reply.author.email }}</span>
                                 {% if reply.is_admin and reply.author.role != 'OWNER' %}
                                     {% if reply.author.role == 'ADMIN' %}
                                     <span style="color: #6f42c1; font-weight: bold; font-size: 0.85em; margin-left: 5px; display: inline-block;">ADMIN</span>
@@ -357,7 +357,7 @@
                                     <span style="color: #28a745; font-weight: bold; font-size: 0.85em; margin-left: 5px; display: inline-block;">MOD</span>
                                     {% endif %}
                                 {% endif %}
-                                {% if reply.author.user_type == 'lecturer' %}
+                                {% if reply.author.user_type == 'lecturer' and not reply.is_admin %}
                                     <span style="color: #5e5e5e; font-weight: bold; font-size: 0.85em; margin-left: 5px; display: inline-block;">LECTURER</span>
                                 {% endif %}
                                 {% if reply.author == review.author %}
@@ -445,6 +445,16 @@ function hideEditForm(replyId) {
 </script>
 
 <style>
+/* Normalize fonts and colors inside review cards */
+.review-card {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #222;
+}
+.review-card, .review-card * {
+    font-family: inherit !important;
+    color: inherit !important;
+}
+
 button, a[style*="background-color"] {
     transition: filter 0.2s ease;
 }

@@ -38,9 +38,9 @@
         </div>
         
         <!-- Unverified Lecturers Card -->
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; border-left: 4px solid {% if unverified_lecturers > 0 %}#ffc107{% else %}#6c757d{% endif %};">
+        <div class="unverified-lecturers" style="background-color: #f8f9fa; padding: 20px; border-radius: 6px;">
             <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Unverified Lecturers</p>
-            <p style="font-size: 2.2em; font-weight: bold; color: {% if unverified_lecturers > 0 %}#ff9800{% else %}#333{% endif %}; margin: 0;">{{ unverified_lecturers }}</p>
+            <p style="font-size: 2.2em; font-weight: bold; color: #ff9800; margin: 0;">{{ unverified_lecturers }}</p>
         </div>
         
         <!-- Total Reviews Card -->
@@ -50,9 +50,9 @@
         </div>
         
         <!-- Pending Reports Card -->
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; border-left: 4px solid {% if pending_reports > 0 %}#dc3545{% else %}#6c757d{% endif %};">
+        <div class="pending-reports" style="background-color: #f8f9fa; padding: 20px; border-radius: 6px;">
             <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Pending Reports</p>
-            <p style="font-size: 2.2em; font-weight: bold; color: {% if pending_reports > 0 %}#dc3545{% else %}#333{% endif %}; margin: 0;">{{ pending_reports }}</p>
+            <p style="font-size: 2.2em; font-weight: bold; color: #dc3545; margin: 0;">{{ pending_reports }}</p>
         </div>
     </div>
     
@@ -65,4 +65,17 @@
     
     <a href="{{ url_for('index') }}" style="color: #007bff; text-decoration: none; font-size: 0.95em;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Back to Home</a>
 </div>
+
+<!-- Refactored problematic inline styles into CSS classes -->
+<style>
+    .unverified-lecturers {
+        background-color: #ffc107;
+        border-left: 4px solid #ffc107;
+    }
+
+    .pending-reports {
+        background-color: #dc3545;
+        border-left: 4px solid #dc3545;
+    }
+</style>
 {% endblock %}

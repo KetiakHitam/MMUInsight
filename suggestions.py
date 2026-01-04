@@ -128,3 +128,12 @@ def change_suggestion_status(suggestion_id, new_status):
     
     flash(f"Suggestion status updated to {new_status.title()}", "success")
     return redirect(url_for('suggestions.admin_suggestions'))
+
+@suggestions_bp.route('/admin/suggestion/<int:suggestion_id>/delete', methods=['POST'])
+@admin_required
+def delete_suggestion(suggestion_id):
+    suggestion = Suggestion.query.get_or_404(suggestion_id)
+    db.session.delete(suggestion)
+    db.session.commit()
+    flash('Suggestion deleted.', 'success')
+    return redirect(url_for('suggestions.admin_suggestions'))

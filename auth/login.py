@@ -6,7 +6,7 @@ from extensions import bcrypt, limiter
 from models import User
 
 @auth_bp.route("/login", methods=["GET", "POST"])
-@limiter.limit("5 per minute")
+# @limiter.limit("5 per minute")  # Disabled for development
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))

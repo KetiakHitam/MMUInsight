@@ -12,7 +12,7 @@ login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 limiter = Limiter(
     key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"],
+    default_limits=[],  # Disabled for development, "200 per day", "50 per hour"
     storage_uri="memory://"
 )
 csrf = CSRFProtect()
