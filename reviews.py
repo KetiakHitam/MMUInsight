@@ -8,6 +8,14 @@ from sqlalchemy import func
 
 reviews_bp = Blueprint('reviews', __name__)
 
+def validate_rating(value):
+    """Validate that rating is an integer between 1 and 5"""
+    try:
+        rating = int(value)
+        return 1 <= rating <= 5
+    except (ValueError, TypeError):
+        return False
+
 @reviews_bp.route('/create_review/<int:lecturer_id>', methods=['GET', 'POST'])
 @login_required
 @limiter.limit("10 per hour")
@@ -30,17 +38,31 @@ def create_review(lecturer_id):
         return render_template('create_review.html', lecturer=lecturer)
     
     review_text = request.form.get('review_text', '').strip()
-    rating_clarity = int(request.form.get('rating_clarity', 0))
-    rating_engagement = int(request.form.get('rating_engagement', 0))
-    rating_punctuality = int(request.form.get('rating_punctuality', 0))
-    rating_responsiveness = int(request.form.get('rating_responsiveness', 0))
-    rating_fairness = int(request.form.get('rating_fairness', 0))
+    
+    # Validate all ratings are integers
+    try:
+        rating_clarity = int(request.form.get('rating_clarity', 0))
+        rating_engagement = int(request.form.get('rating_engagement', 0))
+        rating_punctuality = int(request.form.get('rating_punctuality', 0))
+        rating_responsiveness = int(request.form.get('rating_responsiveness', 0))
+        rating_fairness = int(request.form.get('rating_fairness', 0))
+    except (ValueError, TypeError):
+        flash(_("Invalid rating value. Ratings must be numbers."), "error")
+        return redirect(url_for('reviews.create_review', lecturer_id=lecturer_id))
+    
+    # Check that all ratings are in valid range (1-5)
+    if not all([validate_rating(rating_clarity), validate_rating(rating_engagement), 
+                validate_rating(rating_punctuality), validate_rating(rating_responsiveness),
+                validate_rating(rating_fairness)]):
+        flash(_("All ratings must be between 1 and 5."), "error")
+        return redirect(url_for('reviews.create_review', lecturer_id=lecturer_id))
+    
     recommend = request.form.get('recommend')
     subject_id = request.form.get('subject_id')
     subject_code = request.form.get('subject_code', '').strip() or None
     is_anonymous = request.form.get('is_anonymous') == 'on'
     
-    if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]) or not recommend:
+    if not review_text or not recommend:
         flash(_("Please fill all fields"), "error")
         return redirect(url_for('reviews.create_review', lecturer_id=lecturer_id))
     
