@@ -10,60 +10,9 @@
     {% if current_user.is_authenticated %}
     <form method="GET" action="/search" style="margin-bottom: 30px;">
         <div class="form-group">
-            <input name="q" type="search" placeholder="Search for a lecturer..." 
-                   value="{{ search_query or '' }}"
-                   style="width: 100%; padding: 12px; font-size: 1em; border: 1px solid #ddd; border-radius: 5px;">
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{% block title %}MMUInsight{% endblock %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-</head>
-<body>
-    <div class="div-1">
-        <h1 class="Homepage-header">
-            <p class="Logo">Logo here</p>
-            <h1 class="Title">MMUInsight</h1>
-            <div class="buttons">
-                <a href="/register"><button>Register</button></a>
-            </div>
-        </h1>
-    </div>
-    <div class="horizontal-line"></div>
-    <br>
-    <div class="header">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+            <input name="q" type="search" placeholder="Search for a lecturer..." value="{{ search_query or '' }}" style="width: 100%; padding: 12px; font-size: 1em; border: 1px solid #ddd; border-radius: 5px;">
+            <input type="hidden" name="sort" value="{{ sort or 'az' }}">
 
-    </div>
-    <br>
-    <br>
-    <div class="div-2">
-    <form method="GET" action="/search">
-        <p class="search-bar">Type your Professor's Name here</p>
-        <input id="search-input" name="q" type="search" placeholder="Names go here..." value="{{ search_query or '' }}">
-        <input type="hidden" name="sort" value="{{ sort or 'az' }}">
-        <button type="submit">Search</button>
-        {% if current_user.is_authenticated %}
-        <p class="Account">Logged in as: {{ current_user.email }}</p>
-    </form>
-        <br>
-    {% else %}
-        <div class="login-links">
-            <h1>Welcome to MMUInsight</h1>
-            <p>Review and rate your lecturers</p>
-            <a href="/login">Login</a>
-            <a href="/register">Register</a>
-        </div>
-        <button type="submit" style="width: 100%; background-color: #007bff; color: white; padding: 12px; font-size: 1em; border: none; border-radius: 5px; cursor: pointer;">Search</button>
-    </form>
-    
     {% if search_results is not none %}
     <div style="margin-top: 30px;">
         <h3 style="color: #007bff; margin-bottom: 15px;">Search Results:</h3>
@@ -109,10 +58,4 @@
                 <div class="result-item">
                     <a href="/lecturer/{{ lecturer.id }}">{{ lecturer.email }}</a>
                 </div>
-            {% endfor %} 
-            {% endif %}
-    </div>
-{% endif %}
-
-
 </html>
