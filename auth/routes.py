@@ -1,4 +1,5 @@
 from flask import render_template, redirect, url_for, flash
+from flask_login import current_user
 from . import auth_bp
 from auth.decorators import login_required, admin_required
 from models import User, Report, Review
@@ -46,7 +47,6 @@ def admin_users():
 @admin_required
 def admin_verify_user(user_id):
     user = User.query.get(user_id)
-    current_user = User.query.filter_by(id=1).first()
     if user and current_user and current_user.can_manage_user(user):
         user.is_verified = True
         db.session.commit()
@@ -55,7 +55,6 @@ def admin_verify_user(user_id):
 @auth_bp.route("/admin/user/<int:user_id>/make-admin")
 @admin_required
 def admin_make_admin(user_id):
-    from flask_login import current_user
     user = User.query.get(user_id)
     if user and current_user.can_change_role(user, 'ADMIN'):
         user.role = 'ADMIN'
@@ -68,7 +67,6 @@ def admin_make_admin(user_id):
 @auth_bp.route("/admin/user/<int:user_id>/make-mod")
 @admin_required
 def admin_make_mod(user_id):
-    from flask_login import current_user
     user = User.query.get(user_id)
     if user and current_user.can_change_role(user, 'MOD'):
         user.role = 'MOD'
@@ -81,7 +79,6 @@ def admin_make_mod(user_id):
 @auth_bp.route("/admin/user/<int:user_id>/remove-role")
 @admin_required
 def admin_remove_role(user_id):
-    from flask_login import current_user
     user = User.query.get(user_id)
     if user and current_user.can_manage_user(user) and not user.is_owner():
         user.role = None
@@ -94,7 +91,6 @@ def admin_remove_role(user_id):
 @auth_bp.route("/admin/user/<int:user_id>/suspend")
 @admin_required
 def admin_suspend_user(user_id):
-    from flask_login import current_user
     user = User.query.get(user_id)
     if user and current_user.can_suspend_user(user):
         user.is_verified = False    
@@ -107,7 +103,6 @@ def admin_suspend_user(user_id):
 @auth_bp.route("/admin/user/<int:user_id>/delete")
 @admin_required
 def admin_delete_user(user_id):
-    from flask_login import current_user
     user = User.query.get(user_id)
     if user and current_user.can_delete_user(user):
         db.session.delete(user)
