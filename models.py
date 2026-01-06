@@ -9,6 +9,8 @@ class User(UserMixin, db.Model):
     user_type = db.Column(db.String(10), nullable=False, default='student')
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
     is_claimed = db.Column(db.Boolean, nullable=False, default=False)
+    # Whether the student has accepted the site-wide lecturer-profile consent notice
+    profile_consent = db.Column(db.Boolean, nullable=False, default=False)
     verification_token = db.Column(db.String(100), nullable=True)
     reset_token = db.Column(db.String(100), nullable=True)
     bio = db.Column(db.Text, nullable=True)
