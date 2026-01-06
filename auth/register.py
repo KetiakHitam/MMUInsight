@@ -1,5 +1,6 @@
 import uuid
 import re
+from datetime import datetime
 from flask import render_template, request, redirect, url_for, flash
 from flask_babel import gettext as _
 from flask_mail import Message
@@ -68,6 +69,7 @@ def register():
         password_hash=pw_hash,
         user_type=user_type,
         verification_token=token,
+        verification_token_created_at=datetime.utcnow(),
         is_verified=False
     )
 
