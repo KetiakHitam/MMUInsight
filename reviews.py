@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from flask_babel import gettext as _
 from extensions import db
@@ -7,6 +7,49 @@ from datetime import datetime
 from sqlalchemy import func
 
 reviews_bp = Blueprint('reviews', __name__)
+
+@reviews_bp.route('/lecturer/<int:lecturer_id>/terms', methods=['GET'])
+@login_required
+def lecturer_terms(lecturer_id):
+    # Only students must accept the terms; others are redirected to the profile
+    if current_user.user_type != 'student':
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+
+    lecturer = User.query.get_or_404(lecturer_id)
+    if lecturer.user_type != 'lecturer':
+        flash(_("Invalid lecturer"), "error")
+        return redirect(url_for('index'))
+
+    # If already accepted, send them to the profile
+    if current_user.profile_consent:
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+
+    return render_template('lecturer_terms.html', lecturer=lecturer)
+
+
+@reviews_bp.route('/lecturer/<int:lecturer_id>/accept_terms', methods=['POST'])
+@login_required
+def accept_lecturer_terms(lecturer_id):
+    if current_user.user_type != 'student':
+        flash(_("Only students need to accept terms"), "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+
+    lecturer = User.query.get_or_404(lecturer_id)
+    if lecturer.user_type != 'lecturer':
+        flash(_("Invalid lecturer"), "error")
+        return redirect(url_for('index'))
+
+    accepted = request.form.get('accepted') == 'on'
+    if not accepted:
+        flash(_("You must confirm that you have read and agree to the terms"), "error")
+        return redirect(url_for('reviews.lecturer_terms', lecturer_id=lecturer_id))
+
+    current_user.profile_consent = True
+    db.session.commit()
+
+    flash(_("Thank you — you may now view lecturer profiles."), "success")
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+
 
 @reviews_bp.route('/create_review/<int:lecturer_id>', methods=['GET', 'POST'])
 @login_required
@@ -68,6 +111,10 @@ def lecturer_profile(lecturer_id):
     if lecturer.user_type != 'lecturer':
         flash(_("Invalid lecturer"), "error")
         return redirect(url_for('index'))
+
+    # Students must accept the profile viewing terms before viewing profiles.
+    if current_user.user_type == 'student' and not current_user.profile_consent:
+        return redirect(url_for('reviews.lecturer_terms', lecturer_id=lecturer_id))
     
     reviews = Review.query.filter_by(lecturer_id=lecturer_id).all()
     

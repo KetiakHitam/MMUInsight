@@ -57,15 +57,18 @@ def search_page():
     sort = request.args.get("sort", "az")
     matches = search_lecturers_by_email(q)  # list of (User, score)
 
-    # determine results list and whether this was a fuzzy match (no exact 100% match)
-    if sort in ("az", "za"):
+    # determine whether this was a fuzzy match (no exact 100% match)
+    best_score = max([s for u, s in matches]) if matches else None
+    fuzzy = bool(matches and best_score < 100)
+
+    # if fuzzy match, show results by descending relevance (highest score first)
+    if fuzzy:
+        results = [u for u, s in sorted(matches, key=lambda x: x[1], reverse=True)]
+    elif sort in ("az", "za"):
         results = sorted([u for u, s in matches], key=lambda u: u.email.lower(), reverse=(sort == "za"))
     else:
         # default: sort by relevance score descending
         results = [u for u, s in sorted(matches, key=lambda x: x[1], reverse=True)]
-
-    best_score = max([s for u, s in matches]) if matches else None
-    fuzzy = bool(matches and best_score < 100)
 
     return render_template(
         "index.html",
