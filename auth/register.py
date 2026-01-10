@@ -128,6 +128,7 @@ The MMUInsight Team
         flash(_("Account created! Please check your email to verify your account."), "success")
     except Exception as e:
         # Email failed but account was created - don't expose token
+        print(f"EMAIL ERROR: {type(e).__name__}: {str(e)}")  # Print the actual error
         flash(_("Account created! However, verification email could not be sent. Please contact support."), "warning")
     
     return redirect(url_for("auth.login"))
