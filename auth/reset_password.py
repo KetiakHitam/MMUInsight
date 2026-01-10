@@ -18,7 +18,6 @@ def forgot_password():
     user = User.query.filter_by(email=email).first()
 
     if not user:
-        # For now just say this, no need to reveal if email exists
         return "If this email exists, a reset link has been generated."
 
     token = str(uuid.uuid4())
@@ -26,7 +25,6 @@ def forgot_password():
     user.reset_token_created_at = datetime.utcnow()
     db.session.commit()
 
-    # Temporary: show link directly instead of sending email
     return f"Password reset link (temporary): /reset-password/{token}"
 
 

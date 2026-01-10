@@ -4,5 +4,9 @@ venv/
 # Python cache
 __pycache__/
 
+# Environment Variables (contains secrets)
+.env
+
 # Local Database
 mmuinsight.db
+*.db.backup
