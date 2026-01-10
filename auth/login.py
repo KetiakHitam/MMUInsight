@@ -5,6 +5,8 @@ from . import auth_bp
 from extensions import bcrypt, limiter
 from models import User
 
+DUMMY_PASSWORD_HASH = "$2b$12$Qp4qZq8bT6Bq.5t1nF0z0eZLZtHc5Gk1mO7wJwXo6WwT7e0mVxZ6u"
+
 @auth_bp.route("/login", methods=["GET", "POST"])
 # @limiter.limit("5 per minute")  # Disabled for development
 def login():
@@ -25,11 +27,13 @@ def login():
 
     user = User.query.filter_by(email=email).first()
 
+    password_hash_to_check = user.password_hash if user else DUMMY_PASSWORD_HASH
+    password_ok = bcrypt.check_password_hash(password_hash_to_check, password)
 
-    if user and bcrypt.check_password_hash(user.password_hash, password):
+    if user and user.is_verified and password_ok:
         login_user(user, remember=True)
         flash(_("Login successful!"), "success")
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
 
     flash(error_message, "error")
     return redirect(url_for("auth.login"))
