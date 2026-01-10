@@ -4,6 +4,7 @@ from flask_babel import Babel, gettext
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 load_dotenv()
 
@@ -16,7 +17,14 @@ from lecturer_search import search_lecturers_by_email
 
 app = Flask(__name__)
 
+debug_mode = os.environ.get("DEBUG", "False").lower() in ["true", "1", "yes"]
+
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-key-please-change-in-production")
+
+app.config["SESSION_COOKIE_SECURE"] = not debug_mode
+app.config["SESSION_COOKIE_HTTPONLY"] = True
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(BASE_DIR, 'database', 'mmuinsight.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
@@ -48,6 +56,25 @@ limiter.init_app(app)
 csrf.init_app(app)
 mail.init_app(app)
 babel = Babel(app, locale_selector=get_locale)
+
+
+@app.before_request
+def enforce_https():
+    if debug_mode:
+        return
+    if request.is_secure:
+        return
+    return redirect(request.url.replace("http://", "https://", 1), code=301)
+
+
+@app.after_request
+def add_security_headers(response):
+    if not debug_mode and request.is_secure:
+        response.headers.setdefault(
+            "Strict-Transport-Security",
+            "max-age=31536000; includeSubDomains",
+        )
+    return response
 
 @login_manager.user_loader
 def load_user(user_id):
