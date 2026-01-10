@@ -7,6 +7,7 @@
     <h2>Edit Review for {{ review.lecturer.email }}</h2>
     
     <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="form-group">
             <label for="review_text">Review:</label>
             <textarea id="review_text" name="review_text" rows="5" required>{{ review.review_text }}</textarea>
@@ -15,32 +16,67 @@
         <h3>Rate the Lecturer</h3>
         
         <div class="form-group">
-            <label for="rating_clarity">Clarity (1-5):</label>
-            <input type="number" id="rating_clarity" name="rating_clarity" min="1" max="5" value="{{ review.rating_clarity }}" required>
+            <label>Clarity (1-5):</label>
+            <div class="rating-bar" data-field="rating_clarity">
+                <div class="rating-segment" data-value="1"></div>
+                <div class="rating-segment" data-value="2"></div>
+                <div class="rating-segment" data-value="3"></div>
+                <div class="rating-segment" data-value="4"></div>
+                <div class="rating-segment" data-value="5"></div>
+            </div>
+            <input type="hidden" id="rating_clarity" name="rating_clarity" value="{{ review.rating_clarity }}" required>
             <small>Explains concepts clearly and understandably</small>
         </div>
         
         <div class="form-group">
-            <label for="rating_engagement">Engagement (1-5):</label>
-            <input type="number" id="rating_engagement" name="rating_engagement" min="1" max="5" value="{{ review.rating_engagement }}" required>
+            <label>Engagement (1-5):</label>
+            <div class="rating-bar" data-field="rating_engagement">
+                <div class="rating-segment" data-value="1"></div>
+                <div class="rating-segment" data-value="2"></div>
+                <div class="rating-segment" data-value="3"></div>
+                <div class="rating-segment" data-value="4"></div>
+                <div class="rating-segment" data-value="5"></div>
+            </div>
+            <input type="hidden" id="rating_engagement" name="rating_engagement" value="{{ review.rating_engagement }}" required>
             <small>Makes classes interesting and interactive</small>
         </div>
         
         <div class="form-group">
-            <label for="rating_punctuality">Punctuality (1-5):</label>
-            <input type="number" id="rating_punctuality" name="rating_punctuality" min="1" max="5" value="{{ review.rating_punctuality }}" required>
+            <label>Punctuality (1-5):</label>
+            <div class="rating-bar" data-field="rating_punctuality">
+                <div class="rating-segment" data-value="1"></div>
+                <div class="rating-segment" data-value="2"></div>
+                <div class="rating-segment" data-value="3"></div>
+                <div class="rating-segment" data-value="4"></div>
+                <div class="rating-segment" data-value="5"></div>
+            </div>
+            <input type="hidden" id="rating_punctuality" name="rating_punctuality" value="{{ review.rating_punctuality }}" required>
             <small>Starts and ends classes on time</small>
         </div>
         
         <div class="form-group">
-            <label for="rating_responsiveness">Responsiveness (1-5):</label>
-            <input type="number" id="rating_responsiveness" name="rating_responsiveness" min="1" max="5" value="{{ review.rating_responsiveness }}" required>
+            <label>Responsiveness (1-5):</label>
+            <div class="rating-bar" data-field="rating_responsiveness">
+                <div class="rating-segment" data-value="1"></div>
+                <div class="rating-segment" data-value="2"></div>
+                <div class="rating-segment" data-value="3"></div>
+                <div class="rating-segment" data-value="4"></div>
+                <div class="rating-segment" data-value="5"></div>
+            </div>
+            <input type="hidden" id="rating_responsiveness" name="rating_responsiveness" value="{{ review.rating_responsiveness }}" required>
             <small>Replies to emails/questions promptly</small>
         </div>
         
         <div class="form-group">
-            <label for="rating_fairness">Fairness (1-5):</label>
-            <input type="number" id="rating_fairness" name="rating_fairness" min="1" max="5" value="{{ review.rating_fairness }}" required>
+            <label>Fairness (1-5):</label>
+            <div class="rating-bar" data-field="rating_fairness">
+                <div class="rating-segment" data-value="1"></div>
+                <div class="rating-segment" data-value="2"></div>
+                <div class="rating-segment" data-value="3"></div>
+                <div class="rating-segment" data-value="4"></div>
+                <div class="rating-segment" data-value="5"></div>
+            </div>
+            <input type="hidden" id="rating_fairness" name="rating_fairness" value="{{ review.rating_fairness }}" required>
             <small>Assessments match taught content</small>
         </div>
 
@@ -74,4 +110,105 @@
         <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id) }}">Cancel</a>
     </form>
 </div>
+
+<script>
+const ratingDescriptions = {
+    rating_clarity: {
+        1: "1 - Explanations are very unclear",
+        2: "2 - Often difficult to understand",
+        3: "3 - Sometimes clear, sometimes confusing",
+        4: "4 - Generally clear and understandable",
+        5: "5 - Very clear and easy to understand"
+    },
+    rating_engagement: {
+        1: "1 - Very unengaging, feels like a chore",
+        2: "2 - Rarely engaging, little effort to engage with students",
+        3: "3 - Somewhat engaging, won't put you to sleep",
+        4: "4 - Keeps class engaging and interactive",
+        5: "5 - Very engaging, classes feel enjoyable"
+    },
+    rating_punctuality: {
+        1: "1 - Always late or ends whenever",
+        2: "2 - Often late, timing is messy",
+        3: "3 - Usually on time",
+        4: "4 - Starts and ends on time",
+        5: "5 - Always punctual and will inform ahead of time"
+    },
+    rating_responsiveness: {
+        1: "1 - Never responds to messages",
+        2: "2 - Responses take a long time",
+        3: "3 - Responds within a reasonable time",
+        4: "4 - Responds quickly and reliably",
+        5: "5 - Very responsive and helpful"
+    },
+    rating_fairness: {
+        1: "1 - Assessments feel unfair or unrelated",
+        2: "2 - Grading often feels unreasonable",
+        3: "3 - Generally fair with some issues",
+        4: "4 - Assessments match taught content",
+        5: "5 - Very fair and clearly aligned"
+    }
+};
+
+document.querySelectorAll('.rating-bar').forEach(bar => {
+    const field = bar.getAttribute('data-field');
+    const segments = bar.querySelectorAll('.rating-segment');
+    const input = document.getElementById(field);
+    const smallText = bar.parentElement.querySelector('small');
+    const originalText = smallText.textContent;
+    
+    // Pre-select existing rating if present
+    const currentValue = input.value;
+    if (currentValue) {
+        segments.forEach(segment => {
+            if (parseInt(segment.getAttribute('data-value')) <= parseInt(currentValue)) {
+                segment.classList.add('active');
+            }
+        });
+    }
+    
+    segments.forEach(segment => {
+        segment.addEventListener('mouseenter', (e) => {
+            const value = segment.getAttribute('data-value');
+            
+            segments.forEach(s => {
+                if (s.getAttribute('data-value') <= value) {
+                    s.classList.add('preview');
+                } else {
+                    s.classList.remove('preview');
+                }
+            });
+            
+            // Update the small text with description
+            if (ratingDescriptions[field]) {
+                smallText.textContent = ratingDescriptions[field][value];
+            }
+        });
+        
+        segment.addEventListener('mouseleave', () => {
+            segments.forEach(s => {
+                s.classList.remove('preview');
+            });
+            // Reset to original text
+            smallText.textContent = originalText;
+        });
+        
+        segment.addEventListener('click', (e) => {
+            e.preventDefault();
+            const value = segment.getAttribute('data-value');
+            input.value = value;
+            
+            segments.forEach(s => {
+                if (s.getAttribute('data-value') <= value) {
+                    s.classList.add('active');
+                    s.classList.remove('preview');
+                } else {
+                    s.classList.remove('active');
+                    s.classList.remove('preview');
+                }
+            });
+        });
+    });
+});
+</script>
 {% endblock %}

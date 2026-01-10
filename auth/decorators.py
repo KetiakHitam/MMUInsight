@@ -17,7 +17,7 @@ def admin_required(f):
         if not current_user.is_authenticated:
             flash("Please log in first", "error")
             return redirect(url_for("auth.login"))
-        if current_user.user_type != "admin":
+        if not current_user.is_mod():
             flash("Admin access required", "error")
             return redirect(url_for("index"))
         return f(*args, **kwargs)

@@ -1,4 +1,3 @@
-# search.py
 from models import User
 
 def search_lecturers_by_email(query):
