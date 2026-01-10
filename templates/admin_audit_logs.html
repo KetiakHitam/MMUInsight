@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin - Audit Logs{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1200px;">
+    <h2 style="margin-bottom: 12px;">🧾 Audit Logs</h2>
+    <div style="color: #666; font-size: 0.95em; margin-bottom: 18px;">
+        Showing {{ logs|length if logs else 0 }} most recent logs (max 200).
+    </div>
+
+    <form method="get" action="{{ url_for('auth.admin_audit_logs') }}" style="margin-bottom: 18px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 12px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+        <input
+            type="text"
+            name="email"
+            value="{{ email_q or '' }}"
+            placeholder="User email"
+            style="flex: 1; min-width: 220px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95em;"
+        />
+        <input
+            type="text"
+            name="action"
+            value="{{ action_q or '' }}"
+            placeholder="Action contains…"
+            style="flex: 2; min-width: 260px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95em;"
+        />
+        <select
+            name="target"
+            style="min-width: 160px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95em; background-color: white;"
+        >
+            <option value="" {% if not target_q %}selected{% endif %}>All targets</option>
+            <option value="user" {% if target_q == 'user' %}selected{% endif %}>user</option>
+            <option value="review" {% if target_q == 'review' %}selected{% endif %}>review</option>
+            <option value="suggestion" {% if target_q == 'suggestion' %}selected{% endif %}>suggestion</option>
+        </select>
+        <button type="submit" style="background-color: #007bff; color: white; padding: 8px 14px; border: none; border-radius: 6px; font-size: 0.95em; font-weight: 500; cursor: pointer;">Filter</button>
+        <a href="{{ url_for('auth.admin_audit_logs') }}" style="color: #6c757d; text-decoration: none; font-size: 0.95em; padding: 14px 6px; display: inline-flex; align-items: center; line-height: 1; position: relative; top: 2px;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Clear</a>
+    </form>
+
+    {% if logs %}
+    <div style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; background-color: #ffffff;">
+    <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 900px;">
+        <thead>
+            <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                <th style="padding: 12px; width: 170px; text-align: left; font-weight: 600; color: #333; font-size: 0.95em;">Time</th>
+                <th style="padding: 12px; width: 240px; text-align: left; font-weight: 600; color: #333; font-size: 0.95em;">User</th>
+                <th style="padding: 12px; width: 120px; text-align: center; font-weight: 600; color: #333; font-size: 0.95em;">Role</th>
+                <th style="padding: 12px; text-align: left; font-weight: 600; color: #333; font-size: 0.95em;">Action</th>
+                <th style="padding: 12px; width: 120px; text-align: center; font-weight: 600; color: #333; font-size: 0.95em;">Target</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr style="border-bottom: 1px solid #f0f0f0; background-color: #ffffff; transition: background-color 0.15s ease;"
+                onmouseover="this.style.backgroundColor='#f5f5f5';" onmouseout="this.style.backgroundColor='#ffffff';">
+                <td style="padding: 12px; vertical-align: middle; color: #666; font-size: 0.9em; white-space: nowrap;">
+                    {{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') if log.timestamp else '' }}
+                </td>
+                <td style="padding: 12px; vertical-align: middle; color: #333; font-size: 0.9em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ log.user.email if log.user else ('User #' ~ log.user_id) }}">
+                    {{ log.user.email if log.user else ('User #' ~ log.user_id) }}
+                </td>
+                <td style="padding: 12px; text-align: center; vertical-align: middle;">
+                    <span style="background-color: #6c757d; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: 600; display: inline-block;">
+                        {{ log.role or '—' }}
+                    </span>
+                </td>
+                <td style="padding: 12px; vertical-align: middle; color: #333; font-size: 0.9em;" title="{{ log.display_action if log.display_action is defined else log.action }}">
+                    <div style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; word-break: break-word;">
+                        {{ log.display_action if log.display_action is defined else log.action }}
+                    </div>
+                </td>
+                <td style="padding: 12px; text-align: center; vertical-align: middle;">
+                    <span style="background-color: #007bff; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: 600; display: inline-block;">
+                        {{ log.target_type }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    </div>
+    {% else %}
+    <div style="background-color: #f8f9fa; padding: 30px; border-radius: 6px; text-align: center;">
+        <p style="color: #666; font-size: 1em; margin: 0;">No audit logs yet.</p>
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 30px;">
+        <a href="{{ url_for('auth.admin_dashboard') }}" style="color: #007bff; text-decoration: none; font-size: 0.95em;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Back to Admin Dashboard</a>
+    </div>
+</div>
+{% endblock %}
