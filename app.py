@@ -96,5 +96,9 @@ def register():
 def Professors():
     return render_template('Professor-info.html')
 
+@app.route("/faq")
+def faq():
+    return render_template('FAQ.html')
+
 if __name__ == "__main__":
     app.run(debug=True)

@@ -187,6 +187,7 @@
             {% if current_user.user_type == 'admin' %}
             <a href="{{ url_for('auth.admin_dashboard') }}" class="admin-link">🔧 Admin Panel</a>
             {% endif %}
+            <a href="{{ url_for('faq') }}">FAQ</a>
             <a href="{{ url_for('auth.logout') }}">Logout</a>
         </div>
     </div>
