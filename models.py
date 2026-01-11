@@ -135,3 +135,14 @@ class SuggestionVote(db.Model):
     suggestion_id = db.Column(db.Integer, db.ForeignKey('suggestion.id'), nullable=False)
     vote_type = db.Column(db.String(10), nullable=False)  # 'upvote' or 'downvote'
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+
+class AuditLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    role = db.Column(db.String(10), nullable=True)
+    action = db.Column(db.String(255), nullable=False)
+    target_type = db.Column(db.String(50), nullable=False)
+
+    user = db.relationship('User', backref='audit_logs', lazy=True)

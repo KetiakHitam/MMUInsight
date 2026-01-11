@@ -437,15 +437,15 @@ button:disabled,
 }
 
 .recommend-badge--yes {
-    background-color: #bfffbd;
-    color: #166534;
-    border-color: #2ac522;
+    background-color: #dcfce7; /* Light green */
+    color: #166534; /* Dark green */
+    border-color: #a3e635; /* Green border */
 }
 
 .recommend-badge--no {
-    background-color: #ffc9c9;
-    color: #991b1b;
-    border-color: #fba2a2;
+    background-color: #fee2e2; /* Light red */
+    color: #991b1b; /* Dark red */
+    border-color: #f87171; /* Red border */
 }
 
 /* ============================================
@@ -662,7 +662,6 @@ body.dark-mode a:hover {
     color: #90caf9 !important;
 }
 
-/* Updated admin table styles for robust layout */
 .admin-table {
     table-layout: fixed;
     width: 100%;
@@ -673,8 +672,9 @@ body.dark-mode a:hover {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 300px; /* Fixed column width */
+    max-width: 300px; 
     display: -webkit-box;
-    -webkit-line-clamp: 3; /* Clamp text to 3 lines */
+    -webkit-line-clamp: 3; 
     -webkit-box-orient: vertical;
+    line-clamp: 3;
 }
