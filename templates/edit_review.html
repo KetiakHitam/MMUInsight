@@ -102,8 +102,13 @@
 
         <div class="form-group">
             <label for="subject_input">Subject Code & Name (Optional):</label>
-            <input type="text" id="subject_input" name="subject_input" value="{{ review.subject_code if review.subject_code else '' }}" placeholder="e.g., CMT1134 - MATHEMATICS III" maxlength="100">
-            <small>You can specify which subject/course this review is for, or leave it blank</small>
+            <input type="text" id="subject_input" name="subject_input" value="{{ review.subject_code if review.subject_code else '' }}" placeholder="e.g., CMT1134 - MATHEMATICS III" maxlength="100" list="subject_list">
+            <datalist id="subject_list">
+                {% for subject in subjects %}
+                    <option value="{% if subject.subject_code %}{{ subject.subject_code }} - {% endif %}{{ subject.subject_name }}">{{ subject.subject_code }} - {{ subject.subject_name }} ({{ subject.usage_count }} uses)</option>
+                {% endfor %}
+            </datalist>
+            <small>Select from common subjects or type a new one</small>
         </div>
 
         <button type="submit">Update Review</button>
