@@ -249,13 +249,46 @@ def edit_review(review_id):
     rating_fairness = int(request.form.get('rating_fairness', 0))
     is_anonymous = request.form.get('is_anonymous') == 'on'
     recommend = request.form.get('recommend')
-    subject_code = request.form.get('subject_code', '').strip() or None
+    subject_input = request.form.get('subject_input', '').strip()
     
     if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]) or not recommend:
         flash(_("Please fill all fields"), "error")
         return redirect(url_for('reviews.edit_review', review_id=review_id))
     
     recommend = recommend.lower() == 'yes'
+    
+    # Handle subject selection/creation for edit
+    subject_id = None
+    if subject_input:
+        subject = Subject.query.filter(
+            db.or_(
+                Subject.subject_code.ilike(subject_input),
+                Subject.subject_name.ilike(subject_input)
+            )
+        ).first()
+        
+        if subject:
+            subject_id = subject.id
+            if review.subject_id != subject.id:
+                subject.usage_count += 1
+        else:
+            # Create new subject
+            if ' - ' in subject_input:
+                code, name = subject_input.split(' - ', 1)
+                code = code.strip()
+                name = name.strip()
+            else:
+                code = None
+                name = subject_input
+            
+            new_subject = Subject(
+                subject_code=code,
+                subject_name=name,
+                usage_count=1
+            )
+            db.session.add(new_subject)
+            db.session.flush()
+            subject_id = new_subject.id
     
     review.review_text = review_text
     review.rating_clarity = rating_clarity
@@ -265,7 +298,8 @@ def edit_review(review_id):
     review.rating_fairness = rating_fairness
     review.is_anonymous = is_anonymous
     review.recommend = recommend
-    review.subject_code = subject_code
+    review.subject_id = subject_id
+    review.subject_code = subject_input
     
     db.session.commit()
     
