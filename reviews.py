@@ -35,7 +35,9 @@ def create_review(lecturer_id):
         return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
     
     if request.method == 'GET':
-        return render_template('create_review.html', lecturer=lecturer)
+        # Fetch top 20 most used subjects for the dropdown
+        top_subjects = Subject.query.order_by(Subject.usage_count.desc()).limit(20).all()
+        return render_template('create_review.html', lecturer=lecturer, subjects=top_subjects)
     
     review_text = request.form.get('review_text', '').strip()
     
