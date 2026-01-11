@@ -216,7 +216,9 @@ def edit_review(review_id):
         return redirect(url_for('index'))
     
     if request.method == 'GET':
-        return render_template('edit_review.html', review=review)
+        # Fetch top 20 most used subjects for the dropdown
+        top_subjects = Subject.query.order_by(Subject.usage_count.desc()).limit(20).all()
+        return render_template('edit_review.html', review=review, subjects=top_subjects)
     
     review_text = request.form.get('review_text', '').strip()
     rating_clarity = int(request.form.get('rating_clarity', 0))
