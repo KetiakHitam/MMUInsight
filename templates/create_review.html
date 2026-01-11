@@ -101,9 +101,13 @@
         </div>
 
         <div class="form-group">
-            <label for="subject_code">Subject Code & Name (Optional):</label>
-            <input type="text" id="subject_code" name="subject_code" placeholder="e.g., CMT1134 - MATHEMATICS III" maxlength="100">
-            <small>You can specify which subject/course this review is for, or leave it blank</small>
+            <label for="subject_input">Subject Code & Name (Optional):</label>
+            <div style="position: relative;">
+                <input type="text" id="subject_input" name="subject_input" placeholder="e.g., CMT1134 - MATHEMATICS III" maxlength="100" autocomplete="off">
+                <div id="subject_suggestions" style="position: absolute; top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background: white; border: 1px solid #ddd; border-top: none; z-index: 10; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                </div>
+            </div>
+            <small>Start typing to see suggestions, or add a new subject</small>
         </div>
         
         <div style="display: flex; align-items: center; gap: 15px; margin-top: 25px;">
