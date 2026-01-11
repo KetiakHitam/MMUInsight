@@ -3,6 +3,7 @@ from flask_babel import gettext as _
 from . import auth_bp
 from extensions import db
 from models import User
+from audit import log_action
 from datetime import datetime, timedelta
 
 @auth_bp.route("/verify/<token>")
@@ -33,6 +34,13 @@ def verify_email(token):
     user.verification_token = None
     user.verification_token_created_at = None
     db.session.commit()
+
+    log_action(
+        f"Verified user {user.email} via email token",
+        "user",
+        user_id=user.id,
+        role=(user.role or user.user_type),
+    )
 
     flash(_("Email verified successfully! You can now log in."), "success")
     return redirect(url_for("auth.login"))

@@ -4,6 +4,7 @@ from flask_babel import gettext as _
 from auth.decorators import admin_required
 from extensions import db, limiter
 from models import Suggestion, SuggestionVote
+from audit import log_admin_action
 from datetime import datetime
 from sqlalchemy import desc
 
@@ -125,6 +126,8 @@ def change_suggestion_status(suggestion_id, new_status):
     
     suggestion.status = new_status
     db.session.commit()
+
+    log_admin_action(f"Changed suggestion {suggestion.id} status to {new_status}", "suggestion")
     
     flash(f"Suggestion status updated to {new_status.title()}", "success")
     return redirect(url_for('suggestions.admin_suggestions'))
@@ -133,7 +136,10 @@ def change_suggestion_status(suggestion_id, new_status):
 @admin_required
 def delete_suggestion(suggestion_id):
     suggestion = Suggestion.query.get_or_404(suggestion_id)
+    deleted_id = suggestion.id
     db.session.delete(suggestion)
     db.session.commit()
+
+    log_admin_action(f"Deleted suggestion {deleted_id}", "suggestion")
     flash('Suggestion deleted.', 'success')
     return redirect(url_for('suggestions.admin_suggestions'))
