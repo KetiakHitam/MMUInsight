@@ -5,6 +5,8 @@ from . import auth_bp
 from extensions import bcrypt, limiter
 from models import User
 
+DUMMY_PASSWORD_HASH = "$2b$12$Qp4qZq8bT6Bq.5t1nF0z0eZLZtHc5Gk1mO7wJwXo6WwT7e0mVxZ6u"
+
 @auth_bp.route("/login", methods=["GET", "POST"])
 # @limiter.limit("5 per minute")  # Disabled for development
 def login():
@@ -17,25 +19,22 @@ def login():
     email = request.form.get("email", "").strip()
     password = request.form.get("password", "")
 
+    error_message = _("Your login credentials don't match an account in our system")
+
     if not email or not password:
-        flash(_("Please fill all fields"), "error")
+        flash(error_message, "error")
         return redirect(url_for("auth.login"))
 
     user = User.query.filter_by(email=email).first()
 
-    if not user:
-        flash(_("Invalid email or password"), "error")
-        return redirect(url_for("auth.login"))
+    password_hash_to_check = user.password_hash if user else DUMMY_PASSWORD_HASH
+    password_ok = bcrypt.check_password_hash(password_hash_to_check, password)
 
-    if not user.is_verified:
-        flash(_("Account not verified. Please check your email for the verification link."), "error")
-        return redirect(url_for("auth.login"))
+    if user and user.is_verified and password_ok:
+        login_user(user, remember=True)
+        flash(_("Login successful!"), "success")
+        return redirect(url_for("index"))
 
-    if not bcrypt.check_password_hash(user.password_hash, password):
-        flash(_("Invalid email or password"), "error")
-        return redirect(url_for("auth.login"))
-
-    login_user(user, remember=True)
-    flash(_("Login successful!"), "success")
-    return redirect(url_for('index'))
+    flash(error_message, "error")
+    return redirect(url_for("auth.login"))
 

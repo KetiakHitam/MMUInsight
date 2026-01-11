@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from flask_babel import gettext as _
 from extensions import db, limiter
 from models import Review, User, Reply, Report, Subject
+from audit import log_admin_action
 from datetime import datetime
 from sqlalchemy import func
 
@@ -604,6 +605,8 @@ def pin_review(review_id):
     review = Review.query.get_or_404(review_id)
     review.is_pinned = True
     db.session.commit()
+
+    log_admin_action(f"Pinned review {review.id}", "review")
     
     flash("Review pinned to top", "success")
     return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
@@ -618,6 +621,8 @@ def unpin_review(review_id):
     review = Review.query.get_or_404(review_id)
     review.is_pinned = False
     db.session.commit()
+
+    log_admin_action(f"Unpinned review {review.id}", "review")
     
     flash("Review unpinned", "success")
     return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
