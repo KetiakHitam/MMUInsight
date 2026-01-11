@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from flask_babel import gettext as _
 from extensions import db, limiter
@@ -7,31 +7,6 @@ from datetime import datetime
 from sqlalchemy import func
 
 reviews_bp = Blueprint('reviews', __name__)
-
-@reviews_bp.route('/api/search-subjects', methods=['GET'])
-def search_subjects():
-    """API endpoint for subject autocomplete search"""
-    query = request.args.get('q', '').strip().lower()
-    
-    if not query or len(query) < 2:
-        # Return top 10 most used subjects if no query
-        subjects = Subject.query.order_by(Subject.usage_count.desc()).limit(10).all()
-    else:
-        # Search by code or name (case-insensitive)
-        subjects = Subject.query.filter(
-            db.or_(
-                Subject.subject_code.ilike(f'%{query}%'),
-                Subject.subject_name.ilike(f'%{query}%')
-            )
-        ).order_by(Subject.usage_count.desc()).limit(10).all()
-    
-    return jsonify([{
-        'id': subject.id,
-        'code': subject.subject_code or '',
-        'name': subject.subject_name,
-        'display': f"{subject.subject_code} - {subject.subject_name}" if subject.subject_code else subject.subject_name,
-        'usage_count': subject.usage_count
-    } for subject in subjects])
 
 def validate_rating(value):
     """Validate that rating is an integer between 1 and 5"""
