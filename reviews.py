@@ -81,8 +81,7 @@ def create_review(lecturer_id):
         return redirect(url_for('reviews.create_review', lecturer_id=lecturer_id))
     
     recommend = request.form.get('recommend')
-    subject_id = request.form.get('subject_id')
-    subject_code = request.form.get('subject_code', '').strip() or None
+    subject_input = request.form.get('subject_input', '').strip()
     is_anonymous = request.form.get('is_anonymous') == 'on'
     
     if not review_text or not recommend:
@@ -90,6 +89,39 @@ def create_review(lecturer_id):
         return redirect(url_for('reviews.create_review', lecturer_id=lecturer_id))
     
     recommend = recommend.lower() == 'yes'
+    
+    # Handle subject selection/creation
+    subject_id = None
+    if subject_input:
+        # Check if subject exists by code or name
+        subject = Subject.query.filter(
+            db.or_(
+                Subject.subject_code.ilike(subject_input),
+                Subject.subject_name.ilike(subject_input)
+            )
+        ).first()
+        
+        if subject:
+            subject_id = subject.id
+            subject.usage_count += 1
+        else:
+            # Create new subject from input (format: "CODE - NAME" or just "NAME")
+            if ' - ' in subject_input:
+                code, name = subject_input.split(' - ', 1)
+                code = code.strip()
+                name = name.strip()
+            else:
+                code = None
+                name = subject_input
+            
+            new_subject = Subject(
+                subject_code=code,
+                subject_name=name,
+                usage_count=1
+            )
+            db.session.add(new_subject)
+            db.session.flush()  # Get the ID before commit
+            subject_id = new_subject.id
     
     review = Review(
         review_text=review_text,
@@ -101,9 +133,9 @@ def create_review(lecturer_id):
         recommend=recommend,
         user_id=current_user.id,
         lecturer_id=lecturer_id,
-        subject_id=subject_id if subject_id else None,
+        subject_id=subject_id,
         is_anonymous=is_anonymous,
-        subject_code=subject_code
+        subject_code=subject_input
     )
     
     db.session.add(review)
