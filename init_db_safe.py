@@ -4,9 +4,9 @@ Safe database initialization with proper path handling
 import os
 import sys
 
-# Set absolute path for database
+# Set absolute path for database (outside project for security)
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-db_directory = os.path.join(BASE_DIR, 'database')
+db_directory = os.path.join(os.path.dirname(BASE_DIR), 'mmuinsight_data')
 
 # Create directory if it doesn't exist
 os.makedirs(db_directory, exist_ok=True)
