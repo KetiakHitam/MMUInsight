@@ -317,6 +317,7 @@ def add_reply(review_id):
         return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
     
     reply_text = request.form.get('reply_text', '').strip()
+    reply_text = sanitize_user_content(reply_text)  # Remove XSS
     
     if not reply_text:
         flash(_("Reply cannot be empty"), "error")
