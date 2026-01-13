@@ -540,6 +540,7 @@ def edit_reply(reply_id):
         return redirect(url_for('reviews.lecturer_profile', lecturer_id=reply.review.lecturer_id))
     
     new_text = request.form.get('reply_text', '').strip()
+    new_text = sanitize_user_content(new_text)  # Remove XSS
     
     if not new_text:
         flash(_("Reply cannot be empty"), "error")
