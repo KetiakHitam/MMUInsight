@@ -224,6 +224,7 @@ def edit_review(review_id):
         return render_template('edit_review.html', review=review, subjects=top_subjects)
     
     review_text = request.form.get('review_text', '').strip()
+    review_text = sanitize_user_content(review_text)  # Remove XSS
     rating_clarity = int(request.form.get('rating_clarity', 0))
     rating_engagement = int(request.form.get('rating_engagement', 0))
     rating_punctuality = int(request.form.get('rating_punctuality', 0))
