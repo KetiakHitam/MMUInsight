@@ -589,6 +589,7 @@ def lecturer_bio(lecturer_id):
             return redirect(url_for('reviews.lecturer_bio', lecturer_id=lecturer_id))
         
         bio_text = request.form.get('bio', '').strip()
+        bio_text = sanitize_user_content(bio_text)  # Remove XSS
         
         lecturer.bio = bio_text if bio_text else None
         db.session.commit()
