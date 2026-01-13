@@ -6,7 +6,8 @@ import os
 from dotenv import load_dotenv
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-load_dotenv()
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 from extensions import db, bcrypt, login_manager, limiter, csrf, mail
 from models import User, Subject, Review, Suggestion, SuggestionVote
@@ -25,7 +26,6 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-key-please-change-i
 
 app.config["SESSION_COOKIE_SECURE"] = not debug_mode
 app.config["SESSION_COOKIE_HTTPONLY"] = True
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(BASE_DIR, 'database', 'mmuinsight.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -60,7 +60,8 @@ babel = Babel(app, locale_selector=get_locale)
 
 @app.before_request
 def enforce_https():
-    if debug_mode:
+    current_debug_mode = os.environ.get("DEBUG", "False").lower() in ["true", "1", "yes"]
+    if current_debug_mode:
         return
     if request.is_secure:
         return
