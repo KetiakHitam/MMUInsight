@@ -4,6 +4,7 @@ from flask_babel import gettext as _
 from extensions import db, limiter
 from models import Review, User, Reply, Report, Subject
 from audit import log_admin_action
+from sanitize import sanitize_user_content
 from datetime import datetime
 from sqlalchemy import func
 
@@ -41,6 +42,7 @@ def create_review(lecturer_id):
         return render_template('create_review.html', lecturer=lecturer, subjects=top_subjects)
     
     review_text = request.form.get('review_text', '').strip()
+    review_text = sanitize_user_content(review_text)  # Remove XSS
     
     try:
         rating_clarity = int(request.form.get('rating_clarity', 0))
