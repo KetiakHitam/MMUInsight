@@ -27,11 +27,11 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-key-please-change-i
 app.config["SESSION_COOKIE_SECURE"] = not debug_mode
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 
-# Use environment variable for database path, default to parent directory for security
-db_path = os.environ.get('DATABASE_PATH', os.path.join(os.path.dirname(BASE_DIR), 'mmuinsight_data', 'mmuinsight.db'))
+# Use environment variable for database path, default to local database directory
+db_path = os.environ.get('DATABASE_PATH', os.path.join(BASE_DIR, 'database', 'mmuinsight.db'))
 # Create directory if it doesn't exist
 os.makedirs(os.path.dirname(db_path), exist_ok=True)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path.replace('\\', '/')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
