@@ -9,6 +9,12 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
+# Ensure DATABASE_PATH is set (same as init_db_safe.py does)
+if 'DATABASE_PATH' not in os.environ:
+    db_directory = os.path.join(os.path.dirname(BASE_DIR), 'mmuinsight_data')
+    os.makedirs(db_directory, exist_ok=True)
+    os.environ['DATABASE_PATH'] = os.path.join(db_directory, 'mmuinsight.db')
+
 from extensions import db, bcrypt, login_manager, limiter, csrf, mail
 from models import User, Subject, Review, Suggestion, SuggestionVote
 from auth import auth_bp
@@ -30,7 +36,10 @@ app.config["SESSION_COOKIE_HTTPONLY"] = True
 # Use environment variable for database path, default to parent directory for security
 db_path = os.environ.get('DATABASE_PATH', os.path.join(os.path.dirname(BASE_DIR), 'mmuinsight_data', 'mmuinsight.db'))
 # Create directory if it doesn't exist
-os.makedirs(os.path.dirname(db_path), exist_ok=True)
+db_dir = os.path.dirname(db_path)
+os.makedirs(db_dir, exist_ok=True)
+# Ensure the file path is absolute and convert to forward slashes for SQLite URI
+db_path = os.path.abspath(db_path)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path.replace('\\', '/')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
