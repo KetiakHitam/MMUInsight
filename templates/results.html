@@ -1,26 +1,88 @@
 ```html
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <title>Search results for "{{ q|e }}"</title>
-</head>
-<body>
-  <h1>Search results</h1>
+{% extends 'base.html' %}
 
-  <p><a href="{{ url_for('index') }}">Back to search</a></p>
+{% block title %}Search results{% endblock %}
 
-  <p>Query: "<strong>{{ q|e }}</strong>" — showing {{ emails|length }} of {{ total }}</p>
+{% block content %}
+<div class="container" style="max-width: 1100px;">
+  <h2 style="margin-bottom: 8px;">Search results</h2>
+  <p style="margin-top: 0; color: var(--text-secondary);">
+    {% if q %}
+      Query: <strong>{{ q|e }}</strong>
+    {% else %}
+      Enter a query to search lecturers.
+    {% endif %}
+  </p>
 
-  {% if emails %}
-    <ul>
-      {% for email in emails %}
-        <li>{{ email }}</li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>No results found.</p>
+  <form method="GET" action="{{ url_for('search_results_page') }}" class="hero-search" role="search" style="max-width: 760px; margin-bottom: 16px;">
+    <label class="sr-only" for="results-search-input">Search for a lecturer</label>
+    <input
+      id="results-search-input"
+      name="q"
+      type="search"
+      placeholder="Search by lecturer email (e.g., name@mmu.edu.my)"
+      value="{{ q or '' }}"
+      autocomplete="off"
+      class="hero-search-input"
+    >
+    <button type="submit" class="hero-search-button">Search</button>
+  </form>
+
+  {% if q %}
+    {% if results|length == 0 %}
+      <div class="results-empty">No results found.</div>
+    {% else %}
+      <div class="hero-results-list" style="margin-top: 10px;">
+        {% for lecturer in results %}
+        <div class="hero-result-card">
+          <div class="hero-result-top">
+            <div class="hero-result-avatar" aria-hidden="true">{{ lecturer.avatar_initials or "?" }}</div>
+            <div class="hero-result-main">
+              <div class="hero-result-name">
+                <a class="hero-result-link" href="/lecturer/{{ lecturer.id }}">{{ lecturer.email }}</a>
+                {% if lecturer.is_claimed %}
+                <span class="hero-result-verified">Verified</span>
+                {% endif %}
+              </div>
+              <div class="hero-result-faculty">Lecturer</div>
+              <div class="hero-result-sub">
+                <span class="hero-result-stars" style="--rating: {{ lecturer.avg_rating or 0 }};"></span>
+                {% if lecturer.avg_rating is not none %}
+                  <span class="hero-result-rating">{{ "%.1f"|format(lecturer.avg_rating) }}</span>
+                {% else %}
+                  <span class="hero-result-rating">New</span>
+                {% endif %}
+                <span class="hero-result-reviews">{{ lecturer.review_count or 0 }} reviews</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-result-tags">
+            {% if lecturer.top_subject_code %}
+              <span class="hero-result-tag">Top subject: {{ lecturer.top_subject_code }}</span>
+            {% endif %}
+          </div>
+
+          <div class="hero-result-bio">
+            {% if lecturer.bio %}
+              {{ lecturer.bio|trim }}
+            {% else %}
+              No bio written.
+            {% endif %}
+          </div>
+
+          <div class="hero-result-cta">
+            <a class="hero-result-btn" href="/lecturer/{{ lecturer.id }}">View profile</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% endif %}
   {% endif %}
-</body>
-</html>
+
+  <div style="margin-top: 18px;">
+    <a href="{{ url_for('index') }}">Back to home</a>
+  </div>
+</div>
+{% endblock %}
 ```
