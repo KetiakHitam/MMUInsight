@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from flask_babel import gettext as _
 from extensions import db, limiter
-from models import Review, User, Reply, Report
+from models import Review, User, Reply, Report, Subject
 from audit import log_admin_action
 from datetime import datetime
 from sqlalchemy import func
@@ -36,7 +36,9 @@ def create_review(lecturer_id):
         return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
     
     if request.method == 'GET':
-        return render_template('create_review.html', lecturer=lecturer)
+        # Fetch top 20 most used subjects for the dropdown
+        top_subjects = Subject.query.order_by(Subject.usage_count.desc()).limit(20).all()
+        return render_template('create_review.html', lecturer=lecturer, subjects=top_subjects)
     
     review_text = request.form.get('review_text', '').strip()
     
@@ -57,8 +59,7 @@ def create_review(lecturer_id):
         return redirect(url_for('reviews.create_review', lecturer_id=lecturer_id))
     
     recommend = request.form.get('recommend')
-    subject_id = request.form.get('subject_id')
-    subject_code = request.form.get('subject_code', '').strip() or None
+    subject_input = request.form.get('subject_input', '').strip()
     is_anonymous = request.form.get('is_anonymous') == 'on'
     
     if not review_text or not recommend:
@@ -66,6 +67,39 @@ def create_review(lecturer_id):
         return redirect(url_for('reviews.create_review', lecturer_id=lecturer_id))
     
     recommend = recommend.lower() == 'yes'
+    
+    # Handle subject selection/creation
+    subject_id = None
+    if subject_input:
+        # Check if subject exists by code or name
+        subject = Subject.query.filter(
+            db.or_(
+                Subject.subject_code.ilike(subject_input),
+                Subject.subject_name.ilike(subject_input)
+            )
+        ).first()
+        
+        if subject:
+            subject_id = subject.id
+            subject.usage_count += 1
+        else:
+            # Create new subject from input (format: "CODE - NAME" or just "NAME")
+            if ' - ' in subject_input:
+                code, name = subject_input.split(' - ', 1)
+                code = code.strip()
+                name = name.strip()
+            else:
+                code = None
+                name = subject_input
+            
+            new_subject = Subject(
+                subject_code=code,
+                subject_name=name,
+                usage_count=1
+            )
+            db.session.add(new_subject)
+            db.session.flush()  # Get the ID before commit
+            subject_id = new_subject.id
     
     review = Review(
         review_text=review_text,
@@ -77,9 +111,9 @@ def create_review(lecturer_id):
         recommend=recommend,
         user_id=current_user.id,
         lecturer_id=lecturer_id,
-        subject_id=subject_id if subject_id else None,
+        subject_id=subject_id,
         is_anonymous=is_anonymous,
-        subject_code=subject_code
+        subject_code=subject_input
     )
     
     db.session.add(review)
@@ -183,7 +217,9 @@ def edit_review(review_id):
         return redirect(url_for('index'))
     
     if request.method == 'GET':
-        return render_template('edit_review.html', review=review)
+        # Fetch top 20 most used subjects for the dropdown
+        top_subjects = Subject.query.order_by(Subject.usage_count.desc()).limit(20).all()
+        return render_template('edit_review.html', review=review, subjects=top_subjects)
     
     review_text = request.form.get('review_text', '').strip()
     rating_clarity = int(request.form.get('rating_clarity', 0))
@@ -193,13 +229,46 @@ def edit_review(review_id):
     rating_fairness = int(request.form.get('rating_fairness', 0))
     is_anonymous = request.form.get('is_anonymous') == 'on'
     recommend = request.form.get('recommend')
-    subject_code = request.form.get('subject_code', '').strip() or None
+    subject_input = request.form.get('subject_input', '').strip()
     
     if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]) or not recommend:
         flash(_("Please fill all fields"), "error")
         return redirect(url_for('reviews.edit_review', review_id=review_id))
     
     recommend = recommend.lower() == 'yes'
+    
+    # Handle subject selection/creation for edit
+    subject_id = None
+    if subject_input:
+        subject = Subject.query.filter(
+            db.or_(
+                Subject.subject_code.ilike(subject_input),
+                Subject.subject_name.ilike(subject_input)
+            )
+        ).first()
+        
+        if subject:
+            subject_id = subject.id
+            if review.subject_id != subject.id:
+                subject.usage_count += 1
+        else:
+            # Create new subject
+            if ' - ' in subject_input:
+                code, name = subject_input.split(' - ', 1)
+                code = code.strip()
+                name = name.strip()
+            else:
+                code = None
+                name = subject_input
+            
+            new_subject = Subject(
+                subject_code=code,
+                subject_name=name,
+                usage_count=1
+            )
+            db.session.add(new_subject)
+            db.session.flush()
+            subject_id = new_subject.id
     
     review.review_text = review_text
     review.rating_clarity = rating_clarity
@@ -209,7 +278,8 @@ def edit_review(review_id):
     review.rating_fairness = rating_fairness
     review.is_anonymous = is_anonymous
     review.recommend = recommend
-    review.subject_code = subject_code
+    review.subject_id = subject_id
+    review.subject_code = subject_input
     
     db.session.commit()
     
