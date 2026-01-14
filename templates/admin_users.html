@@ -169,7 +169,7 @@
                     <div style="display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap;">
                         {% if not u.is_verified and current_user.can_manage_user(u) %}
                         <form method="POST" action="/admin/user/{{ u.id }}/verify" style="display: inline;">
-                            {{ csrf_token() }}
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" 
                                style="background-color: #007bff; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
                                onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Verify</button>
@@ -179,7 +179,7 @@
                         {% if u.id != current_user.id and not u.is_owner() and current_user.can_manage_user(u) %}
                             {% if u.role in ['ADMIN', 'MOD'] %}
                             <form method="POST" action="/admin/user/{{ u.id }}/remove-role" style="display: inline;">
-                                {{ csrf_token() }}
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" 
                                    style="background-color: #ffc107; color: black; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
                                    onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Remove Role</button>
@@ -188,13 +188,13 @@
                             {% if current_user.is_owner() %}
                             <div style="display: flex; gap: 6px;">
                                 <form method="POST" action="/admin/user/{{ u.id }}/make-admin" style="display: inline;">
-                                    {{ csrf_token() }}
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <button type="submit" 
                                        style="background-color: #6f42c1; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
                                        onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Make ADMIN</button>
                                 </form>
                                 <form method="POST" action="/admin/user/{{ u.id }}/make-mod" style="display: inline;">
-                                    {{ csrf_token() }}
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <button type="submit" 
                                        style="background-color: #28a745; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
                                        onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Make MOD</button>
@@ -202,7 +202,7 @@
                             </div>
                             {% elif current_user.role == 'ADMIN' %}
                             <form method="POST" action="/admin/user/{{ u.id }}/make-mod" style="display: inline;">
-                                {{ csrf_token() }}
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" 
                                    style="background-color: #28a745; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
                                    onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Make MOD</button>
@@ -215,7 +215,7 @@
                         <div style="display: flex; gap: 6px;">
                             {% if current_user.can_suspend_user(u) %}
                             <form method="POST" action="/admin/user/{{ u.id }}/suspend" style="display: inline;">
-                                {{ csrf_token() }}
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" 
                                    style="background-color: #fd7e14; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
                                    onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Suspend</button>
@@ -223,7 +223,7 @@
                             {% endif %}
                             {% if current_user.can_delete_user(u) %}
                             <form method="POST" action="/admin/user/{{ u.id }}/delete" style="display: inline;" onsubmit="return confirm('Permanently delete this user? This cannot be undone.');">
-                                {{ csrf_token() }}
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" 
                                    style="background-color: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
                                    onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Delete</button>
