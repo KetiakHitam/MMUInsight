@@ -103,6 +103,13 @@ def index():
 @app.route("/search", methods=["GET"])
 def search_page():
     q = request.args.get("q", "").strip()
+    if not q:
+        return render_template(
+            "index.html",
+            search_query="",
+            search_results=None,
+        )
+
     results = search_lecturers_by_email(q)
 
     return render_template(
