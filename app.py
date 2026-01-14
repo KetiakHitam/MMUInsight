@@ -1,5 +1,5 @@
 from flask import Flask, get_flashed_messages, render_template_string, render_template, request, jsonify, session, redirect, url_for
-from flask_login import LoginManager, current_user
+from flask_login import LoginManager, current_user, login_required
 from flask_babel import Babel, gettext
 from datetime import datetime
 import os
@@ -116,6 +116,18 @@ def search_page():
         "index.html",
         search_query=q,
         search_results=results
+    )
+
+
+@app.route("/search/results", methods=["GET"])
+@login_required
+def search_results_page():
+    q = request.args.get("q", "").strip()
+    results = search_lecturers_by_email(q) if q else []
+    return render_template(
+        "results.html",
+        q=q,
+        results=results,
     )
 
 @app.get("/test")

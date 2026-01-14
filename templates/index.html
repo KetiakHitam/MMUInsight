@@ -24,7 +24,7 @@
                 >
                 <button type="submit" class="hero-search-button">Search</button>
             </form>
-            <div class="hero-hint">Tip: you can search by partial email, e.g. “johnson”.</div>
+            <div class="hero-hint">Tip: you can search by a lecturer's name, e.g. “Willie”.</div>
 
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
@@ -39,19 +39,54 @@
 
             {% if (search_query or '')|trim and search_results is not none %}
                 <div id="hero-results-panel" class="hero-results-panel">
-                    <div class="hero-results-title">Search Results</div>
+                    <div class="hero-results-title">
+                        <span>Search Results</span>
+                        <a class="hero-results-more" href="{{ url_for('search_results_page', q=search_query) }}">Open full results</a>
+                    </div>
                     {% if search_results|length == 0 %}
                         <div class="hero-results-empty">No results found.</div>
                     {% else %}
                         <div class="hero-results-list">
                             {% for lecturer in search_results %}
                             <div class="hero-result-card">
-                                <a class="hero-result-link" href="/lecturer/{{ lecturer.id }}">{{ lecturer.email }}</a>
-                                <div class="hero-result-meta">
-                                    <span class="hero-result-type">{{ lecturer.user_type }}</span>
-                                    {% if lecturer.is_claimed %}
-                                    <span class="hero-result-verified">Verified</span>
+                                <div class="hero-result-top">
+                                    <div class="hero-result-avatar" aria-hidden="true">{{ lecturer.avatar_initials or "?" }}</div>
+                                    <div class="hero-result-main">
+                                        <div class="hero-result-name">
+                                            <a class="hero-result-link" href="/lecturer/{{ lecturer.id }}">{{ lecturer.email }}</a>
+                                            {% if lecturer.is_claimed %}
+                                            <span class="hero-result-verified">Verified</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="hero-result-faculty">Lecturer</div>
+                                        <div class="hero-result-sub">
+                                            <span class="hero-result-stars" style="--rating: {{ lecturer.avg_rating or 0 }};"></span>
+                                            {% if lecturer.avg_rating is not none %}
+                                                <span class="hero-result-rating">{{ "%.1f"|format(lecturer.avg_rating) }}</span>
+                                            {% else %}
+                                                <span class="hero-result-rating">New</span>
+                                            {% endif %}
+                                            <span class="hero-result-reviews">{{ lecturer.review_count or 0 }} reviews</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="hero-result-tags">
+                                    {% if lecturer.top_subject_code %}
+                                        <span class="hero-result-tag">Top subject: {{ lecturer.top_subject_code }}</span>
                                     {% endif %}
+                                </div>
+
+                                <div class="hero-result-bio">
+                                    {% if lecturer.bio %}
+                                        {{ lecturer.bio|trim }}
+                                    {% else %}
+                                        No bio written.
+                                    {% endif %}
+                                </div>
+
+                                <div class="hero-result-cta">
+                                    <a class="hero-result-btn" href="/lecturer/{{ lecturer.id }}">View profile</a>
                                 </div>
                             </div>
                             {% endfor %}
