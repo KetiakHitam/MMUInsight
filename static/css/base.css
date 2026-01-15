@@ -1451,27 +1451,34 @@ body.dark-mode .result-card {
 }
 
 .feature-card {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 28px 20px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 20px;
+  padding: 32px 24px;
   text-align: center;
   backdrop-filter: blur(var(--glass-blur));
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  transition: var(--transition);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: var(--liquid-transition);
 }
 
 .feature-card:hover {
-  transform: translateY(-4px);
-  background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(37, 99, 235, 0.3);
-  box-shadow: 0 12px 40px rgba(37, 99, 235, 0.15);
+  transform: translateY(-6px);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(37, 99, 235, 0.4);
+  box-shadow: 0 16px 48px rgba(37, 99, 235, 0.2);
 }
 
 body.dark-mode .feature-card {
-  background: rgba(42, 42, 42, 0.7) !important;
-  border-color: rgba(68, 68, 68, 0.6) !important;
+  background: rgba(13, 43, 122, 0.72) !important;
+  border-color: rgba(59, 130, 246, 0.45) !important;
   backdrop-filter: blur(var(--glass-blur));
+  transition: var(--liquid-transition);
+}
+
+body.dark-mode .feature-card:hover {
+  background: rgba(19, 56, 152, 0.82) !important;
+  border-color: rgba(93, 151, 255, 0.6) !important;
+  box-shadow: 0 16px 48px rgba(59, 130, 246, 0.25) !important;
 }
 
 .feature-icon {
