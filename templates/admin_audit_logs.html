@@ -38,11 +38,11 @@
     </form>
 
     {% if logs %}
-    <div style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; background-color: #ffffff;">
+    <div class="glass-card" style="border-radius: 8px; overflow: hidden; padding: 0;">
     <div style="overflow-x: auto;">
     <table style="width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 900px;">
         <thead>
-            <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+            <tr style="background: rgba(248, 249, 250, 0.7); border-bottom: 2px solid #dee2e6; backdrop-filter: blur(5px);">
                 <th style="padding: 12px; width: 170px; text-align: left; font-weight: 600; color: #333; font-size: 0.95em;">Time</th>
                 <th style="padding: 12px; width: 240px; text-align: left; font-weight: 600; color: #333; font-size: 0.95em;">User</th>
                 <th style="padding: 12px; width: 120px; text-align: center; font-weight: 600; color: #333; font-size: 0.95em;">Role</th>
@@ -82,7 +82,7 @@
     </div>
     </div>
     {% else %}
-    <div style="background-color: #f8f9fa; padding: 30px; border-radius: 6px; text-align: center;">
+    <div class="glass-card" style="text-align: center;">
         <p style="color: #666; font-size: 1em; margin: 0;">No audit logs yet.</p>
     </div>
     {% endif %}
