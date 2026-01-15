@@ -31,7 +31,7 @@
     <div style="max-width: 800px; margin-left: auto; margin-right: auto; margin-bottom: 20px;">
         <form method="POST" action="{{ url_for('reviews.claim_profile', lecturer_id=lecturer.id) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">
+            <button type="submit" class="btn btn-lg" style="display: inline-flex; align-items: center; gap: 8px;">
                 🔐 Claim This Profile
             </button>
         </form>
@@ -39,7 +39,7 @@
     {% endif %}
     
     {% if averages %}
-    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #ddd; max-width: 800px; margin-left: auto; margin-right: auto;">
+    <div style="background: rgba(255, 255, 255, 0.75); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.2); max-width: 800px; margin-left: auto; margin-right: auto; backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);">
         {% set overall_score = (averages.clarity + averages.engagement + averages.punctuality + averages.responsiveness + averages.fairness) / 5 %}
         {% if overall_score < 2.0 %}
             {% set rating_label = "Poor" %}
@@ -220,7 +220,7 @@
                 </div>
             </div>
             
-            <div style="margin-bottom: 18px; padding: 15px; background-color: #fafafa; border-radius: 3px;">
+            <div style="margin-bottom: 18px; padding: 15px; background: rgba(250, 250, 250, 0.8); border-radius: 8px; backdrop-filter: blur(5px); border: 1px solid rgba(200, 200, 200, 0.1);">
             <p style="color: #333; font-size: 1.05em; line-height: 1.7; margin: 0;">{{ review.review_text }}</p>
             </div>
             
@@ -327,23 +327,23 @@
             
             {% if current_user.user_type == 'student' and review.author != current_user %}
             <div style="max-width: 800px; margin-left: auto; margin-right: auto; padding: 10px 0; margin-bottom: 15px;"></div>
-            <div id="report-form-{{ review.id }}" style="display: none; margin-top: 10px; padding: 12px; background-color: #f8f9fa; border-radius: 4px; border: 1px solid #e9ecef;">
+            <div id="report-form-{{ review.id }}" style="display: none; margin-top: 10px; padding: 12px; background: rgba(248, 249, 250, 0.8); border-radius: 8px; border: 1px solid rgba(220, 38, 38, 0.2); backdrop-filter: blur(5px);">
                 <form method="POST" action="{{ url_for('reviews.report_review', review_id=review.id) }}" style="display: flex; flex-direction: column;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <textarea name="reason" rows="2" placeholder="Why are you reporting this review?" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 3px;" required></textarea>
+                    <textarea name="reason" rows="2" placeholder="Why are you reporting this review?" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px);" required></textarea>
                     <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                        <button type="submit" style="background-color: #dc3545; color: white; padding: 6px 14px; border: none; border-radius: 3px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important; font-size: 0.9em;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Submit</button>
-                        <button type="button" onclick="document.getElementById('report-form-{{ review.id }}').style.display='none'" style="background-color: #6c757d; color: white; padding: 6px 14px; border: none; border-radius: 3px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important; font-size: 0.9em;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Cancel</button>
+                        <button type="submit" class="btn btn-danger" style="font-size: 0.9em; padding: 6px 14px;">Submit</button>
+                        <button type="button" onclick="document.getElementById('report-form-{{ review.id }}').style.display='none'" class="btn btn-secondary" style="font-size: 0.9em; padding: 6px 14px;">Cancel</button>
                     </div>
                 </form>
             </div>
             {% endif %}
             
             {% if review.replies %}
-            <div style="margin-top: 20px; padding-left: 20px; border-left: 3px solid #dee2e6;">
+            <div style="margin-top: 20px; padding-left: 20px; border-left: 3px solid rgba(59, 130, 246, 0.3);">
                 <h4 style="margin-bottom: 15px; color: #333; font-size: 0.95em;">Discussion Thread:</h4>
                 {% for reply in review.replies %}
-                <div id="reply-{{ reply.id }}" style="margin-bottom: 15px; margin-left: 15px; padding: 12px; background-color: #f8f9fa; border-radius: 3px; position: relative; border: 1px solid #e9ecef;">
+                <div id="reply-{{ reply.id }}" style="margin-bottom: 15px; margin-left: 15px; padding: 12px; background: rgba(248, 249, 250, 0.7); border-radius: 8px; position: relative; border: 1px solid rgba(200, 200, 200, 0.15); backdrop-filter: blur(5px);">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
                         <p style="margin: 0; font-weight: 600; font-size: 0.95em;">
                             {% if reply.author == review.author and review.is_anonymous and not current_user.is_admin() %}
