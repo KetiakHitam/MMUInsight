@@ -69,14 +69,117 @@
 
 <!-- Refactored problematic inline styles into CSS classes -->
 <style>
-    .unverified-lecturers {
-        background-color: #ffc107;
-        border-left: 4px solid #ffc107;
+    .stat-card {
+        background: rgba(255, 255, 255, 0.5) !important;
+        backdrop-filter: blur(18px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
+    .stat-card p {
+        color: white !important;
+    }
+
+    .stat-card:hover {
+        background: rgba(255, 255, 255, 0.75) !important;
+        border-color: rgba(255, 255, 255, 0.4) !important;
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* Total Users - Blue */
+    .stat-card[style*="border-left: 4px solid #007bff"] {
+        border-left: 4px solid #007bff !important;
+    }
+    
+    .stat-card[style*="border-left: 4px solid #007bff"]:hover {
+        background: #007bff !important;
+        border-color: #007bff !important;
+    }
+
+    /* Verified Users - Green */
+    .stat-card[style*="border-left: 4px solid #28a745"] {
+        border-left: 4px solid #28a745 !important;
+    }
+    
+    .stat-card[style*="border-left: 4px solid #28a745"]:hover {
+        background: #28a745 !important;
+        border-color: #28a745 !important;
+    }
+
+    /* Admins - Purple */
+    .stat-card[style*="border-left: 4px solid #6f42c1"] {
+        border-left: 4px solid #6f42c1 !important;
+    }
+    
+    .stat-card[style*="border-left: 4px solid #6f42c1"]:hover {
+        background: #6f42c1 !important;
+        border-color: #6f42c1 !important;
+    }
+
+    /* Students - Teal */
+    .stat-card[style*="border-left: 4px solid #17a2b8"] {
+        border-left: 4px solid #17a2b8 !important;
+    }
+    
+    .stat-card[style*="border-left: 4px solid #17a2b8"]:hover {
+        background: #17a2b8 !important;
+        border-color: #17a2b8 !important;
+    }
+
+    /* Lecturers - Orange */
+    .stat-card[style*="border-left: 4px solid #fd7e14"] {
+        border-left: 4px solid #fd7e14 !important;
+    }
+    
+    .stat-card[style*="border-left: 4px solid #fd7e14"]:hover {
+        background: #fd7e14 !important;
+        border-color: #fd7e14 !important;
+    }
+
+    /* Unverified Lecturers - Yellow */
+    .unverified-lecturers {
+        background: rgba(255, 255, 255, 0.5) !important;
+        backdrop-filter: blur(18px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        border-left: 4px solid #ffc107 !important;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .unverified-lecturers:hover {
+        background: #ffc107 !important;
+        border-color: #ffc107 !important;
+    }
+    
+    .unverified-lecturers:hover p {
+        color: #d97706 !important;
+    }
+
+    /* Total Reviews - Cyan */
+    .stat-card[style*="border-left: 4px solid #20c997"] {
+        border-left: 4px solid #20c997 !important;
+    }
+    
+    .stat-card[style*="border-left: 4px solid #20c997"]:hover {
+        background: #20c997 !important;
+        border-color: #20c997 !important;
+    }
+
+    /* Pending Reports - Red */
     .pending-reports {
-        background-color: #dc3545;
-        border-left: 4px solid #dc3545;
+        background: rgba(255, 255, 255, 0.5) !important;
+        backdrop-filter: blur(18px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        border-left: 4px solid #dc3545 !important;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .pending-reports:hover {
+        background: #dc3545 !important;
+        border-color: #dc3545 !important;
+    }
+    
+    .pending-reports:hover p {
+        color: white !important;
     }
 </style>
 {% endblock %}

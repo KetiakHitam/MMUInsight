@@ -861,28 +861,9 @@ body.dark-mode a:hover {
 }
 
 .hero {
-  background: radial-gradient(
-      1200px 600px at 20% 10%,
-      rgba(255, 255, 255, 0.18),
-      rgba(255, 255, 255, 0) 60%
-    ),
-    linear-gradient(
-      135deg,
-      var(--primary) 0%,
-      var(--primary-dark) 55%,
-      #0b1b5a 100%
-    );
+  background: transparent;
   padding: 64px 20px 56px;
   color: #fff;
-}
-
-body.dark-mode .hero {
-  background: radial-gradient(
-      1200px 600px at 20% 10%,
-      rgba(255, 255, 255, 0.12),
-      rgba(255, 255, 255, 0) 60%
-    ),
-    linear-gradient(135deg, #1d4ed8 0%, #0b2b7a 55%, #08133a 100%);
 }
 
 .hero-container {
@@ -1451,12 +1432,12 @@ body.dark-mode .result-card {
 }
 
 .feature-card {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
   padding: 32px 24px;
   text-align: center;
-  backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(18px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: var(--liquid-transition);
 }
