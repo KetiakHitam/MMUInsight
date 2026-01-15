@@ -448,3 +448,38 @@ body.dark-mode .theme-toggle {
 body.dark-mode .theme-toggle:hover {
     background-color: rgba(255, 255, 255, 0.4) !important;
 }
+
+/* Glass Design Components - Dark Mode Support */
+body.dark-mode .glass-form {
+    background: rgba(42, 42, 42, 0.7) !important;
+    border-color: rgba(68, 68, 68, 0.6) !important;
+    backdrop-filter: blur(10px);
+}
+
+body.dark-mode .glass-card {
+    background: rgba(42, 42, 42, 0.7) !important;
+    border-color: rgba(68, 68, 68, 0.6) !important;
+    backdrop-filter: blur(10px);
+}
+
+body.dark-mode .glass-card:hover {
+    background: rgba(50, 50, 50, 0.8) !important;
+    border-color: rgba(59, 130, 246, 0.4) !important;
+}
+
+body.dark-mode .glass-input {
+    background: rgba(58, 58, 58, 0.8) !important;
+    border-color: rgba(85, 85, 85, 0.6) !important;
+    color: #e0e0e0 !important;
+    backdrop-filter: blur(10px);
+}
+
+body.dark-mode .glass-input:focus {
+    background: rgba(68, 68, 68, 0.9) !important;
+    border-color: var(--primary) !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .glass-button {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.8) 0%, rgba(29, 78, 216, 0.8) 100%) !important;
+}
