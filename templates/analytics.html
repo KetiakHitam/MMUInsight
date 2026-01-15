@@ -7,10 +7,10 @@
     <h2>Analytics Dashboard</h2>
     <h3>{{ lecturer.email }}</h3>
     
-    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+    <div class="glass-card" style="margin-bottom: 20px;">
         <h3>Overview</h3>
         {% if averages %}
-        <p style="font-size: 2.5em; margin: 10px 0; color: #007bff;"><strong>{{ overall_rating }}/5</strong></p>
+        <p style="font-size: 2.5em; margin: 10px 0; color: var(--primary);"><strong>{{ overall_rating }}/5</strong></p>
         <p style="color: #666;">Overall Rating</p>
         {% endif %}
         <p><strong>Total Reviews:</strong> {{ total_reviews }}</p>
@@ -19,14 +19,14 @@
     {% if averages %}
     
     {% if strongest and weakest %}
-    <div style="background-color: #fff; padding: 20px; border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 20px;">
+    <div class="glass-card" style="margin-bottom: 20px;">
         <h3>Performance Insights</h3>
         <p style="color: #28a745;"><strong>Strongest Category:</strong> {{ strongest.title() }} ({{ averages[strongest] }}/5)</p>
         <p style="color: #dc3545;"><strong>Needs Improvement:</strong> {{ weakest.title() }} ({{ averages[weakest] }}/5)</p>
     </div>
     {% endif %}
     
-    <div style="background-color: #fff; padding: 20px; border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 30px;">
+    <div class="glass-card" style="margin-bottom: 30px;">
         <h3>Category Averages</h3>
         <table style="width: 100%; border-collapse: collapse;">
             <tr style="border-bottom: 2px solid #dee2e6;">
@@ -56,7 +56,7 @@
         </table>
     </div>
     
-    <div style="background-color: #fff; padding: 20px; border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 30px;">
+    <div class="glass-card" style="margin-bottom: 30px;">
         <h3>Performance Visual</h3>
         
         <div style="margin-bottom: 15px;">
