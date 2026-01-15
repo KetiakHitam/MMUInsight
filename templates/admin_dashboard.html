@@ -8,49 +8,49 @@
     
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 40px;">
         <!-- Total Users Card -->
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; border-left: 4px solid #007bff;">
+        <div class="glass-card stat-card" style="border-left: 4px solid #007bff;">
             <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Total Users</p>
             <p style="font-size: 2.2em; font-weight: bold; color: #333; margin: 0;">{{ total_users }}</p>
         </div>
         
         <!-- Verified Users Card -->
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; border-left: 4px solid #28a745;">
+        <div class="glass-card stat-card" style="border-left: 4px solid #28a745;">
             <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Verified Users</p>
             <p style="font-size: 2.2em; font-weight: bold; color: #333; margin: 0;">{{ verified_users }}</p>
         </div>
         
         <!-- Admins Card -->
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; border-left: 4px solid #6f42c1;">
+        <div class="glass-card stat-card" style="border-left: 4px solid #6f42c1;">
             <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Admins</p>
             <p style="font-size: 2.2em; font-weight: bold; color: #333; margin: 0;">{{ admin_count }}</p>
         </div>
         
         <!-- Students Card -->
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; border-left: 4px solid #17a2b8;">
+        <div class="glass-card stat-card" style="border-left: 4px solid #17a2b8;">
             <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Students</p>
             <p style="font-size: 2.2em; font-weight: bold; color: #333; margin: 0;">{{ student_count }}</p>
         </div>
         
         <!-- Lecturers Card -->
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; border-left: 4px solid #fd7e14;">
+        <div class="glass-card stat-card" style="border-left: 4px solid #fd7e14;">
             <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Lecturers</p>
             <p style="font-size: 2.2em; font-weight: bold; color: #333; margin: 0;">{{ lecturer_count }}</p>
         </div>
         
         <!-- Unverified Lecturers Card -->
-        <div class="unverified-lecturers" style="background-color: #f8f9fa; padding: 20px; border-radius: 6px;">
+        <div class="glass-card stat-card unverified-lecturers" style="border-left: 4px solid #ffc107;">
             <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Unverified Lecturers</p>
             <p style="font-size: 2.2em; font-weight: bold; color: #ff9800; margin: 0;">{{ unverified_lecturers }}</p>
         </div>
         
         <!-- Total Reviews Card -->
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; border-left: 4px solid #20c997;">
+        <div class="glass-card stat-card" style="border-left: 4px solid #20c997;">
             <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Total Reviews</p>
             <p style="font-size: 2.2em; font-weight: bold; color: #333; margin: 0;">{{ total_reviews }}</p>
         </div>
         
         <!-- Pending Reports Card -->
-        <div class="pending-reports" style="background-color: #f8f9fa; padding: 20px; border-radius: 6px;">
+        <div class="glass-card stat-card pending-reports" style="border-left: 4px solid #dc3545;">
             <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Pending Reports</p>
             <p style="font-size: 2.2em; font-weight: bold; color: #dc3545; margin: 0;">{{ pending_reports }}</p>
         </div>
@@ -58,13 +58,13 @@
     
     <!-- Navigation Buttons -->
     <div style="display: flex; gap: 12px; margin-bottom: 30px; flex-wrap: wrap;">
-        <a href="{{ url_for('auth.admin_users') }}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 500; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">👥 Manage Users</a>
-        <a href="{{ url_for('auth.admin_reports') }}" style="background-color: {% if pending_reports > 0 %}#dc3545{% else %}#6c757d{% endif %}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 500; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">🚩 View Reports</a>
-        <a href="{{ url_for('suggestions.admin_suggestions') }}" style="background-color: #6f42c1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 500; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">💡 Manage Suggestions</a>
-        <a href="{{ url_for('auth.admin_audit_logs') }}" style="background-color: #6c757d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 500; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">🧾 Audit Logs</a>
+        <a href="{{ url_for('auth.admin_users') }}" class="btn btn-lg">👥 Manage Users</a>
+        <a href="{{ url_for('auth.admin_reports') }}" class="btn btn-lg {% if pending_reports > 0 %}btn-danger{% endif %}">🚩 View Reports</a>
+        <a href="{{ url_for('suggestions.admin_suggestions') }}" class="btn btn-lg" style="background: linear-gradient(135deg, #6f42c1 0%, #553399 100%);">💡 Manage Suggestions</a>
+        <a href="{{ url_for('auth.admin_audit_logs') }}" class="btn btn-lg btn-secondary">🧾 Audit Logs</a>
     </div>
     
-    <a href="{{ url_for('index') }}" style="color: #007bff; text-decoration: none; font-size: 0.95em;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Back to Home</a>
+    <a href="{{ url_for('index') }}" style="color: var(--primary); text-decoration: none; font-weight: 500; font-size: 0.95em;">Back to Home</a>
 </div>
 
 <!-- Refactored problematic inline styles into CSS classes -->
