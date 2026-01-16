@@ -447,24 +447,11 @@ function hideEditForm(replyId) {
 <style>
 /* Normalize fonts and colors inside review cards */
 .review-card {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    color: #222;
+    font-family: inherit;
+    color: inherit;
 }
 .review-card, .review-card * {
     font-family: inherit !important;
-    color: inherit !important;
-}
-
-button, a[style*="background-color"] {
-    transition: filter 0.2s ease;
-}
-
-button:hover, a[style*="background-color"]:hover {
-    filter: brightness(1.1);
-}
-
-button:active, a[style*="background-color"]:active {
-    filter: brightness(1.05);
 }
 
 /* Remove upvote/downvote buttons */

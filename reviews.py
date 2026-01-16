@@ -6,6 +6,7 @@ from models import Review, User, Reply, Report, Subject
 from audit import log_admin_action
 from datetime import datetime
 from sqlalchemy import func
+import re
 
 reviews_bp = Blueprint('reviews', __name__)
 
@@ -148,6 +149,15 @@ def lecturer_profile(lecturer_id):
         reported_reports = Report.query.filter_by(reporter_id=current_user.id).all()
         reported_review_ids = [report.review_id for report in reported_reports]
     
+    lecturer_initials = "?"
+    try:
+        local_part = (lecturer.email or "").split("@", 1)[0]
+        parts = [p for p in re.split(r"[._\-\s]+", local_part) if p]
+        initials = "".join(p[0].upper() for p in parts)[:2]
+        lecturer_initials = initials or (local_part[:1].upper() if local_part else "?")
+    except Exception:
+        lecturer_initials = "?"
+
     if reviews:
         avg_clarity = db.session.query(func.avg(Review.rating_clarity)).filter_by(lecturer_id=lecturer_id).scalar()
         avg_engagement = db.session.query(func.avg(Review.rating_engagement)).filter_by(lecturer_id=lecturer_id).scalar()
@@ -162,14 +172,54 @@ def lecturer_profile(lecturer_id):
             'responsiveness': round(avg_responsiveness, 1) if avg_responsiveness else 0,
             'fairness': round(avg_fairness, 1) if avg_fairness else 0,
         }
-        
-        recommend_count = Review.query.filter_by(lecturer_id=lecturer_id, recommend=True).count()
+
+        overall_avg = round(
+            (averages['clarity'] + averages['engagement'] + averages['punctuality'] + averages['responsiveness'] + averages['fairness']) / 5,
+            1,
+        )
+
+        recommend_count = sum(1 for r in reviews if r.recommend)
         recommend_percentage = round((recommend_count / len(reviews)) * 100) if reviews else None
+
+        star_counts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+        for r in reviews:
+            try:
+                star = int(round(r.overall_score))
+            except Exception:
+                star = 0
+            star = 1 if star < 1 else 5 if star > 5 else star
+            if star in star_counts:
+                star_counts[star] += 1
+
+        star_breakdown = [
+            {
+                'stars': s,
+                'count': star_counts[s],
+                'pct': round((star_counts[s] / len(reviews)) * 100, 1) if reviews else 0,
+            }
+            for s in [5, 4, 3, 2, 1]
+        ]
     else:
         averages = None
+        overall_avg = None
         recommend_percentage = None
+        star_breakdown = []
     
-    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage, reported_review_ids=reported_review_ids, student_has_review=student_has_review, user_review_id=user_review.id if user_review else None, now=datetime.utcnow())
+    return render_template(
+        'lecturer_profile.html',
+        lecturer=lecturer,
+        lecturer_initials=lecturer_initials,
+        reviews=reviews,
+        review_count=len(reviews),
+        averages=averages,
+        overall_avg=overall_avg,
+        recommend_percentage=recommend_percentage,
+        star_breakdown=star_breakdown,
+        reported_review_ids=reported_review_ids,
+        student_has_review=student_has_review,
+        user_review_id=user_review.id if user_review else None,
+        now=datetime.utcnow(),
+    )
 
 @reviews_bp.route('/claim_profile/<int:lecturer_id>', methods=['POST'])
 @login_required

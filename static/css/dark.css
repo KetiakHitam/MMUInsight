@@ -34,39 +34,71 @@ body.dark-mode .dashboard-card {
     border: 1px solid #444 !important;
 }
 
-body.dark-mode .navbar {
-    background-color: #121212;
-    border-bottom: 1px solid #333;
+body.dark-mode .navbar.navbar--v2 {
+    background-color: #121212 !important;
+    border-bottom: 1px solid #2a2a2a !important;
 }
 
-body.dark-mode .navbar a {
-    color: #e0e0e0;
+body.dark-mode .navbar--v2 .nav-brand {
+    color: #e0e0e0 !important;
 }
 
-body.dark-mode .navbar a:hover {
-    background-color: #2a2a2a;
+body.dark-mode .navbar--v2 .nav-link {
+    color: #e0e0e0 !important;
 }
 
-body.dark-mode .navbar .admin-link {
-    background-color: #8b3a3a;
+body.dark-mode .navbar--v2 .nav-link:hover {
+    background-color: #2a2a2a !important;
 }
 
-body.dark-mode .navbar .admin-link:hover {
-    background-color: #a84545;
+body.dark-mode .navbar--v2 .nav-toggle,
+body.dark-mode .navbar--v2 .nav-icon-btn,
+body.dark-mode .navbar--v2 .nav-dd__summary {
+    background-color: #1a1a1a !important;
+    border-color: #333 !important;
+    color: #e0e0e0 !important;
 }
 
-body.dark-mode .language-switcher a {
-    background-color: rgba(255, 255, 255, 0.1);
+body.dark-mode .navbar--v2 .nav-dd__panel {
+    background-color: #1a1a1a !important;
+    border-color: #333 !important;
 }
 
-body.dark-mode .language-switcher a:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+body.dark-mode .navbar--v2 .nav-dd__item {
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .navbar--v2 .nav-dd__item:hover {
+    background-color: #2a2a2a !important;
+}
+
+body.dark-mode .navbar--v2 .nav-dd__meta-role {
+    color: #aaaaaa !important;
+}
+
+body.dark-mode .navbar--v2 .nav-dd__item--danger {
+    color: #ff8a8a !important;
+}
+
+body.dark-mode .navbar--v2 .nav-dd__item--danger:hover {
+    background-color: rgba(255, 138, 138, 0.12) !important;
+    color: #ffb3b3 !important;
+}
+
+body.dark-mode .site-footer {
+    background-color: #0b0f1a !important;
+    border-top-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 body.dark-mode .container {
     background-color: #2a2a2a !important;
     border-radius: 6px;
     padding: 25px;
+}
+
+body.dark-mode {
+    --btn-hover-brightness: 1.08;
+    --btn-active-brightness: 1.02;
 }
 
 body.dark-mode input,
@@ -87,7 +119,7 @@ body.dark-mode button {
 }
 
 body.dark-mode button:hover {
-    background-color: #2a7bb9;
+    filter: brightness(var(--btn-hover-brightness));
 }
 
 body.dark-mode label {
@@ -189,27 +221,33 @@ body.dark-mode td {
 }
 
 /* Buttons - SOLID backgrounds by default, prevent link styling */
-body.dark-mode button,
+body.dark-mode button:not(.nav-toggle):not(.password-toggle),
 body.dark-mode .btn,
 body.dark-mode a.btn,
-body.dark-mode a[style*="background-color"],
 body.dark-mode input[type="button"],
 body.dark-mode input[type="submit"] {
     background-color: #1f5a8f !important;
     color: white !important;
     text-decoration: none !important;
     border: 1px solid #2a7bb9 !important;
-    padding: 8px 16px !important;
-    display: inline-block !important;
+    transition: filter 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
 }
 
-body.dark-mode button:hover,
+body.dark-mode button:not(.nav-toggle):not(.password-toggle):hover,
 body.dark-mode .btn:hover,
 body.dark-mode a.btn:hover,
 body.dark-mode a[style*="background-color"]:hover {
-    background-color: #2a7bb9 !important;
+    filter: brightness(var(--btn-hover-brightness)) !important;
     color: white !important;
     text-decoration: none !important;
+}
+
+body.dark-mode button:not(.nav-toggle):not(.password-toggle):focus-visible,
+body.dark-mode .btn:focus-visible,
+body.dark-mode input[type="button"]:focus-visible,
+body.dark-mode input[type="submit"]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(100, 181, 246, 0.22), 0 16px 34px rgba(0, 0, 0, 0.35) !important;
 }
 
 /* Rating bars - override inline #e0e0e0 colors to dark */
@@ -331,6 +369,18 @@ body.dark-mode a.btn-info {
 
 body.dark-mode .btn-info:hover {
     background-color: #1d4ed8 !important;
+}
+
+body.dark-mode .btn-secondary,
+body.dark-mode button.btn-secondary,
+body.dark-mode a.btn-secondary {
+    background-color: #475569 !important;
+    border-color: #64748b !important;
+    color: white !important;
+}
+
+body.dark-mode .btn-secondary:hover {
+    background-color: #334155 !important;
 }
 
 /* Stats boxes - be specific, don't override colored elements */
