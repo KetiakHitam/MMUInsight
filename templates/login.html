@@ -3,57 +3,10 @@
 {% block title %}Login - MMUInsight{% endblock %}
 
 {% block content %}
-<style>
-.password-wrapper {
-    position: relative;
-}
-.password-toggle {
-    position: absolute;
-    right: 2px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    padding: 8px;
-    color: #666;
-    font-size: 18px;
-    outline: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: none;
-    margin: 0;
-    line-height: 1;
-    width: 36px;
-    height: 36px;
-}
-.password-toggle:hover {
-    color: #333;
-    background: none;
-    transform: translateY(-50%);
-}
-.password-toggle:focus {
-    outline: none;
-    background: none;
-    transform: translateY(-50%);
-}
-.password-toggle:active {
-    background: none;
-    transform: translateY(-50%);
-}
-.password-toggle svg {
-    width: 20px;
-    height: 20px;
-    display: block;
-}
-</style>
-
-<div class="container" style="max-width: 450px;">
-    <div class="card">
+<div class="container auth-container">
+    <div class="card auth-card">
         <div class="card-header">
-            <h2 style="margin-bottom: 0;">Welcome Back</h2>
+            <h2>Welcome Back</h2>
         </div>
         <div class="card-body">
             <form method="POST" action="{{ url_for('auth.login') }}">
@@ -65,7 +18,7 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="password-wrapper">
-                        <input type="password" id="password" name="password" required style="padding-right: 45px;">
+                        <input type="password" id="password" name="password" required>
                         <button type="button" class="password-toggle" onclick="togglePassword('password', this)">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -79,10 +32,10 @@
                 <button type="submit" class="btn btn-block btn-lg" style="margin-top: 1.5rem;">Login</button>
             </form>
         </div>
-        <div class="card-footer" style="text-align: center;">
-            <p style="margin-bottom: 0;">Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
-            <p style="margin-bottom: 0; margin-top: 0.5rem;"><a href="{{ url_for('auth.forgot_password') }}">Forgot your password?</a></p>
-            <p style="margin-bottom: 0; margin-top: 0.5rem;"><a href="{{ url_for('auth.resend_verification_page') }}">Resend verification email</a></p>
+        <div class="card-footer auth-footer">
+            <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
+            <p><a href="{{ url_for('auth.forgot_password') }}">Forgot your password?</a></p>
+            <p><a href="{{ url_for('auth.resend_verification_page') }}">Resend verification email</a></p>
         </div>
     </div>
 </div>

@@ -3,57 +3,10 @@
 {% block title %}Register - MMUInsight{% endblock %}
 
 {% block content %}
-<style>
-.password-wrapper {
-    position: relative;
-}
-.password-toggle {
-    position: absolute;
-    right: 2px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    padding: 8px;
-    color: #666;
-    font-size: 18px;
-    outline: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: none;
-    margin: 0;
-    line-height: 1;
-    width: 36px;
-    height: 36px;
-}
-.password-toggle:hover {
-    color: #333;
-    background: none;
-    transform: translateY(-50%);
-}
-.password-toggle:focus {
-    outline: none;
-    background: none;
-    transform: translateY(-50%);
-}
-.password-toggle:active {
-    background: none;
-    transform: translateY(-50%);
-}
-.password-toggle svg {
-    width: 20px;
-    height: 20px;
-    display: block;
-}
-</style>
-
-<div class="container" style="max-width: 450px;">
-    <div class="card">
+<div class="container auth-container">
+    <div class="card auth-card">
         <div class="card-header">
-            <h2 style="margin-bottom: 0;">Create Account</h2>
+            <h2>Create Account</h2>
         </div>
         <div class="card-body">
             <form method="POST" action="/register">
@@ -66,7 +19,7 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="password-wrapper">
-                        <input type="password" id="password" name="password" required minlength="8" style="padding-right: 45px;">
+                        <input type="password" id="password" name="password" required minlength="8">
                         <button type="button" class="password-toggle" onclick="togglePassword('password', this)">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -76,7 +29,7 @@
                             </svg>
                         </button>
                     </div>
-                    <small style="display: block; margin-top: 0.5rem; color: #666;">
+                    <small class="auth-help">
                         Must be at least 8 characters with uppercase, lowercase, number, and special character
                     </small>
                 </div>
@@ -84,7 +37,7 @@
                 <div class="form-group">
                     <label for="confirm_password">Confirm Password</label>
                     <div class="password-wrapper">
-                        <input type="password" id="confirm_password" name="confirm_password" required minlength="8" style="padding-right: 45px;">
+                        <input type="password" id="confirm_password" name="confirm_password" required minlength="8">
                         <button type="button" class="password-toggle" onclick="togglePassword('confirm_password', this)">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -96,15 +49,15 @@
                     </div>
                 </div>
 
-                <div style="background-color: #f0f0f0; color: #dc3545; padding: 12px; border-radius: 5px; margin-bottom: 1.5rem; border-left: 4px solid #dc3545;">
+                <div class="auth-warning">
                     <strong>⚠️ Important:</strong> Please don't use your real MMU password!
                 </div>
 
                 <button type="submit" class="btn btn-block btn-lg">Create Account</button>
             </form>
         </div>
-        <div class="card-footer" style="text-align: center;">
-            <p style="margin-bottom: 0;">Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+        <div class="card-footer auth-footer">
+            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
         </div>
     </div>
 </div>
