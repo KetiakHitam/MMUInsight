@@ -1,12 +1,19 @@
 from flask import Flask, get_flashed_messages, render_template_string, render_template, request, jsonify, session, redirect, url_for
-from flask_login import LoginManager, current_user
+from flask_login import LoginManager, current_user, login_required
 from flask_babel import Babel, gettext
 from datetime import datetime
 import os
 from dotenv import load_dotenv
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-load_dotenv()
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(BASE_DIR, '.env'))
+
+# Ensure DATABASE_PATH is set (same as init_db_safe.py does)
+if 'DATABASE_PATH' not in os.environ:
+    db_directory = os.path.join(os.path.dirname(BASE_DIR), 'mmuinsight_data')
+    os.makedirs(db_directory, exist_ok=True)
+    os.environ['DATABASE_PATH'] = os.path.join(db_directory, 'mmuinsight.db')
 
 from extensions import db, bcrypt, login_manager, limiter, csrf, mail
 from models import User, Subject, Review, Suggestion, SuggestionVote
@@ -25,9 +32,15 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-key-please-change-i
 
 app.config["SESSION_COOKIE_SECURE"] = not debug_mode
 app.config["SESSION_COOKIE_HTTPONLY"] = True
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-db_path = os.path.join(BASE_DIR, 'database', 'mmuinsight.db')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
+
+# Use environment variable for database path, default to parent directory for security
+db_path = os.environ.get('DATABASE_PATH', os.path.join(os.path.dirname(BASE_DIR), 'mmuinsight_data', 'mmuinsight.db'))
+# Create directory if it doesn't exist
+db_dir = os.path.dirname(db_path)
+os.makedirs(db_dir, exist_ok=True)
+# Ensure the file path is absolute and convert to forward slashes for SQLite URI
+db_path = os.path.abspath(db_path)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path.replace('\\', '/')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
@@ -60,7 +73,8 @@ babel = Babel(app, locale_selector=get_locale)
 
 @app.before_request
 def enforce_https():
-    if debug_mode:
+    current_debug_mode = os.environ.get("DEBUG", "False").lower() in ["true", "1", "yes"]
+    if current_debug_mode:
         return
     if request.is_secure:
         return
@@ -103,12 +117,31 @@ def index():
 @app.route("/search", methods=["GET"])
 def search_page():
     q = request.args.get("q", "").strip()
+    if not q:
+        return render_template(
+            "index.html",
+            search_query="",
+            search_results=None,
+        )
+
     results = search_lecturers_by_email(q)
 
     return render_template(
         "index.html",
         search_query=q,
         search_results=results
+    )
+
+
+@app.route("/search/results", methods=["GET"])
+@login_required
+def search_results_page():
+    q = request.args.get("q", "").strip()
+    results = search_lecturers_by_email(q) if q else []
+    return render_template(
+        "results.html",
+        q=q,
+        results=results,
     )
 
 @app.get("/test")
@@ -125,7 +158,7 @@ def register():
 
 @app.route("/Professor-info.html")
 def Professors():
-    return render_template('Professor-info.html')
+    return render_template('professor-info.html')
 
 @app.route("/terms-of-service")
 def terms_of_service():
