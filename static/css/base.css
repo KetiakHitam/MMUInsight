@@ -1,3 +1,87 @@
+/* ============================================
+   LECTURER PROFILE - HEADER & RATING
+   ============================================ */
+
+.glass-header-profile {
+  max-width: 800px;
+  margin: 0 auto 30px auto;
+  text-align: center;
+  background: var(--glass-bg);
+  padding: 30px;
+  border-radius: 20px;
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: var(--liquid-transition);
+}
+
+.glass-header-profile:hover {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 40px rgba(37, 99, 235, 0.15);
+}
+
+.glass-header-profile h2 {
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.glass-header-profile .verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--success);
+  font-size: 0.8em;
+  font-weight: 600;
+  background: rgba(22, 163, 74, 0.12);
+  padding: 6px 12px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.glass-header-profile p {
+  margin: 5px 0;
+  color: var(--text-secondary);
+}
+
+.glass-header-profile p.subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95em;
+}
+
+.glass-header-profile p.last-online {
+  color: var(--gray-400);
+  font-size: 0.9em;
+}
+
+body.dark-mode .glass-header-profile {
+  background: rgba(13, 43, 122, 0.65) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  backdrop-filter: blur(var(--glass-blur));
+}
+
+body.dark-mode .glass-header-profile:hover {
+  background: rgba(19, 56, 152, 0.75) !important;
+  border-color: rgba(93, 151, 255, 0.6) !important;
+}
+
+body.dark-mode .glass-header-profile h2 {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .glass-header-profile p {
+  color: #b0b0b0 !important;
+}
+
+body.dark-mode .glass-header-profile .verified-badge {
+  background: rgba(22, 163, 74, 0.25) !important;
+  color: #4ade80 !important;
+}
+
 /* Category label for review breakdown */
 .review-category-label {
   color: var(--gray-400);
