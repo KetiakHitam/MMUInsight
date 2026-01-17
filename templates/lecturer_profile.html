@@ -4,27 +4,27 @@
 
 {% block content %}
 <div class="container" style="max-width: 900px; margin: 0 auto;">
-    <div style="max-width: 800px; margin: 0 auto 30px auto; text-align: center; background: rgba(255, 255, 255, 0.85); padding: 30px; border-radius: 20px; backdrop-filter: blur(18px); border: 1px solid rgba(255, 255, 255, 0.25);">
-    <h2 style="margin-bottom: 8px; color: #1f2937;">
-        {{ lecturer.email }}
-        {% if lecturer.is_claimed %}
-        <span style="color: #28a745; font-size: 0.8em;">✓ Verified</span>
+    <div class="glass-header-profile">
+        <h2>
+            {{ lecturer.email }}
+            {% if lecturer.is_claimed %}
+            <span class="verified-badge">✓ Verified</span>
+            {% endif %}
+        </h2>
+        <p class="subtitle">Lecturer Profile</p>
+        {% if lecturer.last_online %}
+        <p class="last-online">Last online: 
+            {% if (now - lecturer.last_online).total_seconds() < 60 %}
+                Just now
+            {% elif (now - lecturer.last_online).total_seconds() < 3600 %}
+                {{ ((now - lecturer.last_online).total_seconds() / 60) | int }} minutes ago
+            {% elif (now - lecturer.last_online).total_seconds() < 86400 %}
+                {{ ((now - lecturer.last_online).total_seconds() / 3600) | int }} hours ago
+            {% else %}
+                {{ lecturer.last_online.strftime('%b %d, %Y') }}
+            {% endif %}
+        </p>
         {% endif %}
-    </h2>
-    <p style="margin: 5px 0; color: #6b7280;">Lecturer Profile</p>
-    {% if lecturer.last_online %}
-    <p style="margin: 5px 0; color: #9ca3af; font-size: 0.9em;">Last online: 
-        {% if (now - lecturer.last_online).total_seconds() < 60 %}
-            Just now
-        {% elif (now - lecturer.last_online).total_seconds() < 3600 %}
-            {{ ((now - lecturer.last_online).total_seconds() / 60) | int }} minutes ago
-        {% elif (now - lecturer.last_online).total_seconds() < 86400 %}
-            {{ ((now - lecturer.last_online).total_seconds() / 3600) | int }} hours ago
-        {% else %}
-            {{ lecturer.last_online.strftime('%b %d, %Y') }}
-        {% endif %}
-    </p>
-    {% endif %}
     </div>
     
     {% if current_user.is_authenticated and current_user.user_type == 'lecturer' and not lecturer.is_claimed and not current_user.is_claimed %}
