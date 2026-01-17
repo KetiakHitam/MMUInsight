@@ -4,7 +4,12 @@
 
 {% block content %}
 <div class="container">
-    <h2>{{ lecturer.email }} - Biography</h2>
+    <h2>
+        {{ lecturer.email }} - Biography
+        {% if lecturer.is_claimed %}
+        <span class="hero-result-verified verified-badge">Verified</span>
+        {% endif %}
+    </h2>
     
     {% if can_edit %}
     <div class="glass-form">

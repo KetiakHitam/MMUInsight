@@ -1,0 +1,82 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Conclude merge commit",
+			"type": "shell",
+			"command": "git commit -m \"Merge Feature-LecturerRecommendation\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Stage all merge resolutions",
+			"type": "shell",
+			"command": "git add -A",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Conclude merge commit (after add)",
+			"type": "shell",
+			"command": "git commit --no-edit",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Git status after merge",
+			"type": "shell",
+			"command": "git status",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Python syntax check",
+			"type": "shell",
+			"command": "py -m compileall -q .",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Git status (final)",
+			"type": "shell",
+			"command": "git status",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Last commits",
+			"type": "shell",
+			"command": "git --no-pager log --oneline -5",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check merge head exists",
+			"type": "shell",
+			"command": "git rev-parse -q --verify MERGE_HEAD; echo %errorlevel%",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Show merge parents",
+			"type": "shell",
+			"command": "git --no-pager show -s --pretty=raw 33500c2",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Python import smoke test",
+			"type": "shell",
+			"command": "py -c \"import app; print('import ok')\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Python import smoke test (fixed quoting)",
+			"type": "shell",
+			"command": "py -c 'import app; print(\"import ok\")'",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

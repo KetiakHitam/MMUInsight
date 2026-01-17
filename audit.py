@@ -12,7 +12,6 @@ def _ensure_audit_table_exists() -> None:
     try:
         AuditLog.__table__.create(db.engine, checkfirst=True)
     except Exception:
-        # Don't break the app if audit log creation fails.
         pass
 
 
