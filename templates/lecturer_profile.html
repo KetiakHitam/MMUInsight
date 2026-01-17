@@ -28,130 +28,141 @@
     </div>
     
     {% if current_user.is_authenticated and current_user.user_type == 'lecturer' and not lecturer.is_claimed and not current_user.is_claimed %}
-    <div style="max-width: 800px; margin-left: auto; margin-right: auto; margin-bottom: 20px;">
+    <div style="max-width: 800px; margin-left: auto; margin-right: auto; margin-bottom: 20px; text-align: center;">
         <form method="POST" action="{{ url_for('reviews.claim_profile', lecturer_id=lecturer.id) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <button type="submit" class="btn btn-lg" style="display: inline-flex; align-items: center; gap: 8px;">
-                🔐 Claim This Profile
-            </button>
+            <button type="submit" class="btn btn-primary">🔐 Claim This Profile</button>
         </form>
     </div>
     {% endif %}
     
     {% if averages %}
-    <div style="background: rgba(255, 255, 255, 0.75); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.2); max-width: 800px; margin-left: auto; margin-right: auto; backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);">
+    <div class="glass-rating-section">
         {% set overall_score = (averages.clarity + averages.engagement + averages.punctuality + averages.responsiveness + averages.fairness) / 5 %}
         {% if overall_score < 2.0 %}
+            {% set rating_label_class = "poor" %}
             {% set rating_label = "Poor" %}
-            {% set label_color = "#d32f2f" %}
         {% elif overall_score < 2.7 %}
+            {% set rating_label_class = "below-average" %}
             {% set rating_label = "Below Average" %}
-            {% set label_color = "#f57c00" %}
         {% elif overall_score < 3.4 %}
+            {% set rating_label_class = "average" %}
             {% set rating_label = "Average" %}
-            {% set label_color = "#7d8a96" %}
         {% elif overall_score < 4.2 %}
+            {% set rating_label_class = "above-average" %}
             {% set rating_label = "Above Average" %}
-            {% set label_color = "#0288d1" %}
         {% else %}
+            {% set rating_label_class = "excellent" %}
             {% set rating_label = "Excellent" %}
-            {% set label_color = "#28a745" %}
         {% endif %}
         
-        <div style="text-align: center; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid #e0e0e0;">
-            <div style="font-size: 2.5em; font-weight: bold; color: #333;">{{ "%.1f" | format(overall_score) }}</div>
-            <div style="color: #999; font-size: 0.85em; margin-top: 3px;">out of 5</div>
-            <div style="color: {{ label_color }}; font-size: 1.15em; margin-top: 8px; font-weight: bold;">{{ rating_label }}</div>
+        <!-- Overall Rating Header -->
+        <div class="rating-header">
+            <div class="overall-score">{{ "%.1f" | format(overall_score) }}</div>
+            <div class="score-out-of">out of 5</div>
+            <div class="rating-label {{ rating_label_class }}">{{ rating_label }}</div>
         </div>
-        
 
-        <div style="margin-bottom: 22px;">
-            <h3 style="margin: 0 0 15px 0; font-size: 1em; color: #333;">Rating Breakdown:</h3>
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-item">
+                <p class="stat-value">{{ reviews | length }}</p>
+                <p class="stat-label">Total Reviews</p>
+            </div>
+            <div class="stat-item">
+                <p class="stat-value">{{ "%.1f" | format(overall_score) }}</p>
+                <p class="stat-label">Avg Rating</p>
+            </div>
+            <div class="stat-item">
+                <p class="stat-value">{% if recommend_percentage is not none %}{{ recommend_percentage }}{% else %}N/A{% endif %}</p>
+                <p class="stat-label">Recommend %</p>
+            </div>
+        </div>
+
+        <!-- Rating Breakdown -->
+        <div class="rating-breakdown">
+            <h3 class="breakdown-title">Rating Breakdown</h3>
             
-            <div style="margin-bottom: 12px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="font-weight: 600; color: #333; font-size: 0.95em;">Clarity</span>
-                    <span style="color: #666; font-size: 0.95em;"><strong>{{ averages.clarity }}</strong>/5</span>
+            <div class="breakdown-item">
+                <div class="breakdown-label-row">
+                    <span class="breakdown-label">Clarity</span>
+                    <span class="breakdown-score">{{ averages.clarity }}/5</span>
                 </div>
-                <div style="height: 10px; background-color: #e0e0e0; border-radius: 5px; overflow: hidden;">
-                    <div style="height: 100%; background-color: #007bff; width: {{ (averages.clarity / 5) * 100 }}%; border-radius: 5px;"></div>
+                <div class="rating-bar-container">
+                    <div class="rating-bar-fill" style="width: {{ (averages.clarity / 5) * 100 }}%;"></div>
                 </div>
             </div>
             
-            <div style="margin-bottom: 12px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="font-weight: 600; color: #333; font-size: 0.95em;">Engagement</span>
-                    <span style="color: #666; font-size: 0.95em;"><strong>{{ averages.engagement }}</strong>/5</span>
+            <div class="breakdown-item">
+                <div class="breakdown-label-row">
+                    <span class="breakdown-label">Engagement</span>
+                    <span class="breakdown-score">{{ averages.engagement }}/5</span>
                 </div>
-                <div style="height: 10px; background-color: #e0e0e0; border-radius: 5px; overflow: hidden;">
-                    <div style="height: 100%; background-color: #007bff; width: {{ (averages.engagement / 5) * 100 }}%; border-radius: 5px;"></div>
-                </div>
-            </div>
-            
-            <div style="margin-bottom: 12px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="font-weight: 600; color: #333; font-size: 0.95em;">Punctuality</span>
-                    <span style="color: #666; font-size: 0.95em;"><strong>{{ averages.punctuality }}</strong>/5</span>
-                </div>
-                <div style="height: 10px; background-color: #e0e0e0; border-radius: 5px; overflow: hidden;">
-                    <div style="height: 100%; background-color: #007bff; width: {{ (averages.punctuality / 5) * 100 }}%; border-radius: 5px;"></div>
+                <div class="rating-bar-container">
+                    <div class="rating-bar-fill" style="width: {{ (averages.engagement / 5) * 100 }}%;"></div>
                 </div>
             </div>
             
-            <div style="margin-bottom: 12px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="font-weight: 600; color: #333; font-size: 0.95em;">Responsiveness</span>
-                    <span style="color: #666; font-size: 0.95em;"><strong>{{ averages.responsiveness }}</strong>/5</span>
+            <div class="breakdown-item">
+                <div class="breakdown-label-row">
+                    <span class="breakdown-label">Punctuality</span>
+                    <span class="breakdown-score">{{ averages.punctuality }}/5</span>
                 </div>
-                <div style="height: 10px; background-color: #e0e0e0; border-radius: 5px; overflow: hidden;">
-                    <div style="height: 100%; background-color: #007bff; width: {{ (averages.responsiveness / 5) * 100 }}%; border-radius: 5px;"></div>
+                <div class="rating-bar-container">
+                    <div class="rating-bar-fill" style="width: {{ (averages.punctuality / 5) * 100 }}%;"></div>
                 </div>
             </div>
             
-            <div style="margin-bottom: 0;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="font-weight: 600; color: #333; font-size: 0.95em;">Fairness</span>
-                    <span style="color: #666; font-size: 0.95em;"><strong>{{ averages.fairness }}</strong>/5</span>
+            <div class="breakdown-item">
+                <div class="breakdown-label-row">
+                    <span class="breakdown-label">Responsiveness</span>
+                    <span class="breakdown-score">{{ averages.responsiveness }}/5</span>
                 </div>
-                <div style="height: 10px; background-color: #e0e0e0; border-radius: 5px; overflow: hidden;">
-                    <div style="height: 100%; background-color: #007bff; width: {{ (averages.fairness / 5) * 100 }}%; border-radius: 5px;"></div>
+                <div class="rating-bar-container">
+                    <div class="rating-bar-fill" style="width: {{ (averages.responsiveness / 5) * 100 }}%;"></div>
+                </div>
+            </div>
+            
+            <div class="breakdown-item">
+                <div class="breakdown-label-row">
+                    <span class="breakdown-label">Fairness</span>
+                    <span class="breakdown-score">{{ averages.fairness }}/5</span>
+                </div>
+                <div class="rating-bar-container">
+                    <div class="rating-bar-fill" style="width: {{ (averages.fairness / 5) * 100 }}%;"></div>
                 </div>
             </div>
         </div>
         
+        <!-- Recommendation Section -->
         {% if recommend_percentage is not none %}
-        <div style="padding-top: 18px; border-top: 1px solid #e0e0e0; text-align: center;">
-            <p style="margin: 0; font-size: 0.95em; color: #666;">
-                <span style="font-size: 1.4em; color: #28a745; font-weight: bold;">{{ recommend_percentage }}%</span>
-                <br>
-                <span style="color: #666;">of students would recommend this lecturer</span>
-            </p>
+        <div class="recommend-section">
+            <p class="recommend-percentage">{{ recommend_percentage }}%</p>
+            <p class="recommend-text">of students would recommend this lecturer</p>
         </div>
         {% endif %}
     </div>
     {% endif %}
     
     {% if (current_user.id == lecturer.id and current_user.user_type == 'lecturer') or current_user.is_admin() %}
-    <div style="max-width: 800px; margin: 0 auto 25px auto; display: flex; gap: 10px; align-items: center; justify-content: center;">
-    <a href="{{ url_for('reviews.lecturer_bio', lecturer_id=lecturer.id) }}" style="background-color: #6f42c1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">📝 View Bio</a>
-    <a href="{{ url_for('reviews.analytics', lecturer_id=lecturer.id) }}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">📊 View Analytics Dashboard</a>
+    <div style="max-width: 800px; margin: 0 auto 25px auto; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('reviews.lecturer_bio', lecturer_id=lecturer.id) }}" class="btn btn-secondary">📝 View Bio</a>
+        <a href="{{ url_for('reviews.analytics', lecturer_id=lecturer.id) }}" class="btn btn-success">📊 View Analytics Dashboard</a>
     </div>
     {% else %}
-    <div style="max-width: 800px; margin: 0 auto 25px auto;">
-        <div style="display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap;">
-            <a href="{{ url_for('reviews.lecturer_bio', lecturer_id=lecturer.id) }}" style="background-color: #6f42c1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">📝 View Bio</a>
-            {% if current_user.user_type == 'student' %}
-            <a href="{{ url_for('reviews.student_analytics', lecturer_id=lecturer.id) }}" style="background-color: #17a2b8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">📈 View Student Analytics</a>
-            {% if student_has_review %}
-            <div style="display: flex; flex-direction: column; justify-content: center; padding: 10px 20px; background-color: #f0f7ff; border: 1px solid #bbddff; border-radius: 3px; color: #2a69a0; font-size: 0.85em; line-height: 1.3;">
-                <div style="font-weight: 500;">✓ Review submitted</div>
-                <div style="font-size: 0.9em; color: #4a7ba3; margin-top: 2px;">You can edit or delete it below</div>
-            </div>
-            {% else %}
-            <a href="{{ url_for('reviews.create_review', lecturer_id=lecturer.id) }}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; display: inline-block; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Write a Review</a>
-            {% endif %}
-            {% endif %}
+    <div style="max-width: 800px; margin: 0 auto 25px auto; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('reviews.lecturer_bio', lecturer_id=lecturer.id) }}" class="btn btn-secondary">📝 View Bio</a>
+        {% if current_user.user_type == 'student' %}
+        <a href="{{ url_for('reviews.student_analytics', lecturer_id=lecturer.id) }}" class="btn btn-info">📈 View Student Analytics</a>
+        {% if student_has_review %}
+        <div style="padding: 10px 20px; background-color: #f0f7ff; border: 1px solid #bbddff; border-radius: 6px; color: #2a69a0; font-size: 0.85em; line-height: 1.3;">
+            <div style="font-weight: 500;">✓ Review submitted</div>
+            <div style="font-size: 0.9em; color: #4a7ba3; margin-top: 2px;">You can edit or delete it below</div>
         </div>
+        {% else %}
+        <a href="{{ url_for('reviews.create_review', lecturer_id=lecturer.id) }}" class="btn btn-primary">Write a Review</a>
+        {% endif %}
+        {% endif %}
     </div>
     {% endif %}
 
@@ -159,31 +170,29 @@
     
     {% if reviews %}
         {% for review in reviews %}
-        <div class="review-card" style="border: 1px solid {% if review.author == current_user %}#b3d9ff{% else %}#ddd{% endif %}; padding: 25px; margin-bottom: 25px; border-radius: 6px; max-width: 800px; margin-left: auto; margin-right: auto; background-color: {% if review.author == current_user %}#f0f7ff{% else %}#ffffff{% endif %};">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
-                <div style="display: flex; align-items: center; gap: 10px; color: #666; font-size: 0.95em; flex-wrap: wrap;">
+        <div class="review-card{% if review.author == current_user %} own-review{% endif %}">
+            <div class="review-header">
+                <div class="review-meta">
                     {% if review.author == current_user %}
-                    <span style="background-color: #007bff; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.75em; font-weight: bold; white-space: nowrap;">✓ Your Review</span>
+                    <span class="review-author-badge">✓ Your Review</span>
                     {% endif %}
                     {% if review.is_anonymous and not current_user.is_admin() %}
                         <span>Anonymous Student</span>
                     {% else %}
                         <span>{{ review.author.email }}</span>
                         {% if review.is_anonymous and current_user.is_admin() %}
-                            <span style="color: #999; font-size: 0.9em;">(Anonymous to others)</span>
+                            <span style="color: var(--text-secondary); font-size: 0.9em;">(Anonymous to others)</span>
                         {% endif %}
                     {% endif %}
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        {% if review.id == user_review_id %}
-                        <span style="color: #0066ff; font-weight: bold; font-size: 0.85em;">OP</span>
-                        {% endif %}
-                        {% if review.is_pinned %}
-                        <span style="background-color: #999999; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.75em; font-weight: bold; white-space: nowrap;">📌 Pinned</span>
-                        {% endif %}
-                    </div>
+                    {% if review.id == user_review_id %}
+                    <span style="color: #0066ff; font-weight: bold; font-size: 0.85em;">OP</span>
+                    {% endif %}
+                    {% if review.is_pinned %}
+                    <span class="review-pinned-badge">📌 Pinned</span>
+                    {% endif %}
                 </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="color: #999; font-size: 0.9em;">
+                <div class="review-actions">
+                    <div class="review-timestamp">
                         {% if (now - review.review_date).total_seconds() < 60 %}
                             Just now
                         {% elif (now - review.review_date).total_seconds() < 3600 %}
@@ -195,11 +204,11 @@
                         {% endif %}
                     </div>
                     {% if current_user.is_authenticated %}
-                    <div class="review-kebab-menu-container" style="position: relative;">
-                        <button class="review-kebab-btn" aria-label="Actions" onclick="toggleKebabMenu(this)" style="background: none; border: none; padding: 4px; cursor: pointer; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">
+                    <div class="review-kebab-menu-container">
+                        <button class="review-kebab-btn" aria-label="Actions" onclick="toggleKebabMenu(this)">
                             <span style="font-size: 1.5em; color: #888;">&#8942;</span>
                         </button>
-                        <div class="review-kebab-dropdown" style="display: none; position: absolute; top: 36px; right: 0; min-width: 160px; background: rgba(255,255,255,0.97); box-shadow: 0 4px 16px rgba(0,0,0,0.13); border-radius: 8px; border: 1px solid #e0e0e0; z-index: 10;">
+                        <div class="review-kebab-dropdown">
                             {% if review.author == current_user %}
                                 <a href="{{ url_for('reviews.edit_review', review_id=review.id) }}" style="display: block; padding: 10px 18px; color: #333; text-decoration: none; font-size: 0.97em; border-bottom: 1px solid #f0f0f0;">Edit</a>
                                 <a href="{{ url_for('reviews.delete_review', review_id=review.id) }}" onclick="return confirm('Are you sure you want to delete this review? This cannot be undone.');" style="display: block; padding: 10px 18px; color: #d32f2f; text-decoration: none; font-size: 0.97em; border-bottom: 1px solid #f0f0f0;">Delete</a>
@@ -220,38 +229,38 @@
                 </div>
             </div>
             
-            <div style="margin-bottom: 18px; padding: 15px; background: rgba(250, 250, 250, 0.8); border-radius: 8px; backdrop-filter: blur(5px); border: 1px solid rgba(200, 200, 200, 0.1);">
-            <p style="color: #333; font-size: 1.05em; line-height: 1.7; margin: 0;">{{ review.review_text }}</p>
+            <div class="review-text-container">
+                <p class="review-text">{{ review.review_text }}</p>
             </div>
             
             {% if review.subject_code %}
-            <p style="margin-bottom: 12px;"><strong>Subject:</strong> <span style="background-color: #e7f3ff; padding: 4px 10px; border-radius: 3px; font-size: 0.95em;">{{ review.subject_code }}</span></p>
+            <div class="review-subject">
+                <strong>Subject:</strong> <span class="subject-badge">{{ review.subject_code }}</span>
+            </div>
             {% endif %}
 
-            <div style="margin-bottom: 15px;">
-                <div style="border-top: 1px solid #eee; margin: 8px 0 8px 0; padding-top: 8px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; font-size: 1.19em; color: #222; margin-bottom: 10px;">
-                        <div style="display: flex; align-items: baseline; gap: 8px;">
-                            <span style="font-weight: 500;">Overall:</span>
-                            <span style="font-weight: bold; font-size: 1.42em; letter-spacing: 0.5px;">{{ review.overall_score }}/5</span>
-                        </div>
-                        <div style="display: inline-block; padding: 3px 11px; border-radius: 3px; background-color: {% if review.recommend %}#eaf7ec{% else %}#fbeaea{% endif %}; font-size: 0.97em; color: {% if review.recommend %}#155724{% else %}#721c24{% endif %}; font-weight: 500; opacity: 0.85; margin-left: 12px;">
-                            {% if review.recommend %}✓ Recommended{% else %}✗ Not Recommended{% endif %}
-                        </div>
+            <div class="review-ratings">
+                <div class="rating-row">
+                    <div class="overall-rating-value">
+                        <span>Overall:</span>
+                        <span class="overall-rating-score">{{ review.overall_score }}/5</span>
                     </div>
-                    <dl style="margin: 0; padding: 0; font-size: 0.93em; color: #555; display: grid; grid-template-columns: auto max-content; row-gap: 0; column-gap: 12px;">
-                        <dt style="font-weight: 400; margin: 0; padding: 2px 0; line-height: 1.1;">Clarity</dt>
-                        <dd style="font-weight: 600; margin: 0; padding: 2px 0; line-height: 1.1; text-align: right;">{{ review.rating_clarity }}/5</dd>
-                        <dt style="font-weight: 400; margin: 0; padding: 2px 0; line-height: 1.1;">Engagement</dt>
-                        <dd style="font-weight: 600; margin: 0; padding: 2px 0; line-height: 1.1; text-align: right;">{{ review.rating_engagement }}/5</dd>
-                        <dt style="font-weight: 400; margin: 0; padding: 2px 0; line-height: 1.1;">Punctuality</dt>
-                        <dd style="font-weight: 600; margin: 0; padding: 2px 0; line-height: 1.1; text-align: right;">{{ review.rating_punctuality }}/5</dd>
-                        <dt style="font-weight: 400; margin: 0; padding: 2px 0; line-height: 1.1;">Responsiveness</dt>
-                        <dd style="font-weight: 600; margin: 0; padding: 2px 0; line-height: 1.1; text-align: right;">{{ review.rating_responsiveness }}/5</dd>
-                        <dt style="font-weight: 400; margin: 0; padding: 2px 0; line-height: 1.1;">Fairness</dt>
-                        <dd style="font-weight: 600; margin: 0; padding: 2px 0; line-height: 1.1; text-align: right;">{{ review.rating_fairness }}/5</dd>
-                    </dl>
+                    <div class="recommend-badge {% if review.recommend %}recommended{% else %}not-recommended{% endif %}">
+                        {% if review.recommend %}✓ Recommended{% else %}✗ Not Recommended{% endif %}
+                    </div>
                 </div>
+                <dl class="rating-details">
+                    <dt>Clarity</dt>
+                    <dd>{{ review.rating_clarity }}/5</dd>
+                    <dt>Engagement</dt>
+                    <dd>{{ review.rating_engagement }}/5</dd>
+                    <dt>Punctuality</dt>
+                    <dd>{{ review.rating_punctuality }}/5</dd>
+                    <dt>Responsiveness</dt>
+                    <dd>{{ review.rating_responsiveness }}/5</dd>
+                    <dt>Fairness</dt>
+                    <dd>{{ review.rating_fairness }}/5</dd>
+                </dl>
             </div>
 
 
@@ -326,11 +335,10 @@
             </style>
             
             {% if current_user.user_type == 'student' and review.author != current_user %}
-            <div style="max-width: 800px; margin-left: auto; margin-right: auto; padding: 10px 0; margin-bottom: 15px;"></div>
-            <div id="report-form-{{ review.id }}" style="display: none; margin-top: 10px; padding: 12px; background: rgba(248, 249, 250, 0.8); border-radius: 8px; border: 1px solid rgba(220, 38, 38, 0.2); backdrop-filter: blur(5px);">
-                <form method="POST" action="{{ url_for('reviews.report_review', review_id=review.id) }}" style="display: flex; flex-direction: column;">
+            <div id="report-form-{{ review.id }}" class="report-form">
+                <form method="POST" action="{{ url_for('reviews.report_review', review_id=review.id) }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <textarea name="reason" rows="2" placeholder="Why are you reporting this review?" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px);" required></textarea>
+                    <textarea name="reason" rows="2" placeholder="Why are you reporting this review?" required></textarea>
                     <div style="display: flex; justify-content: flex-end; gap: 8px;">
                         <button type="submit" class="btn btn-danger" style="font-size: 0.9em; padding: 6px 14px;">Submit</button>
                         <button type="button" onclick="document.getElementById('report-form-{{ review.id }}').style.display='none'" class="btn btn-secondary" style="font-size: 0.9em; padding: 6px 14px;">Cancel</button>
@@ -340,56 +348,56 @@
             {% endif %}
             
             {% if review.replies %}
-            <div style="margin-top: 20px; padding-left: 20px; border-left: 3px solid rgba(59, 130, 246, 0.3);">
-                <h4 style="margin-bottom: 15px; color: #333; font-size: 0.95em;">Discussion Thread:</h4>
+            <div class="replies-section">
+                <h4 class="replies-title">Discussion Thread:</h4>
                 {% for reply in review.replies %}
-                <div id="reply-{{ reply.id }}" style="margin-bottom: 15px; margin-left: 15px; padding: 12px; background: rgba(248, 249, 250, 0.7); border-radius: 8px; position: relative; border: 1px solid rgba(200, 200, 200, 0.15); backdrop-filter: blur(5px);">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                        <p style="margin: 0; font-weight: 600; font-size: 0.95em;">
+                <div id="reply-{{ reply.id }}" class="reply-item">
+                    <div class="reply-header">
+                        <p class="reply-author">
                             {% if reply.author == review.author and review.is_anonymous and not current_user.is_admin() %}
-                                <span style="color: #d32f2f;">Anonymous Student (OP)</span>
+                                <span style="color: var(--danger);">Anonymous Student (OP)</span>
                             {% else %}
-                                <span style="color: #000;">{{ reply.author.email }}</span>
+                                <span>{{ reply.author.email }}</span>
                                 {% if reply.is_admin and reply.author.role != 'OWNER' %}
                                     {% if reply.author.role == 'ADMIN' %}
-                                    <span style="color: #6f42c1; font-weight: bold; font-size: 0.85em; margin-left: 5px; display: inline-block;">ADMIN</span>
+                                    <span class="reply-admin-badge admin">ADMIN</span>
                                     {% else %}
-                                    <span style="color: #28a745; font-weight: bold; font-size: 0.85em; margin-left: 5px; display: inline-block;">MOD</span>
+                                    <span class="reply-admin-badge mod">MOD</span>
                                     {% endif %}
                                 {% endif %}
                                 {% if reply.author.user_type == 'lecturer' and not reply.is_admin %}
-                                    <span style="color: #5e5e5e; font-weight: bold; font-size: 0.85em; margin-left: 5px; display: inline-block;">LECTURER</span>
+                                    <span class="reply-author-badge">LECTURER</span>
                                 {% endif %}
                                 {% if reply.author == review.author %}
                                     <span style="color: #0066ff; font-weight: bold; font-size: 0.85em; margin-left: 5px; display: inline-block;">OP</span>
                                 {% endif %}
                             {% endif %}
                         </p>
-                        <p style="font-size: 0.85em; color: #999; margin: 0; text-align: right;">
+                        <p class="reply-timestamp">
                            {% if (now - reply.reply_date).total_seconds() < 60 %}
-                               Just now
-                           {% elif (now - reply.reply_date).total_seconds() < 3600 %}
-                               {{ ((now - reply.reply_date).total_seconds() / 60) | int }} minutes ago
-                           {% elif (now - reply.reply_date).total_seconds() < 86400 %}
-                               {{ ((now - reply.reply_date).total_seconds() / 3600) | int }} hours ago
-                           {% else %}
-                               {{ reply.reply_date.strftime('%b ') }}{% set day = reply.reply_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ reply.reply_date.strftime(', %Y at %I:%M %p') }}
-                           {% endif %}
-                           {% if reply.is_edited %}
-                           <span style="font-style: italic; margin-left: 5px;">(edited)</span>
-                           {% endif %}
-                        </p>
+                                Just now
+                            {% elif (now - reply.reply_date).total_seconds() < 3600 %}
+                                {{ ((now - reply.reply_date).total_seconds() / 60) | int }} minutes ago
+                            {% elif (now - reply.reply_date).total_seconds() < 86400 %}
+                                {{ ((now - reply.reply_date).total_seconds() / 3600) | int }} hours ago
+                            {% else %}
+                                {{ reply.reply_date.strftime('%b ') }}{% set day = reply.reply_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ reply.reply_date.strftime(', %Y at %I:%M %p') }}
+                            {% endif %}
+                            {% if reply.is_edited %}
+                            <span style="font-style: italic; margin-left: 5px;">(edited)</span>
+                            {% endif %}
+                         </p>
                     </div>
                     
                     <div id="reply-display-{{ reply.id }}">
-                        <p style="margin: 8px 0; color: #333; font-size: 0.95em; line-height: 1.6;">{{ reply.reply_text }}</p>
+                        <p class="reply-text">{{ reply.reply_text }}</p>
                         
                         {% if reply.author == current_user %}
-                        <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
-                            <button onclick="showEditForm({{ reply.id }})" style="background-color: #828a91; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85em; display: flex; align-items: center; justify-content: center; height: 28px; box-sizing: border-box; margin: 0;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Edit</button>
+                        <div class="reply-actions">
+                            <button onclick="showEditForm({{ reply.id }})" class="btn btn-secondary" style="font-size: 0.85em; padding: 5px 10px;">Edit</button>
                             <a href="{{ url_for('reviews.delete_reply', reply_id=reply.id) }}" 
                                onclick="return confirm('Delete this reply?');"
-                               style="background-color: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; display: flex; align-items: center; justify-content: center; height: 28px; box-sizing: border-box; margin: 0; cursor: pointer;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Delete</a>
+                               class="btn btn-danger" style="font-size: 0.85em; padding: 5px 10px; text-decoration: none;">Delete</a>
                         </div>
                         {% endif %}
                     </div>
@@ -397,10 +405,10 @@
                     <div id="reply-edit-{{ reply.id }}" style="display: none;">
                         <form method="POST" action="{{ url_for('reviews.edit_reply', reply_id=reply.id) }}">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                            <textarea name="reply_text" rows="3" style="width: 100%; padding: 8px; margin: 8px 0; border: 1px solid #ddd; border-radius: 3px;">{{ reply.reply_text }}</textarea>
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <button type="submit" style="background-color: #28a745; color: white; padding: 5px 12px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85em; display: flex; align-items: center; justify-content: center; height: 28px; box-sizing: border-box; margin: 0;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Save</button>
-                                <button type="button" onclick="hideEditForm({{ reply.id }})" style="background-color: #6c757d; color: white; padding: 5px 12px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85em; display: flex; align-items: center; justify-content: center; height: 28px; box-sizing: border-box; margin: 0;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Cancel</button>
+                            <textarea name="reply_text" rows="3">{{ reply.reply_text }}</textarea>
+                            <div class="reply-form-actions">
+                                <button type="submit" class="btn btn-success" style="font-size: 0.85em; padding: 5px 12px;">Save</button>
+                                <button type="button" onclick="hideEditForm({{ reply.id }})" class="btn btn-secondary" style="font-size: 0.85em; padding: 5px 12px;">Cancel</button>
                             </div>
                         </form>
                     </div>
@@ -410,12 +418,12 @@
             {% endif %}
             
             {% if current_user.is_authenticated and (current_user.user_type in ['student', 'lecturer'] or current_user.is_mod()) %}
-            <div style="margin-top: 18px; padding-top: 15px; border-top: 1px solid #f0f0f0; background-color: #fafafa; padding: 15px; border-radius: 4px; margin-left: -25px; margin-right: -25px; margin-bottom: -25px; padding-left: 25px; padding-right: 25px; padding-bottom: 25px;">
-                <form method="POST" action="{{ url_for('reviews.add_reply', review_id=review.id) }}" style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="reply-form">
+                <form method="POST" action="{{ url_for('reviews.add_reply', review_id=review.id) }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <textarea name="reply_text" rows="3" placeholder="Write a reply..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 0.95em;" required></textarea>
-                    <div style="display: flex; justify-content: flex-end;">
-                        <button type="submit" style="background-color: #007bff; color: white; padding: 8px 16px; border: none; border-radius: 3px; cursor: pointer; transition: opacity 0.2s ease !important; transform: translateY(0) !important; box-shadow: none !important; font-size: 0.9em;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Post Reply</button>
+                    <textarea name="reply_text" rows="3" placeholder="Write a reply..." required></textarea>
+                    <div class="reply-form-actions">
+                        <button type="submit" class="btn btn-primary" style="font-size: 0.9em;">Post Reply</button>
                     </div>
                 </form>
             </div>
