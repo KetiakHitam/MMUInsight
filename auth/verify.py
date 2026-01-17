@@ -18,7 +18,6 @@ def verify_email(token):
         flash(_("Email already verified. Please log in."), "info")
         return redirect(url_for("auth.login"))
 
-    # Check if token has expired (24 hours)
     if not user.verification_token_created_at:
         flash(_("Invalid or expired verification link"), "error")
         return redirect(url_for("auth.login"))
@@ -29,7 +28,6 @@ def verify_email(token):
         db.session.commit()
         return redirect(url_for("auth.register"))
 
-    # Verify the user
     user.is_verified = True
     user.verification_token = None
     user.verification_token_created_at = None
