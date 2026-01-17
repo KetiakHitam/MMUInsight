@@ -91,6 +91,65 @@ body.dark-mode .navbar--v2 .nav-dd__item--danger:hover {
     color: #ffb3b3 !important;
 }
 
+/* Shared dropdown/menu component */
+body.dark-mode .ui-dd__panel {
+  background-color: #1a1a1a !important;
+  border-color: #333 !important;
+}
+
+body.dark-mode .ui-dd__header {
+  background-color: #121212 !important;
+  border-color: #333 !important;
+}
+
+body.dark-mode .ui-dd__title {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .ui-dd__close {
+  color: #aaaaaa !important;
+}
+
+body.dark-mode .ui-dd__close:hover {
+  background-color: #2a2a2a !important;
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .ui-dd__item {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .ui-dd__item:hover {
+  background-color: #2a2a2a !important;
+}
+
+body.dark-mode .ui-dd__item.active {
+  background-color: rgba(37, 99, 235, 0.18) !important;
+  color: #93c5fd !important;
+}
+
+body.dark-mode .ui-dd__item--danger {
+  color: #ff8a8a !important;
+}
+
+body.dark-mode .ui-dd__item--danger:hover {
+  background-color: rgba(255, 138, 138, 0.12) !important;
+  color: #ffb3b3 !important;
+}
+
+body.dark-mode .ui-dd__item--primary {
+  color: #93c5fd !important;
+}
+
+body.dark-mode .ui-dd__icon-btn {
+  color: #aaaaaa !important;
+}
+
+body.dark-mode .ui-dd__icon-btn:hover {
+  background-color: #2a2a2a !important;
+  color: #e0e0e0 !important;
+}
+
 body.dark-mode .site-footer {
     background-color: #0b0f1a !important;
     border-top-color: rgba(255, 255, 255, 0.08) !important;

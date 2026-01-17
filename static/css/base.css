@@ -31,8 +31,8 @@
   --transition: all 0.3s ease;
 
   /* Unified hover feedback for button-like controls */
-  --btn-hover-brightness: 0.95;
-  --btn-active-brightness: 0.9;
+  --btn-hover-brightness: 0.80;
+  --btn-active-brightness: 0.75;
 
   --btn-shadow: 0 10px 24px rgba(2, 6, 23, 0.12);
   --btn-shadow-hover: 0 14px 30px rgba(2, 6, 23, 0.18);
@@ -401,6 +401,148 @@ a:hover {
     margin-top: 0.1rem;
 }
 
+/* ============================================
+   DROPDOWNS / MENUS (Shared)
+   Matches navbar dropdown styling for reuse
+   ============================================ */
+
+.ui-dd {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ui-dd__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  color: var(--gray-600);
+  transition: var(--transition);
+}
+
+.ui-dd__icon-btn:hover {
+  background: var(--gray-100);
+  color: var(--gray-800);
+}
+
+.ui-dd__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 200px;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 14px;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.15);
+  padding: 0.35rem;
+  z-index: 2000;
+  display: none;
+}
+
+.ui-dd--right > .ui-dd__panel,
+.ui-dd__panel--right {
+  left: auto;
+  right: 0;
+}
+
+.ui-dd__panel.show {
+  display: block;
+}
+
+.ui-dd__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 12px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  margin-bottom: 0.35rem;
+}
+
+.ui-dd__title {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.ui-dd__close {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--gray-500);
+  transition: var(--transition);
+}
+
+.ui-dd__close:hover {
+  background: var(--gray-100);
+  color: var(--gray-700);
+}
+
+.ui-dd__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 12px;
+  color: var(--gray-800);
+  text-decoration: none;
+  font-weight: 600;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.ui-dd__item:hover {
+  background: var(--gray-100);
+  text-decoration: none;
+  color: var(--gray-900);
+}
+
+.ui-dd__item.active {
+  background: rgba(37, 99, 235, 0.10);
+  color: var(--primary-dark);
+}
+
+.ui-dd__item--danger {
+  color: var(--danger);
+}
+
+.ui-dd__item--danger:hover {
+  background: rgba(220, 38, 38, 0.08);
+  color: var(--danger-dark);
+}
+
+.ui-dd__item--primary {
+  color: var(--primary);
+}
+
+.ui-dd__item--primary:hover {
+  background: rgba(37, 99, 235, 0.10);
+  color: var(--primary-dark);
+}
+
+.ui-filter-indicator {
+  color: var(--primary);
+  font-weight: 800;
+  margin-left: 4px;
+}
+
 @media (max-width: 900px) {
     .navbar--v2 .nav-toggle {
         display: inline-flex;
@@ -564,7 +706,7 @@ textarea {
     BUTTONS
     ============================================ */
 
-button:not(.nav-toggle):not(.password-toggle),
+button:not(.nav-toggle):not(.password-toggle):not(.ui-dd__icon-btn),
 .btn,
 input[type="submit"],
 input[type="button"] {
@@ -588,6 +730,14 @@ input[type="button"] {
     user-select: none;
 }
 
+/* Ensure anchor-based buttons don't inherit link hover colors */
+a.btn,
+a.btn:hover,
+a.btn:visited {
+  color: #fff;
+  text-decoration: none;
+}
+
 .btn-primary {
     background-color: var(--primary);
 }
@@ -604,30 +754,30 @@ input[type="button"] {
     background-color: var(--success);
 }
 
-button:not(.nav-toggle):not(.password-toggle):hover,
+button:not(.nav-toggle):not(.password-toggle):not(.ui-dd__icon-btn):hover,
 .btn:hover,
 input[type="submit"]:hover,
 input[type="button"]:hover {
-    background-color: var(--primary-dark);
     box-shadow: var(--btn-shadow-hover);
+  filter: brightness(var(--btn-hover-brightness));
     text-decoration: none;
 }
 
 .btn-secondary:hover {
-  background-color: var(--gray-700);
+  filter: brightness(var(--btn-hover-brightness));
 }
 
 .btn-danger:hover {
-    background-color: var(--danger-dark);
     box-shadow: 0 14px 30px rgba(220, 38, 38, 0.25);
+  filter: brightness(var(--btn-hover-brightness));
 }
 
 .btn-success:hover {
-    background-color: var(--success-dark);
     box-shadow: 0 14px 30px rgba(22, 163, 74, 0.25);
+  filter: brightness(var(--btn-hover-brightness));
 }
 
-button:not(.nav-toggle):not(.password-toggle):active,
+button:not(.nav-toggle):not(.password-toggle):not(.ui-dd__icon-btn):active,
 .btn:active,
 input[type="submit"]:active,
 input[type="button"]:active {
@@ -636,7 +786,7 @@ input[type="button"]:active {
     filter: brightness(var(--btn-active-brightness));
 }
 
-button:not(.nav-toggle):not(.password-toggle):focus-visible,
+button:not(.nav-toggle):not(.password-toggle):not(.ui-dd__icon-btn):focus-visible,
 .btn:focus-visible,
 input[type="submit"]:focus-visible,
 input[type="button"]:focus-visible {
@@ -644,7 +794,7 @@ input[type="button"]:focus-visible {
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.28), var(--btn-shadow-hover);
 }
 
-button:not(.nav-toggle):not(.password-toggle):disabled,
+button:not(.nav-toggle):not(.password-toggle):not(.ui-dd__icon-btn):disabled,
 .btn:disabled,
 input[type="submit"]:disabled,
 input[type="button"]:disabled,
@@ -692,14 +842,13 @@ input[type="button"]:disabled,
   padding: 20px;
   backdrop-filter: blur(var(--glass-blur));
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  transition: var(--liquid-transition);
+  transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .glass-card:hover {
   background: rgba(255, 255, 255, 0.88);
   border-color: rgba(37, 99, 235, 0.3);
-  box-shadow: 0 12px 48px rgba(37, 99, 235, 0.2);
-  transform: translateY(-6px);
+  box-shadow: 0 10px 36px rgba(37, 99, 235, 0.16);
 }
 
 .glass-form {
@@ -729,13 +878,8 @@ input[type="button"]:disabled,
 }
 
 .glass-button:hover {
-  transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
-  background: linear-gradient(
-    135deg,
-    rgba(37, 99, 235, 1) 0%,
-    rgba(29, 78, 216, 1) 100%
-  );
+  filter: brightness(var(--btn-hover-brightness));
 }
 
 .glass-input {
@@ -771,8 +915,8 @@ input[type="button"]:disabled,
 }
 
 .admin-btn:hover {
-    background-color: var(--primary-dark);
     box-shadow: var(--btn-shadow-hover);
+  filter: brightness(var(--btn-hover-brightness));
     opacity: 1 !important;
     text-decoration: none;
     color: white;
@@ -798,8 +942,8 @@ input[type="button"]:disabled,
 }
 
 .admin-btn-danger:hover {
-    background-color: var(--danger-dark);
     box-shadow: 0 14px 30px rgba(220, 38, 38, 0.25);
+  filter: brightness(var(--btn-hover-brightness));
     opacity: 1 !important;
     text-decoration: none;
     color: white;
@@ -1476,7 +1620,7 @@ body.dark-mode .hero-search-input {
 }
 
 .hero-search-button:hover {
-    background-color: #e5e7eb;
+  filter: brightness(var(--btn-hover-brightness));
 }
 
 .hero-results-panel {
@@ -1696,6 +1840,20 @@ body.dark-mode .hero-result-rating {
   border-radius: 999px;
 }
 
+/* Helper for using the same verified pill outside result cards */
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+.verified-badge::before {
+  content: "✓";
+  font-weight: 900;
+}
+
 .hero-result-tags {
   display: flex;
   gap: 8px;
@@ -1785,7 +1943,7 @@ body.dark-mode .hero-result-tag-muted {
 }
 
 .hero-result-btn:hover {
-    background: rgba(37, 99, 235, 0.14);
+  filter: brightness(var(--btn-hover-brightness));
     text-decoration: none;
 }
 
@@ -1817,6 +1975,7 @@ body.dark-mode .hero-result-btn {
 .hero-btn:hover {
     text-decoration: none;
     box-shadow: var(--btn-shadow-hover);
+  filter: brightness(var(--btn-hover-brightness));
 }
 
 .hero-btn:focus-visible {
@@ -1830,7 +1989,7 @@ body.dark-mode .hero-result-btn {
 }
 
 .hero-btn-primary:hover {
-  background: #e5e7eb;
+  filter: brightness(var(--btn-hover-brightness));
 }
 
 .hero-btn-secondary {
@@ -1840,8 +1999,7 @@ body.dark-mode .hero-result-btn {
 }
 
 .hero-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.28);
+  filter: brightness(var(--btn-hover-brightness));
 }
 
 .hero-hint {
@@ -1954,14 +2112,13 @@ body.dark-mode .result-card {
   text-align: center;
   backdrop-filter: blur(18px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  transition: var(--liquid-transition);
+  transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .feature-card:hover {
-  transform: translateY(-6px);
   background: rgba(255, 255, 255, 0.95);
   border-color: rgba(37, 99, 235, 0.4);
-  box-shadow: 0 16px 48px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 12px 40px rgba(37, 99, 235, 0.18);
 }
 
 body.dark-mode .feature-card {
@@ -1974,7 +2131,7 @@ body.dark-mode .feature-card {
 body.dark-mode .feature-card:hover {
   background: rgba(19, 56, 152, 0.82) !important;
   border-color: rgba(93, 151, 255, 0.6) !important;
-  box-shadow: 0 16px 48px rgba(59, 130, 246, 0.25) !important;
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.22) !important;
 }
 
 .feature-icon {
