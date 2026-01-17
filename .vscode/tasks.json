@@ -1,0 +1,19 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Conclude merge commit",
+			"type": "shell",
+			"command": "git commit -m \"Merge Feature-LecturerRecommendation\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Stage all merge resolutions",
+			"type": "shell",
+			"command": "git add -A",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

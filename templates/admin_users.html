@@ -90,9 +90,9 @@
 <div class="container" style="max-width: 1200px;">
     <h2 style="margin-bottom: 25px;">👥 Manage Users</h2>
     
-    <table id="usersTable" style="width: 100%; border-collapse: collapse;">
+    <table id="usersTable" style="width: 100%; border-collapse: collapse; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(5px); border-radius: 8px; overflow: hidden;">
         <thead>
-            <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+            <tr style="background: rgba(248, 249, 250, 0.7); border-bottom: 2px solid #dee2e6; backdrop-filter: blur(5px);">
                 <th style="padding: 12px; text-align: left; font-weight: 600; color: #333; font-size: 0.95em; cursor: pointer; user-select: none;" onclick="sortTable('email')">Email <span id="email-sort" style="margin-left: 5px; color: #999; font-size: 0.8em;"></span></th>
                 <th style="padding: 12px; text-align: left; font-weight: 600; color: #333; font-size: 0.95em; cursor: pointer; user-select: none; position: relative;" onclick="toggleFilter(event, 'type')">Account Type <span id="type-sort" style="margin-left: 5px; color: #999; font-size: 0.8em;"></span><span id="type-filter-indicator" class="filter-indicator"></span>
                     <div id="type-filter" class="filter-menu" onclick="event.stopPropagation()">
@@ -168,30 +168,45 @@
                 <td style="padding: 12px; text-align: center; vertical-align: middle;">
                     <div style="display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap;">
                         {% if not u.is_verified and current_user.can_manage_user(u) %}
-                        <a href="/admin/user/{{ u.id }}/verify" 
-                           style="background-color: #007bff; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease;" 
-                           onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Verify</a>
+                        <form method="POST" action="/admin/user/{{ u.id }}/verify" style="display: inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" 
+                               style="background-color: #007bff; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
+                               onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Verify</button>
+                        </form>
                         {% endif %}
                         
                         {% if u.id != current_user.id and not u.is_owner() and current_user.can_manage_user(u) %}
                             {% if u.role in ['ADMIN', 'MOD'] %}
-                            <a href="/admin/user/{{ u.id }}/remove-role" 
-                               style="background-color: #ffc107; color: black; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease;" 
-                               onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Remove Role</a>
+                            <form method="POST" action="/admin/user/{{ u.id }}/remove-role" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" 
+                                   style="background-color: #ffc107; color: black; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
+                                   onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Remove Role</button>
+                            </form>
                             {% else %}
                             {% if current_user.is_owner() %}
                             <div style="display: flex; gap: 6px;">
-                                <a href="/admin/user/{{ u.id }}/make-admin" 
-                                   style="background-color: #6f42c1; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease;" 
-                                   onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Make ADMIN</a>
-                                <a href="/admin/user/{{ u.id }}/make-mod" 
-                                   style="background-color: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease;" 
-                                   onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Make MOD</a>
+                                <form method="POST" action="/admin/user/{{ u.id }}/make-admin" style="display: inline;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" 
+                                       style="background-color: #6f42c1; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
+                                       onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Make ADMIN</button>
+                                </form>
+                                <form method="POST" action="/admin/user/{{ u.id }}/make-mod" style="display: inline;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" 
+                                       style="background-color: #28a745; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
+                                       onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Make MOD</button>
+                                </form>
                             </div>
                             {% elif current_user.role == 'ADMIN' %}
-                            <a href="/admin/user/{{ u.id }}/make-mod" 
-                               style="background-color: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease;" 
-                               onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Make MOD</a>
+                            <form method="POST" action="/admin/user/{{ u.id }}/make-mod" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" 
+                                   style="background-color: #28a745; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
+                                   onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Make MOD</button>
+                            </form>
                             {% endif %}
                             {% endif %}
                         {% endif %}
@@ -199,15 +214,20 @@
                         {% if u.id != current_user.id and not u.is_owner() and (current_user.can_suspend_user(u) or current_user.can_delete_user(u)) %}
                         <div style="display: flex; gap: 6px;">
                             {% if current_user.can_suspend_user(u) %}
-                            <a href="/admin/user/{{ u.id }}/suspend" 
-                               style="background-color: #fd7e14; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease;" 
-                               onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Suspend</a>
+                            <form method="POST" action="/admin/user/{{ u.id }}/suspend" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" 
+                                   style="background-color: #fd7e14; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
+                                   onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Suspend</button>
+                            </form>
                             {% endif %}
                             {% if current_user.can_delete_user(u) %}
-                            <a href="/admin/user/{{ u.id }}/delete" 
-                               onclick="return confirm('Permanently delete this user? This cannot be undone.');"
-                               style="background-color: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease;" 
-                               onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Delete</a>
+                            <form method="POST" action="/admin/user/{{ u.id }}/delete" style="display: inline;" onsubmit="return confirm('Permanently delete this user? This cannot be undone.');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" 
+                                   style="background-color: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
+                                   onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Delete</button>
+                            </form>
                             {% endif %}
                         </div>
                         {% else %}

@@ -7,26 +7,28 @@
     <h2>{{ lecturer.email }} - Biography</h2>
     
     {% if can_edit %}
-    <p style="color: #666; margin-bottom: 20px;">Edit your bio to let students know more about you</p>
-    
-    <form method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <div class="form-group">
-            <textarea name="bio" rows="15" placeholder="Write about yourself, your teaching philosophy, education background, research interests, office hours, etc..." style="width: 100%; padding: 15px; font-size: 1em; border: 1px solid #ddd; border-radius: 5px; resize: vertical;">{{ lecturer.bio if lecturer.bio else '' }}</textarea>
-        </div>
+    <div class="glass-form">
+        <p style="color: #666; margin-bottom: 20px;">Edit your bio to let students know more about you</p>
         
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button type="submit" style="background-color: #28a745; color: white; white; padding: 10px 20px; text-decoration: none; border-radius: 3px; font-size: 1em; font-family: inherit; height: 40px; display: flex; align-items: center; justify-content: center; min-width: 80px; transition: opacity 0.3s ease; box-sizing: border-box; margin: 0;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Save Bio</button>
-            <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=lecturer.id) }}" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; font-size: 1em; font-family: inherit; height: 40px; display: flex; align-items: center; justify-content: center; min-width: 80px; transition: opacity 0.3s ease; box-sizing: border-box; margin: 0;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Cancel</a>
-        </div>
-    </form>
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="form-group">
+                <textarea name="bio" rows="15" placeholder="Write about yourself, your teaching philosophy, education background, research interests, office hours, etc..." class="glass-input">{{ lecturer.bio if lecturer.bio else '' }}</textarea>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" class="btn btn-success btn-lg">Save Bio</button>
+                <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=lecturer.id) }}" class="btn btn-secondary btn-lg">Cancel</a>
+            </div>
+        </form>
+    </div>
     
     {% else %}
     
     {% if lecturer.bio %}
-    <div style="background-color: white; padding: 30px; border-radius: 5px; border: 1px solid #dee2e6; margin-top: 20px; line-height: 1.8; white-space: pre-wrap;">{{ lecturer.bio }}</div>
+    <div class="glass-card" style="margin-top: 20px; line-height: 1.8; white-space: pre-wrap;">{{ lecturer.bio }}</div>
     {% else %}
-    <div style="background-color: #f8f9fa; padding: 40px; text-align: center; border-radius: 5px; border: 1px solid #dee2e6; margin-top: 20px;">
+    <div class="glass-card" style="margin-top: 20px; text-align: center;">
         <p style="color: #999; font-size: 1.2em; margin: 0;">Not available at this moment</p>
     </div>
     {% endif %}

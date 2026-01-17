@@ -8,7 +8,7 @@
     <h3>{{ lecturer.email }}</h3>
     
 
-    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+    <div class="glass-card" style="margin-bottom: 20px;">
         <h3>Overview</h3>
         {% if averages %}
         <p style="font-size: 2.5em; margin: 10px 0; color: #17a2b8;"><strong>{{ overall_rating }}/5</strong></p>
@@ -20,7 +20,7 @@
     {% if averages %}
     
     {% if user_review %}
-    <div style="background-color: #d1ecf1; padding: 20px; border: 1px solid #bee5eb; border-radius: 5px; margin-bottom: 20px;">
+    <div class="glass-card" style="margin-bottom: 20px; background: rgba(209, 236, 241, 0.6); border: 1px solid rgba(190, 229, 235, 0.3);">
         <h3>📊 Your Review Impact</h3>
         <p><strong>You reviewed this lecturer on:</strong> {{ user_review.review_date.strftime('%B %d, %Y') if user_review.review_date else 'Date unavailable' }}</p>
         
@@ -90,7 +90,7 @@
     {% endif %}
     
 
-    <div style="background-color: #fff; padding: 20px; border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 30px;">
+    <div class="glass-card" style="margin-bottom: 30px;">
         <h3>Category Averages</h3>
         <table style="width: 100%; border-collapse: collapse;">
             <tr style="border-bottom: 2px solid #dee2e6;">
@@ -121,7 +121,7 @@
     </div>
     
 
-    <div style="background-color: #fff; padding: 20px; border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 30px;">
+    <div class="glass-card" style="margin-bottom: 30px;">
         <h3>Performance Visual</h3>
         
         <div style="margin-bottom: 15px;">
@@ -162,7 +162,7 @@
     
 
     {% if distribution %}
-    <div style="background-color: #fff; padding: 20px; border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 30px;">
+    <div class="glass-card" style="margin-bottom: 30px;">
         <h3>📈 How Students Rated This Lecturer</h3>
         <p style="color: #666; margin-bottom: 20px;">Distribution of ratings across all categories</p>
         
@@ -250,7 +250,7 @@
     
 
     {% if all_lecturers_avg %}
-    <div style="background-color: #fff; padding: 20px; border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 20px;">
+    <div class="glass-card" style="margin-bottom: 20px;">
         <h3>🏆 How This Lecturer Compares</h3>
         <p><strong>This lecturer's overall rating:</strong> {{ overall_rating }}/5</p>
         <p><strong>Average across all lecturers:</strong> {{ all_lecturers_avg }}/5</p>
