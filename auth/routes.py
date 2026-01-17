@@ -45,7 +45,7 @@ def admin_users():
     users = User.query.all()
     return render_template("admin_users.html", users=users)
 
-@auth_bp.route("/admin/user/<int:user_id>/verify")
+@auth_bp.route("/admin/user/<int:user_id>/verify", methods=["POST"])
 @admin_required
 def admin_verify_user(user_id):
     user = User.query.get(user_id)
@@ -55,7 +55,7 @@ def admin_verify_user(user_id):
         log_admin_action(f"Verified user {user.email}", "user")
     return redirect(url_for("auth.admin_users"))
 
-@auth_bp.route("/admin/user/<int:user_id>/make-admin")
+@auth_bp.route("/admin/user/<int:user_id>/make-admin", methods=["POST"])
 @admin_required
 def admin_make_admin(user_id):
     user = User.query.get(user_id)
@@ -68,7 +68,7 @@ def admin_make_admin(user_id):
         flash("You don't have permission to assign this role", "danger")
     return redirect(url_for("auth.admin_users"))
 
-@auth_bp.route("/admin/user/<int:user_id>/make-mod")
+@auth_bp.route("/admin/user/<int:user_id>/make-mod", methods=["POST"])
 @admin_required
 def admin_make_mod(user_id):
     user = User.query.get(user_id)
@@ -81,7 +81,7 @@ def admin_make_mod(user_id):
         flash("You don't have permission to assign this role", "danger")
     return redirect(url_for("auth.admin_users"))
 
-@auth_bp.route("/admin/user/<int:user_id>/remove-role")
+@auth_bp.route("/admin/user/<int:user_id>/remove-role", methods=["POST"])
 @admin_required
 def admin_remove_role(user_id):
     user = User.query.get(user_id)
@@ -94,7 +94,7 @@ def admin_remove_role(user_id):
         flash("You don't have permission to remove this role", "danger")
     return redirect(url_for("auth.admin_users"))
 
-@auth_bp.route("/admin/user/<int:user_id>/suspend")
+@auth_bp.route("/admin/user/<int:user_id>/suspend", methods=["POST"])
 @admin_required
 def admin_suspend_user(user_id):
     user = User.query.get(user_id)
@@ -107,7 +107,7 @@ def admin_suspend_user(user_id):
         flash("You don't have permission to suspend this user", "danger")
     return redirect(url_for("auth.admin_users"))
 
-@auth_bp.route("/admin/user/<int:user_id>/delete")
+@auth_bp.route("/admin/user/<int:user_id>/delete", methods=["POST"])
 @admin_required
 def admin_delete_user(user_id):
     user = User.query.get(user_id)
