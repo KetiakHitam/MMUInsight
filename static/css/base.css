@@ -1366,7 +1366,15 @@ body.dark-mode a:hover {
 }
 
 .hero {
-  background: transparent;
+  background: radial-gradient(
+      1200px 600px at 20% 10%,
+      rgba(255, 255, 255, 0.18),
+      rgba(255, 255, 255, 0) 60%
+    ),
+    linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 55%, #0b1b5a 100%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
   padding: 64px 20px 56px;
   color: #fff;
 }
