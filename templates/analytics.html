@@ -5,7 +5,12 @@
 {% block content %}
 <div class="container">
     <h2>Analytics Dashboard</h2>
-    <h3>{{ lecturer.email }}</h3>
+    <h3>
+        {{ lecturer.email }}
+        {% if lecturer.is_claimed %}
+        <span class="hero-result-verified verified-badge">Verified</span>
+        {% endif %}
+    </h3>
     
     <div class="glass-card" style="margin-bottom: 20px;">
         <h3>Overview</h3>
