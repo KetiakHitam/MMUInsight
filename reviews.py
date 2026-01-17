@@ -4,7 +4,6 @@ from flask_babel import gettext as _
 from extensions import db, limiter
 from models import Review, User, Reply, Report, Subject
 from audit import log_admin_action
-from sanitize import sanitize_user_content
 from datetime import datetime
 from sqlalchemy import func
 
@@ -42,7 +41,6 @@ def create_review(lecturer_id):
         return render_template('create_review.html', lecturer=lecturer, subjects=top_subjects)
     
     review_text = request.form.get('review_text', '').strip()
-    review_text = sanitize_user_content(review_text)  # Remove XSS
     
     try:
         rating_clarity = int(request.form.get('rating_clarity', 0))
@@ -224,7 +222,6 @@ def edit_review(review_id):
         return render_template('edit_review.html', review=review, subjects=top_subjects)
     
     review_text = request.form.get('review_text', '').strip()
-    review_text = sanitize_user_content(review_text)  # Remove XSS
     rating_clarity = int(request.form.get('rating_clarity', 0))
     rating_engagement = int(request.form.get('rating_engagement', 0))
     rating_punctuality = int(request.form.get('rating_punctuality', 0))
@@ -317,7 +314,6 @@ def add_reply(review_id):
         return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
     
     reply_text = request.form.get('reply_text', '').strip()
-    reply_text = sanitize_user_content(reply_text)  # Remove XSS
     
     if not reply_text:
         flash(_("Reply cannot be empty"), "error")
@@ -540,7 +536,6 @@ def edit_reply(reply_id):
         return redirect(url_for('reviews.lecturer_profile', lecturer_id=reply.review.lecturer_id))
     
     new_text = request.form.get('reply_text', '').strip()
-    new_text = sanitize_user_content(new_text)  # Remove XSS
     
     if not new_text:
         flash(_("Reply cannot be empty"), "error")
@@ -589,7 +584,6 @@ def lecturer_bio(lecturer_id):
             return redirect(url_for('reviews.lecturer_bio', lecturer_id=lecturer_id))
         
         bio_text = request.form.get('bio', '').strip()
-        bio_text = sanitize_user_content(bio_text)  # Remove XSS
         
         lecturer.bio = bio_text if bio_text else None
         db.session.commit()

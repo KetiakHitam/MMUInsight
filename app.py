@@ -158,7 +158,7 @@ def register():
 
 @app.route("/Professor-info.html")
 def Professors():
-    return render_template('Professor-info.html')
+    return render_template('professor-info.html')
 
 @app.route("/terms-of-service")
 def terms_of_service():
