@@ -1,3 +1,4 @@
+import uuid
 import re
 from flask import render_template, request, redirect, url_for, flash
 from flask_babel import gettext as _
