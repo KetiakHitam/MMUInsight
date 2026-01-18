@@ -73,6 +73,10 @@ csrf.init_app(app)
 mail.init_app(app)
 babel = Babel(app, locale_selector=get_locale)
 
+# Create database tables on startup
+with app.app_context():
+    db.create_all()
+
 
 @app.before_request
 def enforce_https():
