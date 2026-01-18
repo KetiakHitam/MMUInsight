@@ -126,39 +126,23 @@ def search_page():
             search_query="",
             search_results=None,
         )
-"""
-    results = search_lecturers_by_email(q)
-    sort = request.args.get("sort", "az")
-    matches = search_lecturers_by_email(q)  # list of (User, score)
 
-    # determine whether this was a fuzzy match (no exact 100% match)
-    best_score = max([s for u, s in matches]) if matches else None
-    fuzzy = bool(matches and best_score < 100)
-
-    # if fuzzy match, show results by descending relevance (highest score first)
-    if fuzzy:
-        results = [u for u, s in sorted(matches, key=lambda x: x[1], reverse=True)]
-    elif sort in ("az", "za"):
-        results = sorted([u for u, s in matches], key=lambda u: u.email.lower(), reverse=(sort == "za"))
-    else:
-        # default: sort by relevance score descending
-        results = [u for u, s in sorted(matches, key=lambda x: x[1], reverse=True)]
+    matches = search_lecturers_by_email(q)  # list of (User, score) sorted by score descending
+    results = [u for u, s in matches]
 
     return render_template(
         "index.html",
         search_query=q,
         search_results=results,
-        sort=sort,
-        fuzzy=fuzzy
     )
-"""
 
 
 @app.route("/search/results", methods=["GET"])
 @login_required
 def search_results_page():
     q = request.args.get("q", "").strip()
-    results = search_lecturers_by_email(q) if q else []
+    matches = search_lecturers_by_email(q) if q else []
+    results = [u for u, s in matches]
     return render_template(
         "results.html",
         q=q,
