@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from flask_babel import gettext as _
-from extensions import db
-from models import Review, User, Reply, Report
+from extensions import db, limiter
+from models import Review, User, Reply, Report, Subject
+from audit import log_admin_action
 from datetime import datetime
 from sqlalchemy import func
 
@@ -51,8 +52,17 @@ def accept_lecturer_terms(lecturer_id):
     return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
 
 
+def validate_rating(value):
+    """Validate that rating is an integer between 1 and 5"""
+    try:
+        rating = int(value)
+        return 1 <= rating <= 5
+    except (ValueError, TypeError):
+        return False
+
 @reviews_bp.route('/create_review/<int:lecturer_id>', methods=['GET', 'POST'])
 @login_required
+# @limiter.limit("10 per hour")  # Disabled for development
 def create_review(lecturer_id):
     if current_user.user_type != 'student':
         flash(_("Only students can write reviews"), "error")
@@ -63,25 +73,76 @@ def create_review(lecturer_id):
         flash(_("Invalid lecturer"), "error")
         return redirect(url_for('index'))
     
+    existing_review = Review.query.filter_by(user_id=current_user.id, lecturer_id=lecturer_id).first()
+    if existing_review:
+        flash("You have already written a review for this lecturer. You can only write one review per lecturer.", "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+    
     if request.method == 'GET':
-        return render_template('create_review.html', lecturer=lecturer)
+        # Fetch top 20 most used subjects for the dropdown
+        top_subjects = Subject.query.order_by(Subject.usage_count.desc()).limit(20).all()
+        return render_template('create_review.html', lecturer=lecturer, subjects=top_subjects)
     
     review_text = request.form.get('review_text', '').strip()
-    rating_clarity = int(request.form.get('rating_clarity', 0))
-    rating_engagement = int(request.form.get('rating_engagement', 0))
-    rating_punctuality = int(request.form.get('rating_punctuality', 0))
-    rating_responsiveness = int(request.form.get('rating_responsiveness', 0))
-    rating_fairness = int(request.form.get('rating_fairness', 0))
+    
+    try:
+        rating_clarity = int(request.form.get('rating_clarity', 0))
+        rating_engagement = int(request.form.get('rating_engagement', 0))
+        rating_punctuality = int(request.form.get('rating_punctuality', 0))
+        rating_responsiveness = int(request.form.get('rating_responsiveness', 0))
+        rating_fairness = int(request.form.get('rating_fairness', 0))
+    except (ValueError, TypeError):
+        flash(_("Invalid rating value. Ratings must be numbers."), "error")
+        return redirect(url_for('reviews.create_review', lecturer_id=lecturer_id))
+    
+    if not all([validate_rating(rating_clarity), validate_rating(rating_engagement), 
+                validate_rating(rating_punctuality), validate_rating(rating_responsiveness),
+                validate_rating(rating_fairness)]):
+        flash(_("All ratings must be between 1 and 5."), "error")
+        return redirect(url_for('reviews.create_review', lecturer_id=lecturer_id))
+    
     recommend = request.form.get('recommend')
-    subject_id = request.form.get('subject_id')
-    subject_code = request.form.get('subject_code', '').strip() or None
+    subject_input = request.form.get('subject_input', '').strip()
     is_anonymous = request.form.get('is_anonymous') == 'on'
     
-    if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]) or not recommend:
+    if not review_text or not recommend:
         flash(_("Please fill all fields"), "error")
         return redirect(url_for('reviews.create_review', lecturer_id=lecturer_id))
     
     recommend = recommend.lower() == 'yes'
+    
+    # Handle subject selection/creation
+    subject_id = None
+    if subject_input:
+        # Check if subject exists by code or name
+        subject = Subject.query.filter(
+            db.or_(
+                Subject.subject_code.ilike(subject_input),
+                Subject.subject_name.ilike(subject_input)
+            )
+        ).first()
+        
+        if subject:
+            subject_id = subject.id
+            subject.usage_count += 1
+        else:
+            # Create new subject from input (format: "CODE - NAME" or just "NAME")
+            if ' - ' in subject_input:
+                code, name = subject_input.split(' - ', 1)
+                code = code.strip()
+                name = name.strip()
+            else:
+                code = None
+                name = subject_input
+            
+            new_subject = Subject(
+                subject_code=code,
+                subject_name=name,
+                usage_count=1
+            )
+            db.session.add(new_subject)
+            db.session.flush()  # Get the ID before commit
+            subject_id = new_subject.id
     
     review = Review(
         review_text=review_text,
@@ -93,9 +154,9 @@ def create_review(lecturer_id):
         recommend=recommend,
         user_id=current_user.id,
         lecturer_id=lecturer_id,
-        subject_id=subject_id if subject_id else None,
+        subject_id=subject_id,
         is_anonymous=is_anonymous,
-        subject_code=subject_code
+        subject_code=subject_input
     )
     
     db.session.add(review)
@@ -116,7 +177,23 @@ def lecturer_profile(lecturer_id):
     if current_user.user_type == 'student' and not current_user.profile_consent:
         return redirect(url_for('reviews.lecturer_terms', lecturer_id=lecturer_id))
     
-    reviews = Review.query.filter_by(lecturer_id=lecturer_id).all()
+    reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.review_date.desc()).all()
+    
+    user_review = None
+    student_has_review = False
+    if current_user.user_type == 'student':
+        user_review = Review.query.filter_by(user_id=current_user.id, lecturer_id=lecturer_id).first()
+        student_has_review = user_review is not None
+    
+    if user_review and user_review in reviews:
+        reviews.remove(user_review)
+        pinned_count = sum(1 for r in reviews if r.is_pinned)
+        reviews.insert(pinned_count, user_review)
+    
+    reported_review_ids = []
+    if current_user.user_type == 'student':
+        reported_reports = Report.query.filter_by(reporter_id=current_user.id).all()
+        reported_review_ids = [report.review_id for report in reported_reports]
     
     if reviews:
         avg_clarity = db.session.query(func.avg(Review.rating_clarity)).filter_by(lecturer_id=lecturer_id).scalar()
@@ -133,14 +210,13 @@ def lecturer_profile(lecturer_id):
             'fairness': round(avg_fairness, 1) if avg_fairness else 0,
         }
         
-        # Calculate recommendation percentage
         recommend_count = Review.query.filter_by(lecturer_id=lecturer_id, recommend=True).count()
         recommend_percentage = round((recommend_count / len(reviews)) * 100) if reviews else None
     else:
         averages = None
         recommend_percentage = None
     
-    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage)
+    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage, reported_review_ids=reported_review_ids, student_has_review=student_has_review, user_review_id=user_review.id if user_review else None, now=datetime.utcnow())
 
 @reviews_bp.route('/claim_profile/<int:lecturer_id>', methods=['POST'])
 @login_required
@@ -188,7 +264,9 @@ def edit_review(review_id):
         return redirect(url_for('index'))
     
     if request.method == 'GET':
-        return render_template('edit_review.html', review=review)
+        # Fetch top 20 most used subjects for the dropdown
+        top_subjects = Subject.query.order_by(Subject.usage_count.desc()).limit(20).all()
+        return render_template('edit_review.html', review=review, subjects=top_subjects)
     
     review_text = request.form.get('review_text', '').strip()
     rating_clarity = int(request.form.get('rating_clarity', 0))
@@ -198,13 +276,46 @@ def edit_review(review_id):
     rating_fairness = int(request.form.get('rating_fairness', 0))
     is_anonymous = request.form.get('is_anonymous') == 'on'
     recommend = request.form.get('recommend')
-    subject_code = request.form.get('subject_code', '').strip() or None
+    subject_input = request.form.get('subject_input', '').strip()
     
     if not review_text or not all([rating_clarity, rating_engagement, rating_punctuality, rating_responsiveness, rating_fairness]) or not recommend:
         flash(_("Please fill all fields"), "error")
         return redirect(url_for('reviews.edit_review', review_id=review_id))
     
     recommend = recommend.lower() == 'yes'
+    
+    # Handle subject selection/creation for edit
+    subject_id = None
+    if subject_input:
+        subject = Subject.query.filter(
+            db.or_(
+                Subject.subject_code.ilike(subject_input),
+                Subject.subject_name.ilike(subject_input)
+            )
+        ).first()
+        
+        if subject:
+            subject_id = subject.id
+            if review.subject_id != subject.id:
+                subject.usage_count += 1
+        else:
+            # Create new subject
+            if ' - ' in subject_input:
+                code, name = subject_input.split(' - ', 1)
+                code = code.strip()
+                name = name.strip()
+            else:
+                code = None
+                name = subject_input
+            
+            new_subject = Subject(
+                subject_code=code,
+                subject_name=name,
+                usage_count=1
+            )
+            db.session.add(new_subject)
+            db.session.flush()
+            subject_id = new_subject.id
     
     review.review_text = review_text
     review.rating_clarity = rating_clarity
@@ -214,7 +325,8 @@ def edit_review(review_id):
     review.rating_fairness = rating_fairness
     review.is_anonymous = is_anonymous
     review.recommend = recommend
-    review.subject_code = subject_code
+    review.subject_id = subject_id
+    review.subject_code = subject_input
     
     db.session.commit()
     
@@ -240,11 +352,12 @@ def delete_review(review_id):
 
 @reviews_bp.route('/review/<int:review_id>/reply', methods=['POST'])
 @login_required
+# @limiter.limit("20 per hour")  # Disabled for development
 def add_reply(review_id):
     review = Review.query.get_or_404(review_id)
     
-    if current_user.user_type not in ['student', 'lecturer']:
-        flash(_("Only students and lecturers can reply"), "error")
+    if current_user.user_type not in ['student', 'lecturer'] and not current_user.is_mod():
+        flash(_("Only students, lecturers, and admins can reply"), "error")
         return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
     
     reply_text = request.form.get('reply_text', '').strip()
@@ -256,7 +369,8 @@ def add_reply(review_id):
     reply = Reply(
         reply_text=reply_text,
         user_id=current_user.id,
-        review_id=review_id
+        review_id=review_id,
+        is_admin=current_user.is_mod()
     )
     
     db.session.add(reply)
@@ -267,6 +381,7 @@ def add_reply(review_id):
 
 @reviews_bp.route('/review/<int:review_id>/report', methods=['POST'])
 @login_required
+# @limiter.limit("5 per hour")  # Disabled for development
 def report_review(review_id):
     review = Review.query.get_or_404(review_id)
     
@@ -302,7 +417,7 @@ def report_review(review_id):
 def analytics(lecturer_id):
     lecturer = User.query.get_or_404(lecturer_id)
     
-    if current_user.id != lecturer_id and current_user.user_type != 'admin':
+    if current_user.id != lecturer_id and not current_user.is_admin():
         flash(_("You don't have permission to view this analytics page"), "error")
         return redirect(url_for('index'))
     
@@ -338,7 +453,7 @@ def analytics(lecturer_id):
         strongest = None
         weakest = None
     
-    if current_user.user_type == 'admin':
+    if current_user.is_admin():
         all_lecturers = User.query.filter_by(user_type='lecturer').all()
         lecturer_stats = []
         
@@ -526,3 +641,35 @@ def lecturer_bio(lecturer_id):
     can_edit = current_user.id == lecturer_id and current_user.user_type == 'lecturer'
     
     return render_template('lecturer_bio.html', lecturer=lecturer, can_edit=can_edit)
+
+@reviews_bp.route('/review/<int:review_id>/pin', methods=['GET', 'POST'])
+@login_required
+def pin_review(review_id):
+    if not current_user.is_mod():
+        flash("Only admins can pin reviews", "error")
+        return redirect(request.referrer or url_for('index'))
+    
+    review = Review.query.get_or_404(review_id)
+    review.is_pinned = True
+    db.session.commit()
+
+    log_admin_action(f"Pinned review {review.id}", "review")
+    
+    flash("Review pinned to top", "success")
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
+
+@reviews_bp.route('/review/<int:review_id>/unpin', methods=['GET', 'POST'])
+@login_required
+def unpin_review(review_id):
+    if not current_user.is_mod():
+        flash("Only admins can unpin reviews", "error")
+        return redirect(request.referrer or url_for('index'))
+    
+    review = Review.query.get_or_404(review_id)
+    review.is_pinned = False
+    db.session.commit()
+
+    log_admin_action(f"Unpinned review {review.id}", "review")
+    
+    flash("Review unpinned", "success")
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
