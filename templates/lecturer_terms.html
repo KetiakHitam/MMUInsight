@@ -28,6 +28,7 @@
     </div>
 
     <form method="POST" action="{{ url_for('reviews.accept_lecturer_terms', lecturer_id=lecturer.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div style="margin-bottom: 12px;">
             <label><input type="checkbox" name="accepted" required> I have read the information above and agree to follow the guidelines.</label>
         </div>
