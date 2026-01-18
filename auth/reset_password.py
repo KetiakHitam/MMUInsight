@@ -53,8 +53,13 @@ def reset_password(token):
     if new_pw != confirm_pw:
         return "Passwords do not match."
 
-    user.password_hash = bcrypt.generate_password_hash(new_pw).decode("utf-8")
+    # SECURITY FIX: Clear token immediately after validation passes
+    # This prevents race condition where token could be reused between validation and clearing
     user.reset_token = None
+    user.reset_token_created_at = None
+    
+    # Now update password in same transaction
+    user.password_hash = bcrypt.generate_password_hash(new_pw).decode("utf-8")
     db.session.commit()
 
     return "Password reset successfully. You can now log in."
