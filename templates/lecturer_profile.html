@@ -12,7 +12,7 @@
         <h2>
             {{ lecturer.email }}
             {% if lecturer.is_claimed %}
-            <span class="verified-badge">✓ Verified</span>
+            <span class="verified-badge">Verified</span>
             {% endif %}
         </h2>
         <p class="subtitle">Lecturer Profile</p>
@@ -208,24 +208,24 @@
                         {% endif %}
                     </div>
                     {% if current_user.is_authenticated %}
-                    <div class="review-kebab-menu-container">
-                        <button class="review-kebab-btn" aria-label="Actions" onclick="toggleKebabMenu(this)">
-                            <span style="font-size: 1.5em; color: #888;">&#8942;</span>
+                    <div class="review-kebab-menu-container ui-dd ui-dd--right">
+                        <button type="button" class="review-kebab-btn ui-dd__icon-btn" aria-label="Actions" onclick="toggleKebabMenu(this)">
+                            <span aria-hidden="true" style="font-size: 1.5em; line-height: 1;">&#8942;</span>
                         </button>
-                        <div class="review-kebab-dropdown">
+                        <div class="review-kebab-dropdown ui-dd__panel ui-dd__panel--right">
                             {% if review.author == current_user %}
-                                <a href="{{ url_for('reviews.edit_review', review_id=review.id) }}" style="display: block; padding: 10px 18px; color: #333; text-decoration: none; font-size: 0.97em; border-bottom: 1px solid #f0f0f0;">Edit</a>
-                                <a href="{{ url_for('reviews.delete_review', review_id=review.id) }}" onclick="return confirm('Are you sure you want to delete this review? This cannot be undone.');" style="display: block; padding: 10px 18px; color: #d32f2f; text-decoration: none; font-size: 0.97em; border-bottom: 1px solid #f0f0f0;">Delete</a>
+                                <a class="ui-dd__item" href="{{ url_for('reviews.edit_review', review_id=review.id) }}">Edit</a>
+                                <a class="ui-dd__item ui-dd__item--danger" href="{{ url_for('reviews.delete_review', review_id=review.id) }}" onclick="return confirm('Are you sure you want to delete this review? This cannot be undone.');">Delete</a>
                             {% elif current_user.is_mod() %}
                                 {% if review.is_pinned %}
-                                    <a href="{{ url_for('reviews.unpin_review', review_id=review.id) }}" onclick="return confirm('Unpin this review?');" style="display: block; padding: 10px 18px; color: #333; text-decoration: none; font-size: 0.97em; border-bottom: 1px solid #f0f0f0;">Unpin</a>
+                                    <a class="ui-dd__item" href="{{ url_for('reviews.unpin_review', review_id=review.id) }}" onclick="return confirm('Unpin this review?');">Unpin</a>
                                 {% else %}
-                                    <a href="{{ url_for('reviews.pin_review', review_id=review.id) }}" style="display: block; padding: 10px 18px; color: #333; text-decoration: none; font-size: 0.97em; border-bottom: 1px solid #f0f0f0;">Pin</a>
+                                    <a class="ui-dd__item" href="{{ url_for('reviews.pin_review', review_id=review.id) }}">Pin</a>
                                 {% endif %}
-                                <a href="{{ url_for('reviews.delete_review', review_id=review.id) }}" onclick="return confirm('Are you sure you want to delete this review? This cannot be undone.');" style="display: block; padding: 10px 18px; color: #d32f2f; text-decoration: none; font-size: 0.97em; border-bottom: 1px solid #f0f0f0;">Delete</a>
+                                <a class="ui-dd__item ui-dd__item--danger" href="{{ url_for('reviews.delete_review', review_id=review.id) }}" onclick="return confirm('Are you sure you want to delete this review? This cannot be undone.');">Delete</a>
                             {% endif %}
                             {% if review.author != current_user %}
-                                <a href="#" onclick="document.getElementById('report-form-{{ review.id }}').style.display='block'; hideAllKebabMenus(); return false;" style="display: block; padding: 10px 18px; color: #007bff; text-decoration: none; font-size: 0.97em;">Report</a>
+                                <a class="ui-dd__item ui-dd__item--primary" href="#" onclick="document.getElementById('report-form-{{ review.id }}').style.display='block'; hideAllKebabMenus(); return false;">Report</a>
                             {% endif %}
                         </div>
                     </div>
@@ -266,26 +266,20 @@
                     <dd>{{ review.rating_fairness }}/5</dd>
                 </dl>
             </div>
-
-
-            
-
-            </style>
             <script>
             function toggleKebabMenu(btn) {
+                var container = btn.closest('.review-kebab-menu-container');
+                var dropdown = container ? container.querySelector('.review-kebab-dropdown') : null;
 
                 document.querySelectorAll('.review-kebab-dropdown').forEach(function(menu) {
-                    if (!menu.contains(btn)) menu.style.display = 'none';
+                    if (menu !== dropdown) menu.classList.remove('show');
                 });
 
-                var dropdown = btn.parentElement.querySelector('.review-kebab-dropdown');
-                if (dropdown) {
-                    dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
-                }
+                if (dropdown) dropdown.classList.toggle('show');
             }
             function hideAllKebabMenus() {
                 document.querySelectorAll('.review-kebab-dropdown').forEach(function(menu) {
-                    menu.style.display = 'none';
+                    menu.classList.remove('show');
                 });
             }
             document.addEventListener('click', function(e) {
@@ -294,49 +288,7 @@
                 }
             });
             </script>
-            <style>
-            .review-kebab-btn:hover {
-                background: #f0f0f0;
-            }
 
-            .review-kebab-dropdown {
-                font-family: inherit;
-                font-size: 0.98em;
-                color: #222;
-                background: #fff;
-                border-radius: 8px;
-                border: 1px solid #e0e0e0;
-                box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-                padding: 4px 0;
-                animation: fadeInKebab 0.18s;
-            }
-            .review-kebab-dropdown a {
-                display: block;
-                padding: 10px 20px;
-                color: #222;
-                text-decoration: none;
-                font-weight: 400;
-                border-bottom: 1px solid #f3f3f3;
-                transition: background 0.15s, color 0.15s;
-            }
-            .review-kebab-dropdown a:last-child {
-                border-bottom: none;
-            }
-            .review-kebab-dropdown a:hover {
-                background: #f6f8fa;
-                color: #007bff;
-            }
-            .review-kebab-dropdown a[style*="color: #d32f2f"] {
-                color: #d32f2f;
-            }
-            .review-kebab-dropdown a[style*="color: #007bff"] {
-                color: #007bff;
-            }
-            @keyframes fadeInKebab {
-                from { opacity: 0; transform: translateY(-8px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            </style>
             
             {% if current_user.user_type == 'student' and review.author != current_user %}
             <div id="report-form-{{ review.id }}" class="report-form">
@@ -459,24 +411,11 @@ function hideEditForm(replyId) {
 <style>
 /* Normalize fonts and colors inside review cards */
 .review-card {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    color: #222;
+    font-family: inherit;
+    color: inherit;
 }
 .review-card, .review-card * {
     font-family: inherit !important;
-    color: inherit !important;
-}
-
-button, a[style*="background-color"] {
-    transition: filter 0.2s ease;
-}
-
-button:hover, a[style*="background-color"]:hover {
-    filter: brightness(1.1);
-}
-
-button:active, a[style*="background-color"]:active {
-    filter: brightness(1.05);
 }
 
 /* Remove upvote/downvote buttons */
