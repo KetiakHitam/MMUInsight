@@ -1,5 +1,6 @@
+# search.py
+from rapidfuzz import process, fuzz
 from sqlalchemy import func
-from sqlalchemy import or_
 
 from extensions import db
 from models import User, Review
@@ -14,20 +15,39 @@ def _email_initials(email: str) -> str:
         return (parts[0][:1] + parts[1][:1]).upper()
     return local_part[:2].upper()
 
-def search_lecturers_by_email(query):
+def search_lecturers_by_email(query, limit=20, threshold=60):
+    """Return list of (User, score) sorted by descending score.
+    
+    Compares against the local part of email (before @) for similarity scoring.
+    Results are sorted by relevance score in descending order (highest first).
+    """
     if not query:
         return []
 
-    lecturers = User.query.filter(
-        User.user_type == 'lecturer',
-        or_(User.role.is_(None), User.role == "", User.role.notin_(["OWNER", "ADMIN", "MOD"])),
-        User.email.ilike(f"%{query}%")
-    ).all()
-
-    lecturer_ids = [l.id for l in lecturers]
+    # Get all lecturer users
+    lecturers = User.query.filter_by(user_type='lecturer').all()
+    
+    # Extract local parts of emails (before @) for fuzzy matching
+    local_parts = [u.email.split("@")[0] for u in lecturers]
+    
+    # Perform fuzzy matching against local parts only
+    # Returns tuples (matched_string, score, index_in_input_list)
+    matches = process.extract(query, local_parts, scorer=fuzz.WRatio, limit=limit)
+    
+    results = []
+    for matched, score, idx in matches:
+        if score >= threshold:
+            results.append((lecturers[idx], score))
+    
+    # Sort by score descending (highest similarity first)
+    results.sort(key=lambda x: x[1], reverse=True)
+    
+    # Attach metadata to lecturer objects for display
+    lecturer_ids = [u.id for u, s in results]
     if not lecturer_ids:
-        return lecturers
+        return []
 
+    # Get review statistics
     stats_rows = (
         db.session.query(
             Review.lecturer_id,
@@ -55,6 +75,7 @@ def search_lecturers_by_email(query):
         for row in stats_rows
     }
 
+    # Get top subject taught
     subject_rows = (
         db.session.query(
             Review.lecturer_id,
@@ -76,12 +97,14 @@ def search_lecturers_by_email(query):
         if current is None or int(row.subject_count) > current[1]:
             top_subject_by_id[row.lecturer_id] = (row.subject_code, int(row.subject_count))
 
-    for lecturer in lecturers:
+    # Attach stats to lecturer objects
+    for lecturer, score in results:
         stats = stats_by_id.get(lecturer.id, {})
         lecturer.review_count = stats.get("review_count", 0)
         avg = stats.get("avg_rating")
         lecturer.avg_rating = round(avg, 1) if avg is not None else None
         lecturer.top_subject_code = (top_subject_by_id.get(lecturer.id) or (None, 0))[0]
         lecturer.avatar_initials = _email_initials(lecturer.email)
+        lecturer.similarity_score = score
 
-    return lecturers
+    return [(u, s) for u, s in results]

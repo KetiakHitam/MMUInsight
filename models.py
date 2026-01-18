@@ -10,6 +10,8 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(10), nullable=True)
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
     is_claimed = db.Column(db.Boolean, nullable=False, default=False)
+    # Whether the student has accepted the site-wide lecturer-profile consent notice
+    profile_consent = db.Column(db.Boolean, nullable=False, default=False)
     verification_token = db.Column(db.String(100), nullable=True)
     verification_token_created_at = db.Column(db.DateTime, nullable=True)
     reset_token = db.Column(db.String(100), nullable=True)
@@ -17,6 +19,7 @@ class User(UserMixin, db.Model):
     bio = db.Column(db.Text, nullable=True)
     last_online = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     dark_mode = db.Column(db.Boolean, nullable=False, default=False)
+    search_history = db.Column(db.Text, nullable=True)
 
     reviews_written = db.relationship('Review', foreign_keys='Review.user_id', backref='author', lazy=True)
     reviews_received = db.relationship('Review', foreign_keys='Review.lecturer_id', backref='lecturer', lazy=True)
