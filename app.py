@@ -115,7 +115,14 @@ def set_theme(theme):
 
 @app.route("/", methods=["GET"])
 def index():
-    return render_template('index.html')
+    recent_searches = []
+    if current_user.is_authenticated and current_user.user_type == 'student' and current_user.search_history:
+        ids = current_user.search_history.split(',')
+        # Fetch users and preserve order
+        lecturers = {str(u.id): u for u in User.query.filter(User.id.in_(ids)).all()}
+        recent_searches = [lecturers[id] for id in ids if id in lecturers]
+        
+    return render_template('index.html', recent_searches=recent_searches)
 
 @app.route("/search", methods=["GET"])
 def search_page():

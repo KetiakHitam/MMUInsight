@@ -177,6 +177,24 @@ def lecturer_profile(lecturer_id):
     if current_user.user_type == 'student' and not current_user.profile_consent:
         return redirect(url_for('reviews.lecturer_terms', lecturer_id=lecturer_id))
     
+    # Update search history for students
+    if current_user.user_type == 'student':
+        history = current_user.search_history.split(',') if current_user.search_history else []
+        lecturer_id_str = str(lecturer_id)
+        
+        # Remove if exists (to move to top)
+        if lecturer_id_str in history:
+            history.remove(lecturer_id_str)
+        
+        # Add to top
+        history.insert(0, lecturer_id_str)
+        
+        # Keep only top 3
+        history = history[:3]
+        
+        current_user.search_history = ','.join(history)
+        db.session.commit()
+
     reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.review_date.desc()).all()
     
     user_review = None

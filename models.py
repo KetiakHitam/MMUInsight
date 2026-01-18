@@ -19,6 +19,7 @@ class User(UserMixin, db.Model):
     bio = db.Column(db.Text, nullable=True)
     last_online = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     dark_mode = db.Column(db.Boolean, nullable=False, default=False)
+    search_history = db.Column(db.Text, nullable=True)
 
     reviews_written = db.relationship('Review', foreign_keys='Review.user_id', backref='author', lazy=True)
     reviews_received = db.relationship('Review', foreign_keys='Review.lecturer_id', backref='lecturer', lazy=True)
