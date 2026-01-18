@@ -1,12 +1,8 @@
-import uuid
 import re
-import threading
-from datetime import datetime
-from flask import render_template, request, redirect, url_for, flash, current_app
+from flask import render_template, request, redirect, url_for, flash
 from flask_babel import gettext as _
-from flask_mail import Message
 from . import auth_bp
-from extensions import db, bcrypt, limiter, mail
+from extensions import db, bcrypt, limiter
 from models import User
 
 def validate_password_strength(password):
@@ -22,55 +18,6 @@ def validate_password_strength(password):
      if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
          return False, "Password must contain at least one special character (!@#$%^&*)"
      return True, "Password is strong"
-
-
-def send_verification_email_async(app, email, verification_url):
-     """Send verification email in a background thread"""
-     with app.app_context():
-         try:
-             msg = Message(
-                 subject="Verify Your MMUInsight Account",
-                 recipients=[email],
-                 body=f"""Welcome to MMUInsight!
-
-Please verify your email address by clicking the link below:
-
-{verification_url}
-
-This link will expire in 24 hours.
-
-If you did not create this account, please ignore this email.
-
-Best regards,
-The MMUInsight Team
-""",
-                 html=f"""
-                 <html>
-                 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-                     <h2 style="color: #667eea;">Welcome to MMUInsight!</h2>
-                     <p>Please verify your email address by clicking the button below:</p>
-                     <p style="margin: 30px 0;">
-                         <a href="{verification_url}" style="background-color: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Verify Email Address</a>
-                     </p>
-                     <p>Or copy and paste this link into your browser:</p>
-                     <p style="color: #666; word-break: break-all;">{verification_url}</p>
-                     <p style="color: #666; font-size: 0.9em; margin-top: 40px;">
-                         This link will expire in 24 hours.<br>
-                         If you did not create this account, please ignore this email.
-                     </p>
-                     <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-                     <p style="color: #999; font-size: 0.8em;">
-                         Best regards,<br>
-                         The MMUInsight Team
-                     </p>
-                 </body>
-                 </html>
-                 """
-             )
-             mail.send(msg)
-         except Exception as e:
-             # Log error but don't crash - email is best-effort
-             print(f"Failed to send verification email to {email}: {str(e)}")
 
 
 @auth_bp.route("/register", methods=["GET", "POST"])
@@ -118,9 +65,7 @@ def register():
         email=email,
         password_hash=pw_hash,
         user_type=user_type,
-        verification_token=token,
-        verification_token_created_at=datetime.utcnow(),
-        is_verified=False
+        is_verified=True
     )
 
     # Try to save user to database first
@@ -132,14 +77,5 @@ def register():
         flash(_("An error occurred while creating your account. Please try again."), "error")
         return redirect(url_for("auth.register"))
     
-    # Send verification email in background thread (non-blocking)
-    verification_url = url_for('auth.verify_email', token=token, _external=True)
-    email_thread = threading.Thread(
-        target=send_verification_email_async,
-        args=(current_app._get_current_object(), email, verification_url)
-    )
-    email_thread.daemon = True
-    email_thread.start()
-    
-    flash(_("Account created! Please check your email to verify your account."), "success")
+    flash(_("Account created successfully! You can now log in."), "success")
     return redirect(url_for("auth.login"))
