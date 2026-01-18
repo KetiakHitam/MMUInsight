@@ -5,6 +5,7 @@ from auth.decorators import admin_required
 from extensions import db, limiter
 from models import Suggestion, SuggestionVote
 from audit import log_admin_action
+from sanitize import sanitize_user_content
 from datetime import datetime
 from sqlalchemy import desc
 
@@ -27,6 +28,8 @@ def suggestions_list():
 def create_suggestion():
     title = request.form.get('title', '').strip()
     description = request.form.get('description', '').strip()
+    title = sanitize_user_content(title)  # Remove XSS
+    description = sanitize_user_content(description)  # Remove XSS
     is_anonymous = request.form.get('is_anonymous') == 'on'
     
     if not title or not description:

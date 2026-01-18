@@ -3,78 +3,129 @@
 {% block title %}MMUInsight{% endblock %}
 
 {% block content %}
-<div class="container" style="max-width: 800px; margin: 50px auto; padding: 40px; background-color: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);" class="dark-container">
-    <h1 style="color: #007bff; text-align: center; margin-bottom: 10px;">MMUInsight</h1>
-    <p style="text-align: center; color: #666; font-size: 1.1em; margin-bottom: 30px;">Review and rate your lecturers</p>
-    
-    {% if current_user.is_authenticated %}
-    <form method="GET" action="/search" style="margin-bottom: 30px;">
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <input name="q" type="search" placeholder="Search for a lecturer..." 
-                   value="{{ search_query or '' }}"
-                   style="flex: 1; padding: 12px; font-size: 1em; border: 1px solid #ddd; border-radius: 5px;">
-              <button type="submit" style="background-color: #007bff; color: white; padding: 0 30px; font-size: 1em; border: none; border-radius: 5px; cursor: pointer; white-space: nowrap; height: 44px; line-height: 44px; display: flex; align-items: center;">Search</button>
-        </div>
-    </form>
-    
-    {% if search_results is not none %}
-    <div style="margin-top: 30px;">
-        <h3 style="color: #007bff; margin-bottom: 15px;">Search Results:</h3>
-        {% if search_results|length == 0 %}
-            <p style="color: #999; text-align: center; padding: 20px;">No results found.</p>
-        {% else %}
-            <p style="font-size: large; text-align: center;">Results:</p>
-            <div class="Filter">
-                <button class="Filter-button">Filter</button>
-                <div class="Filter-options">
-                    <a href="{{ url_for('search_page', q=search_query or '', sort='az') }}" class="{% if sort=='az' %}active{% endif %}">A → Z</a>
-                    <a href="{{ url_for('search_page', q=search_query or '', sort='za') }}" class="{% if sort=='za' %}active{% endif %}">Z → A</a>
-                </div>
-            </div>
-            {% if fuzzy %}
-                <p class="did-mean" style="text-align:center; font-weight:bold; margin-top:10px;">Did you mean this?</p>
-            {% endif %}
-            {% for lecturer in search_results %}
-            <div style="padding: 15px; border: 1px solid #eee; border-radius: 5px; margin-bottom: 10px; background-color: white;">
-                <a href="/lecturer/{{ lecturer.id }}" style="color: #007bff; font-size: 1.1em; text-decoration: none; font-weight: 500;">
-                    {{ lecturer.email }}
-                </a>
-                <span style="color: #999; font-size: 0.9em; margin-left: 10px;">({{ lecturer.user_type }})</span>
-                {% if lecturer.is_claimed %}
-                <span style="color: #28a745; font-size: 0.9em; margin-left: 10px;">✓ Verified</span>
-                {% endif %}
-            </div>
-            {% endfor %}
-        {% endif %}
-    </div>
-    {% endif %}
-    
-    {% else %}
-    <div style="text-align: center; margin-top: 40px;">
-        <p style="color: #666; margin-bottom: 20px;">Get started by creating an account or logging in</p>
-        <a href="/login" style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 10px; font-size: 1em;">Login</a>
-        <a href="/register" style="background-color: #dc3545; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 10px; font-size: 1em;">Register</a>
-    </div>
-    {% endif %}
-</div>
+<section class="hero">
+    <div class="hero-container">
+        <div class="hero-content">
+            <h1 class="hero-title">Rate your lecturers. Shape your future.</h1>
+            <div class="hero-badge">Built for MMU Students by MMU Students</div>
+            <p class="hero-subtitle">Search, review, and compare lecturers with feedback from other students.</p>
 
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 900px; margin: 50px auto; padding: 0 20px;">
-    <div style="text-align: center; padding: 25px;">
-        <div style="font-size: 70px; margin-bottom: 15px;">✏️</div>
-        <h4 style="color: #333; margin-bottom: 10px; font-size: 1.1em;">Write and Edit Your Reviews</h4>
-        <p style="color: #666; font-size: 1em;">Share your honest feedback and update anytime.</p>
+            {% if current_user.is_authenticated %}
+            <form method="GET" action="/search" class="hero-search" role="search">
+                <label class="sr-only" for="hero-search-input">Search for a lecturer</label>
+                <input
+                    id="hero-search-input"
+                    name="q"
+                    type="search"
+                    placeholder="Search lecturers by email or name"
+                    value="{{ search_query or '' }}"
+                    autocomplete="off"
+                    class="hero-search-input"
+                >
+                <button type="submit" class="hero-search-button">Search</button>
+            </form>
+            <div class="hero-hint">Tip: you can search by a lecturer's name, e.g. “Willie”.</div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var input = document.getElementById('hero-search-input');
+                    var resultsPanel = document.getElementById('hero-results-panel');
+                    if (!input || !resultsPanel) return;
+                    input.addEventListener('input', function () {
+                        resultsPanel.style.display = 'none';
+                    });
+                });
+            </script>
+
+            {% if (search_query or '')|trim and search_results is not none %}
+                <div id="hero-results-panel" class="hero-results-panel">
+                    <div class="hero-results-title">
+                        <span>Search Results</span>
+                        <a class="hero-results-more" href="{{ url_for('search_results_page', q=search_query) }}">Open full results</a>
+                    </div>
+                    {% if search_results|length == 0 %}
+                        <div class="hero-results-empty">No results found.</div>
+                    {% else %}
+                        <div class="hero-results-list">
+                            {% for lecturer in search_results %}
+                            <div class="hero-result-card">
+                                <div class="hero-result-top">
+                                    <div class="hero-result-avatar" aria-hidden="true">{{ lecturer.avatar_initials or "?" }}</div>
+                                    <div class="hero-result-main">
+                                        <div class="hero-result-name">
+                                            <a class="hero-result-link" href="/lecturer/{{ lecturer.id }}">{{ lecturer.email }}</a>
+                                            {% if lecturer.is_claimed %}
+                                            <span class="hero-result-verified">Verified</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="hero-result-faculty">Lecturer</div>
+                                        <div class="hero-result-sub">
+                                            <span class="hero-result-stars" style="--rating: {{ lecturer.avg_rating or 0 }};"></span>
+                                            {% if lecturer.avg_rating is not none %}
+                                                <span class="hero-result-rating">{{ "%.1f"|format(lecturer.avg_rating) }}</span>
+                                            {% else %}
+                                                <span class="hero-result-rating">New</span>
+                                            {% endif %}
+                                            <span class="hero-result-reviews">{{ lecturer.review_count or 0 }} reviews</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="hero-result-tags">
+                                    {% if lecturer.top_subject_code %}
+                                        <span class="hero-result-tag">Top subject: {{ lecturer.top_subject_code }}</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="hero-result-bio">
+                                    {% if lecturer.bio %}
+                                        {{ lecturer.bio|trim }}
+                                    {% else %}
+                                        No bio written.
+                                    {% endif %}
+                                </div>
+
+                                <div class="hero-result-cta">
+                                    <a class="hero-result-btn" href="/lecturer/{{ lecturer.id }}">View profile</a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+            {% else %}
+            <div class="hero-cta">
+                <a class="hero-btn hero-btn-primary" href="/register">Create account</a>
+                <a class="hero-btn hero-btn-secondary" href="/login">Log in</a>
+            </div>
+            <div class="hero-hint">Sign in to search and start posting reviews.</div>
+            {% endif %}
+        </div>
     </div>
-    <div style="text-align: center; padding: 25px;">
-        <div style="font-size: 70px; margin-bottom: 15px;">🕶️</div>
-        <h4 style="color: #333; margin-bottom: 10px; font-size: 1.1em;">Reviews Can Be Anonymous</h4>
-        <p style="color: #666; font-size: 1em;">Post anonymously to other students.</p>
+</section>
+
+<section class="features">
+    <div class="hero-container">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">✏️</div>
+                <h4 class="feature-title">Write and edit reviews</h4>
+                <p class="feature-text">Share honest feedback and update it anytime.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🕶️</div>
+                <h4 class="feature-title">Anonymous if you want</h4>
+                <p class="feature-text">Post anonymously to other students.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h4 class="feature-title">Lecturer responses</h4>
+                <p class="feature-text">See lecturer responses in to your reviews.</p>
+            </div>
+        </div>
     </div>
-    <div style="text-align: center; padding: 25px;">
-        <div style="font-size: 70px; margin-bottom: 15px;">💬</div>
-        <h4 style="color: #333; margin-bottom: 10px; font-size: 1.1em;">Lecturer Responses</h4>
-        <p style="color: #666; font-size: 1em;">See lecturer responses in real-time.</p>
-    </div>
-</div>
+</section>
 {% endblock %}
 
                 <div class="result-item">

@@ -1,36 +1,26 @@
-<head>
-    <link href="{{ url_for('static', filename='css/Professor-info.css') }}" rel="stylesheet">
-</head>
+{% extends 'base.html' %}
 
-<body>
-    <div>
-        <h1 class="Professor-info-header">
-            <p class="Logo">
-                Logo here
-            </p>
-            <div class="buttons">
-                <a href="base.html"><button>Back</button></a>
+{% block title %}Professor Info - MMUInsight{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 900px;">
+    <div class="card">
+        <div class="card-header" style="display:flex; align-items:center; justify-content:space-between; gap: 12px;">
+            <h2 style="margin: 0;">Professor Info</h2>
+            <a class="btn btn-secondary" href="{{ url_for('index') }}">Back</a>
+        </div>
+        <div class="card-body">
+            <p style="margin-bottom: 1rem;">This page is a legacy placeholder. Consider using the main lecturer search + profile pages.</p>
+
+            <div class="card" style="margin: 0;">
+                <div class="card-body">
+                    <h3 style="margin-bottom: 0.5rem;">Professor Name</h3>
+                    <p style="margin-bottom: 0.5rem;"><strong>Rating:</strong> ?/5</p>
+                    <p style="margin-bottom: 0.5rem;"><strong>Recent Courses:</strong> Course 1, Course 2, Course 3</p>
+                    <p style="margin-bottom: 0;"><strong>Comments:</strong> —</p>
+                </div>
             </div>
-        </h1>
+        </div>
     </div>
-    <div class="Professor-info">
-        <h2>
-        <span class="Professor-Name">Professor Name</span>
-        <span class="Rating-score">Rating: ?/5</span>
-        </h2>
-        <p class="Courses">
-        <span class="Recent-Courses">
-        Recent Courses
-        </span>
-        <br>
-        Course 1
-        <br>
-        Course 2
-        <br>
-        Course 3
-        </p>
-        <p class="Comments">
-            <span class="Comments-header">Comments</span>
-        </p>
-    </div>
-</body>
+</div>
+{% endblock %}

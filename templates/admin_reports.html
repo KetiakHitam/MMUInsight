@@ -9,7 +9,7 @@
     {% if reports %}
     <table style="width: 100%; border-collapse: collapse;">
         <thead>
-            <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+            <tr style="background: rgba(248, 249, 250, 0.7); border-bottom: 2px solid #dee2e6; backdrop-filter: blur(5px);">
                 <th style="padding: 12px; text-align: left; font-weight: 600; color: #333; font-size: 0.95em;">Reason</th>
                 <th style="padding: 12px; text-align: left; font-weight: 600; color: #333; font-size: 0.95em;">Review</th>
                 <th style="padding: 12px; text-align: left; font-weight: 600; color: #333; font-size: 0.95em;">Reporter</th>
@@ -66,13 +66,13 @@
         </tbody>
     </table>
     {% else %}
-    <div style="background-color: #f8f9fa; padding: 30px; border-radius: 6px; text-align: center;">
+    <div class="glass-card" style="text-align: center;">
         <p style="color: #666; font-size: 1em; margin: 0;">No reports yet.</p>
     </div>
     {% endif %}
     
     <div style="margin-top: 30px;">
-        <a href="{{ url_for('auth.admin_dashboard') }}" style="color: #007bff; text-decoration: none; font-size: 0.95em;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Back to Admin Dashboard</a>
+        <a href="{{ url_for('auth.admin_dashboard') }}" style="color: var(--primary); text-decoration: none; font-weight: 500; font-size: 0.95em;">Back to Admin Dashboard</a>
     </div>
 </div>
 {% endblock %}
