@@ -76,6 +76,21 @@ babel = Babel(app, locale_selector=get_locale)
 # Create database tables on startup
 with app.app_context():
     db.create_all()
+    
+    # Create admin/owner accounts from env vars if not exists
+    admin_pass = os.environ.get('ADMIN_PASSWORD', 'admin')
+    owner_pass = os.environ.get('OWNER_PASSWORD', 'owner')
+    
+    for email, role, password in [
+        ("admin@mmu.edu.my", "ADMIN", admin_pass),
+        ("owner@mmu.edu.my", "OWNER", owner_pass),
+    ]:
+        if not User.query.filter_by(email=email).first():
+            user = User(email=email, user_type="lecturer", role=role, is_verified=True, is_claimed=True)
+            user.password_hash = bcrypt.generate_password_hash(password)
+            db.session.add(user)
+    
+    db.session.commit()
 
 
 @app.before_request
