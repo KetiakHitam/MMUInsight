@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 40px auto; padding: 20px;">
+    <h1>About MMUInsight</h1>
+    
+    <section style="margin-bottom: 40px; margin-top: 30px;">
+        <h2>Our Mission</h2>
+        <p style="line-height: 1.8; font-size: 1.1em;">
+            MMUInsight is a student-driven platform designed to enhance the academic experience at Multimedia University. 
+            We provide a transparent space where students can share honest feedback about lecturers, helping future students 
+            make informed decisions about their courses and education.
+        </p>
+    </section>
+    
+    <section style="margin-bottom: 40px;">
+        <h2>What We Offer</h2>
+        <div style="display: grid; gap: 20px; margin-top: 20px;">
+            <div style="padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
+                <h3 style="margin-top: 0;">📊 Comprehensive Reviews</h3>
+                <p>Students can rate lecturers across multiple dimensions including teaching quality, fairness, communication, and more.</p>
+            </div>
+            
+            <div style="padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
+                <h3 style="margin-top: 0;">🔍 Smart Search</h3>
+                <p>Easily find lecturers by email or name to read reviews and make informed decisions about your courses.</p>
+            </div>
+            
+            <div style="padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
+                <h3 style="margin-top: 0;">💬 Open Dialogue</h3>
+                <p>Lecturers can claim their profiles and respond to reviews, fostering constructive communication.</p>
+            </div>
+            
+            <div style="padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
+                <h3 style="margin-top: 0;">🔒 Privacy Options</h3>
+                <p>Submit reviews anonymously if you prefer, while maintaining accountability through moderation.</p>
+            </div>
+            
+            <div style="padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
+                <h3 style="margin-top: 0;">💡 Community Suggestions</h3>
+                <p>Propose new features and improvements to help shape the future of the platform.</p>
+            </div>
+        </div>
+    </section>
+    
+    <section style="margin-bottom: 40px;">
+        <h2>Our Values</h2>
+        <ul style="line-height: 2; font-size: 1.05em; margin-left: 20px;">
+            <li><strong>Transparency:</strong> Honest feedback helps improve education quality</li>
+            <li><strong>Respect:</strong> Constructive criticism over personal attacks</li>
+            <li><strong>Fairness:</strong> Balanced representation of all perspectives</li>
+            <li><strong>Community:</strong> Building a supportive academic environment</li>
+            <li><strong>Accountability:</strong> Responsible use of the platform</li>
+        </ul>
+    </section>
+    
+    <section style="margin-bottom: 40px;">
+        <h2>How It Works</h2>
+        <ol style="line-height: 2; font-size: 1.05em; margin-left: 20px;">
+            <li><strong>Create an account</strong> using your university email</li>
+            <li><strong>Search for lecturers</strong> by email or browse profiles</li>
+            <li><strong>Read reviews</strong> from fellow students</li>
+            <li><strong>Share your experience</strong> by writing honest reviews</li>
+            <li><strong>Engage with responses</strong> from lecturers and other students</li>
+        </ol>
+    </section>
+    
+    <section style="margin-bottom: 40px;">
+        <h2>For Lecturers</h2>
+        <p style="line-height: 1.8; font-size: 1.05em;">
+            MMUInsight welcomes lecturer participation! You can claim your profile to:
+        </p>
+        <ul style="line-height: 2; margin-left: 20px;">
+            <li>Add a personalized bio and teaching philosophy</li>
+            <li>Respond to student feedback</li>
+            <li>View analytics about your ratings and reviews</li>
+            <li>Gain insights to improve your teaching approach</li>
+        </ul>
+    </section>
+    
+    <section style="margin-bottom: 40px; padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+        <h2 style="margin-top: 0; color: white;">Get Started Today</h2>
+        <p style="font-size: 1.1em; margin-bottom: 20px;">
+            Join the growing community of MMU students and lecturers working together to enhance education quality.
+        </p>
+        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <a href="{{ url_for('auth.register') }}" style="background-color: white; color: #667eea; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-block;">Register Now</a>
+            <a href="{{ url_for('auth.login') }}" style="background-color: rgba(255,255,255,0.2); color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-block;">Login</a>
+        </div>
+    </section>
+    
+    <section style="margin-bottom: 40px;">
+        <h2>Contact & Support</h2>
+        <p style="line-height: 1.8;">
+            Have questions, suggestions, or need support? Visit our <a href="{{ url_for('suggestions.suggestions_list') }}" style="color: #667eea;">Suggestions page</a> 
+            to submit feedback or contact the platform administrators through the appropriate university channels.
+        </p>
+    </section>
+</div>
+{% endblock %}

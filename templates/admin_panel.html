@@ -1,9 +1,12 @@
-<!DOCTYPE html>
-<html>
-  <body>
-    <h1>User Management</h1>
+{% extends 'base.html' %}
 
-    <table border="1" cellpadding="6">
+{% block title %}User Management{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>User Management</h2>
+
+    <table border="1" cellpadding="6" style="width: 100%; margin-bottom: 20px;">
       <tr>
         <th>ID</th>
         <th>Email</th>
@@ -20,20 +23,19 @@
         <td>{{ 'Yes' if user.is_verified else 'No' }}</td>
         <td>
           {% if not user.is_verified %}
-            <a href="{{ url_for('auth.admin_verify_user', user_id=user.id) }}">Verify</a>
+            <a href="{{ url_for('auth.admin_verify_user', user_id=user.id) }}" class="admin-btn">Verify</a>
           {% endif %}
 
           {% if user.user_type != 'admin' %}
-            <a href="{{ url_for('auth.admin_make_admin', user_id=user.id) }}">Make Admin</a>
+            <a href="{{ url_for('auth.admin_make_admin', user_id=user.id) }}" class="admin-btn">Make Admin</a>
           {% endif %}
 
-          <a href="{{ url_for('auth.admin_delete_user', user_id=user.id) }}">Delete</a>
+          <a href="{{ url_for('auth.admin_delete_user', user_id=user.id) }}" class="admin-btn-danger">Delete</a>
         </td>
       </tr>
       {% endfor %}
     </table>
 
-    <br>
-    <a href="{{ url_for('auth.admin_dashboard') }}">Back to admin dashboard</a>
-  </body>
-</html>
+    <a href="{{ url_for('auth.admin_dashboard') }}" class="admin-btn">Back to admin dashboard</a>
+</div>
+{% endblock %}

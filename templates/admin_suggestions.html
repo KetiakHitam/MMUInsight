@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Suggestions - Admin{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1000px;">
+    <h2 style="margin-bottom: 30px;">Manage Feature Suggestions</h2>
+    
+    <style>
+        .suggestion-status-pill {
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.9em;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .suggestion-status-pill.status-pending {
+            background-color: #fff3cd;
+            color: #664d03;
+        }
+
+        .suggestion-status-pill.status-reviewing {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+
+        .suggestion-status-pill.status-planned {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .suggestion-status-pill.status-rejected {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+    </style>
+
+    <script>
+        function toggleSuggestionDetails(suggestionId) {
+            var detailsRow = document.getElementById('suggestion-details-' + suggestionId);
+            var button = document.getElementById('suggestion-expand-btn-' + suggestionId);
+            if (!detailsRow || !button) return;
+
+            var isExpanded = detailsRow.style.display !== 'none';
+            detailsRow.style.display = isExpanded ? 'none' : 'table-row';
+            button.textContent = isExpanded ? 'Expand' : 'Collapse';
+            button.setAttribute('aria-expanded', (!isExpanded).toString());
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var expandButtons = document.querySelectorAll('[data-suggestion-expand]');
+            expandButtons.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    toggleSuggestionDetails(btn.getAttribute('data-suggestion-expand'));
+                });
+            });
+        });
+    </script>
+    
+    {% if suggestions %}
+        <table class="admin-table" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+            <thead>
+                <tr style="background-color: #f8f9fa; border-bottom: 2px solid #ddd;">
+                    <th style="text-align: left; padding: 12px; font-weight: 600;">Title</th>
+                    <th style="text-align: left; padding: 12px; font-weight: 600;">Author</th>
+                    <th style="text-align: center; padding: 12px; font-weight: 600;">Votes</th>
+                    <th style="text-align: center; padding: 12px; font-weight: 600;">Status</th>
+                    <th style="text-align: center; padding: 12px; font-weight: 600;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for suggestion in suggestions %}
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 12px;">
+                        <div style="font-weight: 600; line-height: 1.3; white-space: normal; word-break: break-word;">
+                            {{ suggestion.title }}
+                        </div>
+                    </td>
+                    <td style="padding: 12px;">
+                        {% if suggestion.is_anonymous %}
+                            <span style="color: #666;">Anonymous</span>
+                        {% else %}
+                            {{ suggestion.user.email if suggestion.user else 'Deleted User' }}
+                        {% endif %}
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        <span style="background-color: #e7f3ff; color: #0056b3; padding: 4px 8px; border-radius: 3px; font-size: 0.9em;">👍 {{ suggestion.upvotes }} 👎 {{ suggestion.downvotes }}</span>
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        <span class="suggestion-status-pill status-{{ suggestion.status }}">{{ suggestion.status.title() }}</span>
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                            <button
+                                id="suggestion-expand-btn-{{ suggestion.id }}"
+                                type="button"
+                                data-suggestion-expand="{{ suggestion.id }}"
+                                aria-expanded="false"
+                                aria-controls="suggestion-details-{{ suggestion.id }}"
+                                style="background-color: var(--gray-200); color: var(--text-primary); padding: 6px 10px; border: 1px solid var(--gray-300); border-radius: 6px; font-size: 0.85em; cursor: pointer; transition: opacity 0.2s ease;"
+                                onmouseover="this.style.opacity='0.85';"
+                                onmouseout="this.style.opacity='1';"
+                            >Expand</button>
+                            {% if suggestion.status != 'reviewing' %}
+                            <form method="POST" action="{{ url_for('suggestions.change_suggestion_status', suggestion_id=suggestion.id, new_status='reviewing') }}" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" style="background-color: var(--primary); color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 0.85em; cursor: pointer; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">Review</button>
+                            </form>
+                            {% endif %}
+                            {% if suggestion.status != 'planned' %}
+                            <form method="POST" action="{{ url_for('suggestions.change_suggestion_status', suggestion_id=suggestion.id, new_status='planned') }}" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" style="background-color: var(--success); color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 0.85em; cursor: pointer; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">Plan</button>
+                            </form>
+                            {% endif %}
+                            {% if suggestion.status != 'rejected' %}
+                            <form method="POST" action="{{ url_for('suggestions.change_suggestion_status', suggestion_id=suggestion.id, new_status='rejected') }}" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" style="background-color: var(--warning); color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 0.85em; cursor: pointer; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">Reject</button>
+                            </form>
+                            {% endif %}
+                            <form method="POST" action="{{ url_for('suggestions.delete_suggestion', suggestion_id=suggestion.id) }}" style="display: inline;" onsubmit="return confirm('Delete this suggestion? This cannot be undone.');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" style="background-color: var(--danger-dark); color: white; padding: 6px 10px; border: none; border-radius: 6px; font-size: 0.85em; cursor: pointer; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr id="suggestion-details-{{ suggestion.id }}" style="display: none; border-bottom: 1px solid #ddd;">
+                    <td colspan="5" style="padding: 12px;">
+                        <div style="background-color: white; border: 1px solid #ddd; border-radius: 10px; padding: 12px; text-align: left;">
+                            <div style="font-weight: 600; margin-bottom: 6px; white-space: normal; word-break: break-word;">{{ suggestion.title }}</div>
+                            <div style="white-space: pre-wrap; word-break: break-word;">{{ suggestion.description }}</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="text-align: center; color: #666; padding: 40px 0;">No suggestions yet.</p>
+    {% endif %}
+    
+    <a href="{{ url_for('auth.admin_dashboard') }}" style="color: #007bff; text-decoration: none; font-size: 0.95em;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Back to Admin Dashboard</a>
+</div>
+{% endblock %}
