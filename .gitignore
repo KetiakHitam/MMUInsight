@@ -6,3 +6,6 @@ __pycache__/
 
 # Local Database
 mmuinsight.db
+
+# Environment variables
+.env
