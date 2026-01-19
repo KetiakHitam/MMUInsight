@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}FAQ{% endblock %}
+
+{% block content %}
+<body>
+    <div>
+        <h2 style="text-align: center; color: #007bff; margin-bottom: 20px; font-size: 30px;">Frequently Asked Questions</h1>
+        <div style="margin-left: 40px; font-family: Roboto;">
+            <p style="font-weight: bold; font-decoration: underline; color: #007bff;  font-size: 25px;">Registration & Account</p>
+            <p>What email should I use to register?</p>
+            <p style="color: #666">Use your MMU student email (@student.mmu.edu.my) for students or MMU staff email (@mmu.edu.my) for lecturers</p>
+            <p style="color: #666">Other emails won't be accepted</p>
+            <br>
+            <p>Why do I need to verify my email?</p>
+            <p style="color: #666">Email verification prevents fake accounts and ensures only real MMU users can review</p>
+            <br>
+            <p>Do I have to verify my email to use the platform?</p>
+            <p style="color: #666">Yes. You'll receive a verification link via email after signup. Click it to activate your account</p>
+            <br>
+            <p>How long is the verification link valid?</p>
+            <p style="color: #666">24 hours. If it expires, use the "Resend verification email" link on the login page</p>
+            <br>
+            <p>How do I delete my account?</p>
+            <p style="color: #666">Contact support. Account deletion will remove your reviews and associated data</p>
+            <br>
+            <p>Can I change my email after registering?</p>
+            <p style="color: #666">Not currently. You'll need to create a new account with the new email</p>
+            <br>
+            <p style="font-weight: bold; font-decoration: underline; color: #007bff; font-size: 25px;">Reviews & Ratings</p>
+            <p>Can I write multiple reviews for the same lecturer?</p>
+            <p style="color: #666">No. You can only write ONE review per lecturer, but you can edit it anytime</p>
+            <br>
+            <p style="font-weight: bold; font-decoration: underline; color: #007bff; font-size: 25px;">What do the 5 rating categories mean?</p>
+            <p style="color: #666">Clarity: How well they explain concepts</p>
+            <p style="color: #666">Engagement: How interesting/interactive their teaching is</p>
+            <p style="color: #666">Punctuality: How often they start/end on time</p>
+            <p style="color: #666">Responsiveness: How quickly they reply to questions</p>
+            <p style="color: #666">Fairness: How fair their grading/assessment is</p>
+            <p style="color: #666">How is the overall rating calculated?</p>
+            <p style="color: #666">Average of all 5 categories (rounded to 1 decimal place)</p>
+            <br>
+            <p>Can I edit or delete my review?</p>
+            <p style="color: #666">Yes. Go to the lecturer's profile, find your review, and click Edit or Delete</p>
+            <br>
+            <p>What happens if I delete my review?</p>
+            <p style="color: #666">It's permanently removed. The lecturer's average rating will update</p>
+            <br>
+            <p>Can I write an anonymous review?</p>
+            <p style="color: #666">Yes. Check "Submit anonymously" when writing. Only admins can see who wrote it</p>
+            <br>
+            <p style="font-weight: bold; font-decoration: underline; color: #007bff; font-size: 25px;">Anonymity & Privacy</p>
+            <p>If I write anonymously, will the lecturer know it's me?</p>
+            <p style="color: #666">No. The lecturer sees "Anonymous Student" instead of your name</p>
+            <p style="color: #666">Only admins can see your identity (for moderation)</p>
+            <br>
+            <p>Can a lecturer see who reviewed them?</p>
+            <p style="color: #666">They can see reviews and replies, but anonymous reviews show as "Anonymous Student"</p>
+            <br>
+            <p>What data do you collect from me?</p>
+            <p style="color: #666">Email, password (hashed), reviews you write, ratings you give, replies you post</p>
+            <p style="color: #666">We don't share data with third parties</p>
+            <br>
+            <p>Is my password secure?</p>
+            <p style="color: #666">Yes. Passwords are encrypted with bcrypt. We never store plain text passwords</p>
+            <br>
+            <p style="font-weight: bold; font-decoration: underline; color: #007bff; font-size: 25px;">Lecturer Profiles</p>
+            <p>How do I find a specific lecturer?</p>
+            <p style="color: #666">Use the search bar on the homepage and enter their email address</p>
+            <br>
+            <p>Why can't I see a lecturer's profile?</p>
+            <p style="color: #666">Lecturers only appear if they have at least one review. New lecturers won't show up until someone reviews them</p>
+            <br>
+            <p>Can lecturers see their own profiles and reviews?</p>
+            <p style="color: #666">Yes, but they can't edit/delete other people's reviews. They can only reply to reviews</p>
+            <br>
+            <p>Can a lecturer claim their profile?</p>
+            <p style="color: #666">Yes. Lecturers with official MMU email (@mmu.edu.my) can claim their profile for verification</p>
+            <br>
+            <p style="font-weight: bold; font-decoration: underline; color: #007bff; font-size: 25px;">Suggestions & Voting</p>
+            <p>How do suggestions work?</p>
+            <p style="color: #666">Any user can suggest features. Others upvote/downvote to show support</p>
+            <p style="color: #666">Admins use this feedback to prioritize new features</p>
+            <br>
+            <p>Can I change my vote on a suggestion?</p>
+            <p style="color: #666">Yes. Click the same button again to remove your vote, or switch to the opposite vote</p>
+            <br>
+            <p>Can I delete my suggestion?</p>
+            <p style="color: #666">You can't delete it yourself, but admins can remove inappropriate suggestions</p>
+            <br>
+            <p style="font-weight: bold; font-decoration: underline; color: #007bff; font-size: 25px;">Reports & Moderation</p>
+            <p>How do I report inappropriate content?</p>
+            <p style="color: #666">Click the "Report" button under any review. Admins will review it within 24 hours</p>
+            <br>
+            <p>What happens to reported reviews?</p>
+            <p style="color: #666">Admins investigate. If the content violates guidelines, it's removed and the user may be suspended</p>
+            <br>
+            <p>Can admins delete reviews without a report?</p>
+            <p style="color: #666">Yes. Admins moderate content proactively to keep the platform safe</p>
+            <br>
+            <p style="font-weight: bold; font-decoration: underline; color: #007bff; font-size: 25px;">Technical</p>
+            <p>What's the difference between dark mode and light mode?</p>
+            <p style="color: #666">Visual preference. Dark mode reduces eye strain; light mode is standard. Your preference is saved</p>
+            <br>
+            <p>What languages does MMUInsight support?</p>
+            <p style="color: #666">English, Malay, and Chinese. Change your language in the top menu</p>
+            <br>
+            <p>Is MMUInsight mobile-friendly?</p>
+            <p style="color: #666">Yes, you can use it on phone, tablet, or desktop</p>
+            <br>
+            <p>What should I do if I encounter a bug?</p>
+            <p style="color: #666">Contact support with a description of the issue and screenshots if possible</p>
+            <br>
+            <p style="font-weight: bold; font-decoration: underline; color: #007bff; font-size: 25px;">General</p>
+            <p>Why does MMUInsight exist?</p>
+            <p style="color: #666">To give students a transparent way to share feedback about teaching quality and help others choose courses wisely</p>
+            <br>
+            <p>Is this affiliated with MMU officially?</p>
+            <p style="color: #666">No. This is a student-run project not officially endorsed by MMU administration</p>
+        </div>
+    </div>
+</body>
+{% endblock %}
