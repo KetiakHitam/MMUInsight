@@ -354,7 +354,7 @@
                             <textarea name="reply_text" rows="3">{{ reply.reply_text }}</textarea>
                             <div class="reply-form-actions">
                                 <button type="submit" class="btn btn-success" style="font-size: 0.85em; padding: 5px 12px;">Save</button>
-                                <button type="button" onclick="hideEditForm({{ reply.id }})" class="btn btn-secondary" style="font-size: 0.85em; padding: 5px 12px;">Cancel</button>
+                                <button type="button" onclick="hideEditForm({{ reply.id }})" class="btn btn-danger" style="font-size: 0.85em; padding: 5px 12px; background-color: var(--danger); border-color: var(--danger); color: #fff;">Cancel</button>
                             </div>
                         </form>
                     </div>
