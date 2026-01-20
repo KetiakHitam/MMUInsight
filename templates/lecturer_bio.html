@@ -13,20 +13,60 @@
     
     {% if can_edit %}
     <div class="glass-form">
-        <p style="color: #666; margin-bottom: 20px;">Edit your bio to let students know more about you</p>
+        <p style="color: #666; margin-bottom: 20px;">Edit your bio to let students know more about you (max 40 words)</p>
         
-        <form method="POST">
+        <form method="POST" id="bio-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="form-group">
-                <textarea name="bio" rows="15" placeholder="Write about yourself, your teaching philosophy, education background, research interests, office hours, etc..." class="glass-input">{{ lecturer.bio if lecturer.bio else '' }}</textarea>
+                <textarea name="bio" id="bio-textarea" rows="15" placeholder="Write about yourself, your teaching philosophy, education background, research interests, office hours, etc..." class="glass-input">{{ lecturer.bio if lecturer.bio else '' }}</textarea>
+                <div id="bio-word-hint" style="margin-top: 8px; font-size: 0.9em; color: var(--text-secondary);">
+                    <span id="bio-word-count">0</span>/40 words
+                </div>
             </div>
             
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button type="submit" class="btn btn-success btn-lg">Save Bio</button>
+                <button type="submit" id="bio-save-btn" class="btn btn-success btn-lg">Save Bio</button>
                 <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=lecturer.id) }}" class="btn btn-secondary btn-lg">Cancel</a>
             </div>
         </form>
     </div>
+
+    <script>
+    (function() {
+        var limit = 40;
+        var textarea = document.getElementById('bio-textarea');
+        var form = document.getElementById('bio-form');
+        var countEl = document.getElementById('bio-word-count');
+        var hintEl = document.getElementById('bio-word-hint');
+        var saveBtn = document.getElementById('bio-save-btn');
+
+        function countWords(text) {
+            var trimmed = (text || '').trim();
+            if (!trimmed) return 0;
+            return trimmed.split(/\s+/).length;
+        }
+
+        function update() {
+            var count = countWords(textarea.value);
+            countEl.textContent = String(count);
+
+            var over = count > limit;
+            hintEl.style.color = over ? 'var(--danger)' : 'var(--text-secondary)';
+            if (saveBtn) saveBtn.disabled = over;
+        }
+
+        textarea.addEventListener('input', update);
+        update();
+
+        form.addEventListener('submit', function(e) {
+            var count = countWords(textarea.value);
+            if (count > limit) {
+                e.preventDefault();
+                update();
+            }
+        });
+    })();
+    </script>
     
     {% else %}
     

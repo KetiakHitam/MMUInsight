@@ -584,6 +584,16 @@ def lecturer_bio(lecturer_id):
             return redirect(url_for('reviews.lecturer_bio', lecturer_id=lecturer_id))
         
         bio_text = request.form.get('bio', '').strip()
+
+        if bio_text:
+            bio_word_limit = 40
+            word_count = len(bio_text.split())
+            if word_count > bio_word_limit:
+                flash(
+                    _("Bio must be %(limit)s words or fewer (currently %(count)s).", limit=bio_word_limit, count=word_count),
+                    "error",
+                )
+                return redirect(url_for('reviews.lecturer_bio', lecturer_id=lecturer_id))
         
         lecturer.bio = bio_text if bio_text else None
         db.session.commit()
