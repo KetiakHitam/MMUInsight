@@ -41,7 +41,6 @@
                 <div id="hero-results-panel" class="hero-results-panel">
                     <div class="hero-results-title">
                         <span>Search Results</span>
-                        <a class="hero-results-more" href="{{ url_for('search_results_page', q=search_query) }}">Open full results</a>
                     </div>
                     {% if search_results|length == 0 %}
                         <div class="hero-results-empty">No results found.</div>
