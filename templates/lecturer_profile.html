@@ -184,9 +184,6 @@
                             <span style="color: var(--text-secondary); font-size: 0.9em;">(Anonymous to others)</span>
                         {% endif %}
                     {% endif %}
-                    {% if review.id == user_review_id %}
-                    <span style="color: #0066ff; font-weight: bold; font-size: 0.85em;">OP</span>
-                    {% endif %}
                     {% if review.is_pinned %}
                     <span class="review-pinned-badge">📌 Pinned</span>
                     {% endif %}
@@ -307,7 +304,7 @@
                     <div class="reply-header">
                         <p class="reply-author">
                             {% if reply.author == review.author and review.is_anonymous and not current_user.is_admin() %}
-                                <span style="color: var(--danger);">Anonymous Student (OP)</span>
+                                <span style="color: var(--danger);">Anonymous Student</span>
                             {% else %}
                                 <span>{{ reply.author.email }}</span>
                                 {% if reply.is_admin and reply.author.role != 'OWNER' %}
@@ -319,9 +316,6 @@
                                 {% endif %}
                                 {% if reply.author.user_type == 'lecturer' and not reply.is_admin %}
                                     <span class="reply-author-badge">LECTURER</span>
-                                {% endif %}
-                                {% if reply.author == review.author %}
-                                    <span style="color: #0066ff; font-weight: bold; font-size: 0.85em; margin-left: 5px; display: inline-block;">OP</span>
                                 {% endif %}
                             {% endif %}
                         </p>
