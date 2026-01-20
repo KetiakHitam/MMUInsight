@@ -719,6 +719,8 @@ body.dark-mode [style*="background-color: #e0e0e0"][style*="height: 10px"] {
 .reply-form-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 /* Dark Mode - Review Cards */
