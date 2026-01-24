@@ -35,3 +35,6 @@ mmuinsight_data/
 tools/dev/
 tools/diagnose_*.py
 init_db*.py
+seed_db.py
+new_table_db.py
+migrate_add_usage_count.py
