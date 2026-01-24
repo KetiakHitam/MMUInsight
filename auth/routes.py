@@ -25,6 +25,7 @@ def admin_dashboard():
     total_reviews = Review.query.count()
     
     pending_reports = Report.query.filter_by(status='pending').count()
+    flagged_reviews = Review.query.filter_by(requires_human_review=True, is_approved=None).count()
 
     return render_template(
         "admin_dashboard.html",
@@ -37,6 +38,7 @@ def admin_dashboard():
         lecturer_count=lecturer_count,
         unverified_lecturers=unverified_lecturers,
         total_reviews=total_reviews,
+        flagged_reviews=flagged_reviews,
     )
 
 @auth_bp.route("/admin/users")
@@ -232,3 +234,41 @@ def admin_audit_logs():
         action_q=action_q,
         target_q=target_q,
     )
+
+@auth_bp.route("/admin/moderation")
+@admin_required
+def admin_moderation():
+    """Display flagged reviews pending moderation"""
+    # Get flagged reviews that haven't been approved/rejected yet
+    flagged_reviews = Review.query.filter_by(
+        requires_human_review=True, 
+        is_approved=None
+    ).order_by(Review.review_date.desc()).all()
+    
+    return render_template(
+        "admin_moderation.html",
+        flagged_reviews=flagged_reviews,
+        count=len(flagged_reviews)
+    )
+
+@auth_bp.route("/admin/moderation/<int:review_id>/approve", methods=["POST"])
+@admin_required
+def approve_flagged_review(review_id):
+    """Approve a flagged review"""
+    review = Review.query.get_or_404(review_id)
+    review.is_approved = True
+    db.session.commit()
+    log_admin_action(f"Approved flagged review {review_id}", "review")
+    flash("Review approved and will now be visible.", "success")
+    return redirect(url_for("auth.admin_moderation"))
+
+@auth_bp.route("/admin/moderation/<int:review_id>/reject", methods=["POST"])
+@admin_required
+def reject_flagged_review(review_id):
+    """Reject a flagged review"""
+    review = Review.query.get_or_404(review_id)
+    review.is_approved = False
+    db.session.commit()
+    log_admin_action(f"Rejected flagged review {review_id}", "review")
+    flash("Review rejected and will not be visible.", "error")
+    return redirect(url_for("auth.admin_moderation"))

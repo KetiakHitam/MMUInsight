@@ -43,10 +43,10 @@
             <p style="font-size: 2.2em; font-weight: bold; color: #ff9800; margin: 0;">{{ unverified_lecturers }}</p>
         </div>
         
-        <!-- Total Reviews Card -->
-        <div class="glass-card stat-card" style="border-left: 4px solid #20c997;">
-            <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Total Reviews</p>
-            <p style="font-size: 2.2em; font-weight: bold; color: #333; margin: 0;">{{ total_reviews }}</p>
+        <!-- Flagged Reviews Card -->
+        <div class="glass-card stat-card flagged-reviews" style="border-left: 4px solid #ff6b6b;">
+            <p style="color: #666; font-size: 0.9em; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Flagged Reviews</p>
+            <p style="font-size: 2.2em; font-weight: bold; color: #ff6b6b; margin: 0;">{{ flagged_reviews }}</p>
         </div>
         
         <!-- Pending Reports Card -->
@@ -60,6 +60,7 @@
     <div style="display: flex; gap: 12px; margin-bottom: 30px; flex-wrap: wrap;">
         <a href="{{ url_for('auth.admin_users') }}" class="btn btn-lg">👥 Manage Users</a>
         <a href="{{ url_for('auth.admin_reports') }}" class="btn btn-lg {% if pending_reports > 0 %}btn-danger{% endif %}">🚩 View Reports</a>
+        <a href="{{ url_for('auth.admin_moderation') }}" class="btn btn-lg {% if flagged_reviews > 0 %}btn-danger{% endif %}" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);">⚠️ Moderation Queue ({{ flagged_reviews }})</a>
         <a href="{{ url_for('suggestions.admin_suggestions') }}" class="btn btn-lg" style="background: linear-gradient(135deg, #6f42c1 0%, #553399 100%);">💡 Manage Suggestions</a>
         <a href="{{ url_for('auth.admin_audit_logs') }}" class="btn btn-lg btn-secondary">🧾 Audit Logs</a>
     </div>
@@ -154,14 +155,22 @@
         color: #d97706 !important;
     }
 
-    /* Total Reviews - Cyan */
-    .stat-card[style*="border-left: 4px solid #20c997"] {
-        border-left: 4px solid #20c997 !important;
+    /* Flagged Reviews - Red */
+    .flagged-reviews {
+        background: rgba(255, 255, 255, 0.5) !important;
+        backdrop-filter: blur(18px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        border-left: 4px solid #ff6b6b !important;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     
-    .stat-card[style*="border-left: 4px solid #20c997"]:hover {
-        background: #20c997 !important;
-        border-color: #20c997 !important;
+    .flagged-reviews:hover {
+        background: #ff6b6b !important;
+        border-color: #ff6b6b !important;
+    }
+    
+    .flagged-reviews:hover p {
+        color: white !important;
     }
 
     /* Pending Reports - Red */
