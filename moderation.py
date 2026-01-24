@@ -6,13 +6,58 @@ Detects spam, profanity, and low-quality content
 import re
 from typing import Tuple, List
 
-# profanity/slurs word list (can be expanded)
 PROFANITY_WORDS = {
-    'fuck', 'fucks', 'fucker','fuckers', 'shit', 'shits', 'shitter', 'ass', 
-    'bitch', 'bitches', 'bitch ass', 'retard', 'retards', 'retarded', 
-    'crap', 'piss', 'bastard', 'asshole', 'dick', 'cock', 'pussy', 
-    'whore', 'slut', 'cunt', 'motherfucker','fag','fags','faggot', 
-    'nigga', 'nigger', 'nga', 'chink'
+    'fuck', 'fucks', 'fucker', 'fuckers', 'fucking', 'fucked', 'fuckface', 'fuckhead', 
+    'shit', 'shits', 'shitter', 'shitters', 'shitty', 'shithead', 'shitface', 'bullshit',
+    'ass', 'asses', 'asshole', 'assholes', 'asshat', 'dumbass', 'badass', 'jackass',
+    'bitch', 'bitches', 'bitchy', 'bitching', 'son of a bitch',
+    'bastard', 'bastards',
+    'dick', 'dicks', 'dickhead', 'dickface',
+    'cock', 'cocks', 'cocksucker',
+    'pussy', 'pussies',
+    'cunt', 'cunts',
+    'piss', 'pissed', 'pissing',
+    'crap', 'crappy',
+    'whore', 'whores',
+    'slut', 'sluts', 'slutty',
+    'retard', 'retards', 'retarded', 'retardation',
+    'fag', 'fags', 'faggot', 'faggots',
+    'nigga', 'niggas', 'nigger', 'niggers', 'nga',
+    'chink', 'chinks',
+    'spic', 'spics',
+    'gook', 'gooks',
+    'kike', 'kikes',
+    'beaner', 'beaners',
+    'wetback', 'wetbacks',
+    'raghead', 'ragheads',
+    'cracker', 'crackers',
+    'honkey', 'honky',
+    'tranny', 'trannies',
+    'dyke', 'dykes',
+    'homo', 'homos',
+    'motherfucker', 'motherfuckers',
+    'wanker', 'wankers',
+    'twat', 'twats',
+    'prick', 'pricks',
+    'douche', 'douchebag', 'douchebags',
+    'tits', 'titties',
+    'boobs', 'boobies',
+    'penis', 'penises',
+    'vagina', 'vaginas',
+    'anal',
+    'anus',
+    'dildo', 'dildos',
+    'retard', 'retards', 'retarded',
+    'moron', 'morons', 'moronic',
+    'idiot', 'idiots', 'idiotic',
+    'imbecile', 'imbeciles',
+    'scumbag', 'scumbags',
+    'loser', 'losers',
+    'trash', 'trashy',
+    'whore', 'whoring',
+    'rape', 'raping', 'rapist', 'raped',
+    'nazi', 'nazis',
+    'terrorist', 'terrorists',
 }
 
 class ModerationResult:
@@ -93,6 +138,32 @@ class ContentModerator:
         return normalized
     
     @staticmethod
+    def add_vowel_variations(text: str) -> List[str]:
+        """Generate variations by adding vowels to words that might have them removed"""
+        words = text.split()
+        variations = []
+        vowels = 'aeiou'
+        
+        for word in words:
+            if len(word) < 2:
+                continue
+            
+            word_lower = word.lower()
+            
+            for profanity in PROFANITY_WORDS:
+                if len(profanity) < 3 or len(word_lower) >= len(profanity):
+                    continue
+                
+                profanity_no_vowels = ''.join([c for c in profanity if c not in vowels])
+                word_no_vowels = ''.join([c for c in word_lower if c not in vowels])
+                
+                if word_no_vowels == profanity_no_vowels:
+                    variations.append(profanity)
+                    break
+        
+        return variations
+    
+    @staticmethod
     def check_profanity(text: str) -> Tuple[bool, List[str]]:
         """Check for profanity in text"""
         flags = []
@@ -111,6 +182,9 @@ class ContentModerator:
         spaced_words = spaced_text.split()
         spaced_normalized_words = spaced_normalized.split()
         
+        vowel_variations = ContentModerator.add_vowel_variations(clean_text)
+        vowel_variations_normalized = ContentModerator.add_vowel_variations(clean_normalized)
+        
         found_profanity = []
         
         for word in words:
@@ -124,10 +198,17 @@ class ContentModerator:
         for word in spaced_words:
             if word in PROFANITY_WORDS and word not in found_profanity:
                 found_profanity.append(f"{word} (spaced)")
-        
         for word in spaced_normalized_words:
             if word in PROFANITY_WORDS and word not in found_profanity:
                 found_profanity.append(f"{word} (spaced+leetspeak)")
+        
+        for word in vowel_variations:
+            if word in PROFANITY_WORDS and word not in found_profanity:
+                found_profanity.append(f"{word} (vowels removed)")
+
+        for word in vowel_variations_normalized:
+            if word in PROFANITY_WORDS and word not in found_profanity:
+                found_profanity.append(f"{word} (vowels+leetspeak)")
         
         if found_profanity:
             flags.append(f"profanity_detected: {', '.join(set(found_profanity))}")
