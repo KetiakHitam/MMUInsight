@@ -167,23 +167,26 @@
                 
                 <!-- Show all reports button if more than 1 report -->
                 {% if item.report_count > 1 %}
-                <button onclick="toggleReportHistory('report-history-{{ item.review.id }}')" 
+                <button onclick="toggleReportHistory('report-history-{{ item.review.id }}', this)" 
+                        data-report-count="{{ item.report_count - 1 }}"
                         style="margin-top: 12px; padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em;">
-                    📜 Show All {{ item.report_count }} Reports
+                    📜 Show {{ item.report_count - 1 }} Previous Report{{ 's' if item.report_count - 1 != 1 else '' }}
                 </button>
                 
                 <!-- Hidden report history -->
                 <div id="report-history-{{ item.review.id }}" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(220, 53, 69, 0.3);">
-                    <p style="margin: 0 0 12px 0; font-weight: 600; color: #dc3545; font-size: 0.9em;">All Report History:</p>
+                    <p style="margin: 0 0 12px 0; font-weight: 600; color: #dc3545; font-size: 0.9em;">Previous Reports:</p>
                     {% for report in item.all_reports %}
-                    <div style="background: rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 6px; margin-bottom: 8px; {% if loop.first %}border: 2px solid #dc3545;{% else %}border: 1px solid rgba(220, 53, 69, 0.2);{% endif %}">
+                    {% if not loop.first %}
+                    <div style="background: rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid rgba(220, 53, 69, 0.2);">
                         <p style="margin: 0 0 6px 0; color: #666; font-size: 0.9em;">
-                            <strong>{% if loop.first %}Latest Report:{% else %}Report #{{ item.report_count - loop.index0 }}:{% endif %}</strong> {{ report.reason }}
+                            <strong>Report #{{ item.report_count - loop.index0 }}:</strong> {{ report.reason }}
                         </p>
                         <p style="margin: 0; color: #999; font-size: 0.8em;">
                             By: {{ report.reporter.email }} | {{ report.report_date.strftime('%Y-%m-%d %H:%M') }}
                         </p>
                     </div>
+                    {% endif %}
                     {% endfor %}
                 </div>
                 {% endif %}
@@ -226,17 +229,15 @@
 </div>
 
 <script>
-function toggleReportHistory(elementId) {
+function toggleReportHistory(elementId, button) {
     const element = document.getElementById(elementId);
-    const button = event.target;
-    
+    const reportCount = button.getAttribute('data-report-count');
     if (element.style.display === 'none') {
         element.style.display = 'block';
         button.textContent = '🔼 Hide Report History';
     } else {
         element.style.display = 'none';
-        const reportCount = button.textContent.match(/\d+/)[0];
-        button.textContent = `📜 Show All ${reportCount} Reports`;
+        button.textContent = `📜 Show ${reportCount} Previous Report${reportCount != 1 ? 's' : ''}`;
     }
 }
 </script>
