@@ -82,80 +82,57 @@ class ContentModerator:
     MAX_REPEATED_CHARS = 5  
     MAX_REPEATED_WORDS = 5 
     
-    LEETSPEAK_MAP = {
-        '@': 'a', '4': 'a', '/-\\': 'a',
-        '8': 'b', '|3': 'b',
-        '(': 'c', '<': 'c', '{': 'c',
-        '|)': 'd', '|>': 'd',
-        '3': 'e', '€': 'e',
-        '|=': 'f', 'ph': 'f',
-        '6': 'g', '9': 'g',
-        '#': 'h', '|-|': 'h',
-        '1': 'i', '!': 'i', '|': 'i',
-        '_|': 'j',
-        '|<': 'k',
-        '|_': 'l', '1': 'l',
-        '|v|': 'm', '/\\/\\': 'm',
-        '|\\|': 'n',
-        '0': 'o', '()': 'o',
-        '|*': 'p', '|>': 'p',
-        '9': 'q',
-        '|2': 'r',
-        '5': 's', '$': 's', 'z': 's',
-        '7': 't', '+': 't',
-        '|_|': 'u', '\\_/': 'u',
-        '\\/': 'v',
-        '\\/\\/': 'w', 'vv': 'w',
-        '><': 'x', '%': 'x',
-        '`/': 'y',
-        '2': 'z'
-    }
+    _VOWELS = frozenset('aeiou')
+    _COMMON_WORDS = frozenset({
+        'duck', 'ducks', 'luck', 'lucky', 'suck', 'truck', 'stuck', 'buck', 'muck', 'puck', 'tuck',
+        'class', 'classes', 'glass', 'grass', 'pass', 'passing', 'mass', 'bass',
+    })
+    _PUNCTUATION_REGEX = re.compile(r'[^\w\s]')
+    _REPEATED_CHARS_REGEX = re.compile(r'(.)\1{5,}')
+    _MENTIONS_REGEX = re.compile(r'@\w+')
+    _URL_REGEX = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+    _CONSONANT_SEQ_REGEX = re.compile(r'[bcdfghjklmnpqrstvwxyz]{4,}')
+    _SPACED_WORD_REGEX = re.compile(r'\b(\w)\s+(?=\w\s|\w$)')
+    _LEET_CLEANUP_REGEX = re.compile(r'[_\-\*]')
+    
+    _LEET_TRANS = str.maketrans({
+        '@': 'a', '4': 'a', '8': 'b', '(': 'c', '3': 'e',
+        '6': 'g', '9': 'g', '#': 'h', '1': 'i', '!': 'i',
+        '|': 'i', '0': 'o', '5': 's', '$': 's', '7': 't',
+        '+': 't', '2': 'z', '_': '', '-': '', '*': ''
+    })
     
     @staticmethod
     def normalize_leetspeak(text: str) -> str:
-        """Convert leetspeak to normal text"""
-        normalized = text.lower()
-        
-        replacements = {
-            '@': 'a', '4': 'a',
-            '8': 'b',
-            '(': 'c',
-            '3': 'e',
-            '6': 'g', '9': 'g',
-            '#': 'h',
-            '1': 'i', '!': 'i', '|': 'i',
-            '0': 'o',
-            '5': 's', '$': 's',
-            '7': 't', '+': 't',
-            '2': 'z'
-        }
-        
-        for leet, normal in replacements.items():
-            normalized = normalized.replace(leet, normal)
-        
-        normalized = re.sub(r'[_\-\*]', '', normalized)
-        
-        return normalized
+        """Convert leetspeak to normal text using optimized translation table"""
+        return text.lower().translate(ContentModerator._LEET_TRANS)
     
     @staticmethod
     def add_vowel_variations(text: str) -> List[str]:
         """Generate variations by adding vowels to words that might have them removed"""
         words = text.split()
         variations = []
-        vowels = 'aeiou'
+        vowels = ContentModerator._VOWELS
         
         for word in words:
-            if len(word) < 2:
+            if len(word) < 3:
                 continue
             
             word_lower = word.lower()
             
+            if word_lower in ContentModerator._COMMON_WORDS:
+                continue
+            
+            word_no_vowels = ''.join(c for c in word_lower if c not in vowels)
+            
+            if not word_no_vowels or len(word_no_vowels) < 2:
+                continue
+            
             for profanity in PROFANITY_WORDS:
-                if len(profanity) < 3 or len(word_lower) >= len(profanity):
+                if len(profanity) < 3:
                     continue
                 
-                profanity_no_vowels = ''.join([c for c in profanity if c not in vowels])
-                word_no_vowels = ''.join([c for c in word_lower if c not in vowels])
+                profanity_no_vowels = ''.join(c for c in profanity if c not in vowels)
                 
                 if word_no_vowels == profanity_no_vowels:
                     variations.append(profanity)
@@ -163,76 +140,100 @@ class ContentModerator:
         
         return variations
     
+    MISSPELLING_MAP = {
+        'fuk': 'fuck', 'fuq': 'fuck', 'fook': 'fuck', 'phuck': 'fuck', 'fux': 'fuck', 'fucc': 'fuck', 'phuk': 'fuck', 'fock': 'fuck', 'fukk': 'fuck', 'fuhk': 'fuck',
+        'fuking': 'fucking', 'fkn': 'fucking', 'fking': 'fucking',
+        'shyt': 'shit', 'shite': 'shit', 'shiit': 'shit', 'sht': 'shit', 'shiet': 'shit', 'shiiet': 'shit', 'sheeit': 'shit', 'shizz': 'shit', 'shiz': 'shit', 'shiite': 'shit',
+        'azz': 'ass', 'asz': 'ass', 'azzz': 'ass', 'azs': 'ass', 'ahole': 'asshole', 'asss': 'ass',
+        'biotch': 'bitch', 'biatch': 'bitch', 'byatch': 'bitch', 'betch': 'bitch', 'beotch': 'bitch', 'bioch': 'bitch', 'beatch': 'bitch', 'beyotch': 'bitch', 'bizatch': 'bitch', 'biitch': 'bitch', 'beyatch': 'bitch',
+        'cnt': 'cunt', 'kunt': 'cunt', 'cnut': 'cunt',
+        'dik': 'dick', 'dck': 'dick', 'dikk': 'dick', 'dicc': 'dick',
+        'fgt': 'fag', 'phag': 'fag',
+        'nig': 'nigger', 'n1g': 'nigger', 'niga': 'nigger', 'nibba': 'nigger', 'nigg': 'nigger', 'niqqa': 'nigger', 'n1gger': 'nigger',
+        'pis': 'piss', 'pizz': 'piss',
+        'kok': 'cock', 'cok': 'cock', 'cocc': 'cock', 'cox': 'cock',
+        'basterd': 'bastard', 'baztard': 'bastard', 'bustard': 'bastard',
+        'whoar': 'whore', 'hore': 'whore', 'wh0re': 'whore', 'hoar': 'whore',
+        'slu': 'slut', 'sloot': 'slut',
+        'prik': 'prick', 'pric': 'prick',
+        'twot': 'twat',
+        'kunte': 'cunt',
+        'douchbag': 'douchebag', 'douch': 'douche', 'doosh': 'douche',
+        'motha': 'motherfucker', 'mutha': 'motherfucker', 'mofo': 'motherfucker', 'muthafucka': 'motherfucker', 'mothafucka': 'motherfucker',
+    }
+    
+    @staticmethod
+    def check_misspellings(clean_text: str) -> List[str]:
+        """Detect common intentional misspellings using optimized lookup table"""
+        misspelling_map = ContentModerator.MISSPELLING_MAP
+        return [
+            f"{mapped} (misspelled as '{word}')"
+            for word in clean_text.split()
+            if (mapped := misspelling_map.get(word)) and mapped in PROFANITY_WORDS
+        ]
+    
     @staticmethod
     def check_profanity(text: str) -> Tuple[bool, List[str]]:
-        """Check for profanity in text"""
-        flags = []
+        """Check for profanity in text with optimized processing"""
         text_lower = text.lower()
-        
         normalized_text = ContentModerator.normalize_leetspeak(text_lower)
         
-        clean_text = re.sub(r'[^\w\s]', '', text_lower)
-        clean_normalized = re.sub(r'[^\w\s]', '', normalized_text)
+        punct_regex = ContentModerator._PUNCTUATION_REGEX
+        clean_text = punct_regex.sub('', text_lower)
+        clean_normalized = punct_regex.sub('', normalized_text)
         
-        words = clean_text.split()
-        normalized_words = clean_normalized.split()
+        spaced_regex = ContentModerator._SPACED_WORD_REGEX
+        spaced_text = spaced_regex.sub(r'\1', clean_text)
+        spaced_normalized = spaced_regex.sub(r'\1', clean_normalized)
         
-        spaced_text = re.sub(r'\b(\w)\s+(?=\w\s|\w$)', r'\1', clean_text)
-        spaced_normalized = re.sub(r'\b(\w)\s+(?=\w\s|\w$)', r'\1', clean_normalized)
-        spaced_words = spaced_text.split()
-        spaced_normalized_words = spaced_normalized.split()
+        found_profanity = set()
         
-        vowel_variations = ContentModerator.add_vowel_variations(clean_text)
-        vowel_variations_normalized = ContentModerator.add_vowel_variations(clean_normalized)
-        
-        found_profanity = []
-        
-        for word in words:
+        for word in clean_text.split():
             if word in PROFANITY_WORDS:
-                found_profanity.append(word)
-
-        for word in normalized_words:
-            if word in PROFANITY_WORDS and word not in found_profanity:
-                found_profanity.append(f"{word} (leetspeak)")
-
-        for word in spaced_words:
-            if word in PROFANITY_WORDS and word not in found_profanity:
-                found_profanity.append(f"{word} (spaced)")
-        for word in spaced_normalized_words:
-            if word in PROFANITY_WORDS and word not in found_profanity:
-                found_profanity.append(f"{word} (spaced+leetspeak)")
+                found_profanity.add(word)
         
-        for word in vowel_variations:
-            if word in PROFANITY_WORDS and word not in found_profanity:
-                found_profanity.append(f"{word} (vowels removed)")
-
-        for word in vowel_variations_normalized:
-            if word in PROFANITY_WORDS and word not in found_profanity:
-                found_profanity.append(f"{word} (vowels+leetspeak)")
+        for word in clean_normalized.split():
+            if word in PROFANITY_WORDS:
+                found_profanity.add(f"{word} (leetspeak)")
+        
+        for word in spaced_text.split():
+            if word in PROFANITY_WORDS:
+                found_profanity.add(f"{word} (spaced)")
+        
+        for word in spaced_normalized.split():
+            if word in PROFANITY_WORDS:
+                found_profanity.add(f"{word} (spaced+leetspeak)")
+        
+        for word in ContentModerator.add_vowel_variations(clean_text):
+            found_profanity.add(f"{word} (vowels removed)")
+        
+        for word in ContentModerator.add_vowel_variations(clean_normalized):
+            found_profanity.add(f"{word} (vowels+leetspeak)")
+        
+        found_profanity.update(ContentModerator.check_misspellings(clean_text))
         
         if found_profanity:
-            flags.append(f"profanity_detected: {', '.join(set(found_profanity))}")
-            return False, flags
+            return False, [f"profanity_detected: {', '.join(found_profanity)}"]
         
-        return True, flags
+        return True, []
     
     @staticmethod
     def check_spam_patterns(text: str) -> Tuple[bool, List[str]]:
-        """Check for spam patterns"""
+        """Check for spam patterns using pre-compiled regex"""
         flags = []
         
-        urls = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', text)
+        urls = ContentModerator._URL_REGEX.findall(text)
         if len(urls) > 2:
             flags.append(f"excessive_links: {len(urls)} found")
             return False, flags
         
-        if re.search(r'(.)\1{' + str(ContentModerator.MAX_REPEATED_CHARS) + ',}', text):
+        if ContentModerator._REPEATED_CHARS_REGEX.search(text):
             flags.append("excessive_character_repetition")
             return False, flags
         
-        mentions = len(re.findall(r'@\w+', text))
-        if mentions > 10:
-            flags.append(f"excessive_mentions: {mentions}")
+        mentions = ContentModerator._MENTIONS_REGEX.findall(text)
+        if len(mentions) > 10:
+            flags.append(f"excessive_mentions: {len(mentions)}")
             return False, flags
         
         return True, flags
@@ -297,21 +298,14 @@ class ContentModerator:
     
     @staticmethod
     def check_gibberish(text: str) -> Tuple[bool, List[str]]:
-        """Check for gibberish/keyboard mash"""
-        flags = []
-        
-        vowels = 'aeiouAEIOU'
-        consonants = 'bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ'
-        
-        sample = text[::5]
-        
-        consonant_sequences = len(re.findall(r'[bcdfghjklmnpqrstvwxyz]{4,}', sample.lower()))
+        """Check for gibberish/keyboard mash using optimized sampling"""
+        sample = text[::5].lower()
+        consonant_sequences = len(ContentModerator._CONSONANT_SEQ_REGEX.findall(sample))
         
         if consonant_sequences > 5:
-            flags.append("possible_gibberish: excessive consonant sequences")
-            return False, flags
+            return False, ["possible_gibberish: excessive consonant sequences"]
         
-        return True, flags
+        return True, []
     
     @classmethod
     def moderate(cls, text: str, content_type: str = 'review') -> ModerationResult:
