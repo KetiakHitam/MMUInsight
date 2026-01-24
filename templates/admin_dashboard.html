@@ -59,8 +59,7 @@
     <!-- Navigation Buttons -->
     <div style="display: flex; gap: 12px; margin-bottom: 30px; flex-wrap: wrap;">
         <a href="{{ url_for('auth.admin_users') }}" class="btn btn-lg">👥 Manage Users</a>
-        <a href="{{ url_for('auth.admin_reports') }}" class="btn btn-lg {% if pending_reports > 0 %}btn-danger{% endif %}">🚩 View Reports</a>
-        <a href="{{ url_for('auth.admin_moderation') }}" class="btn btn-lg {% if flagged_reviews > 0 %}btn-danger{% endif %}" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);">⚠️ Moderation Queue ({{ flagged_reviews }})</a>
+        <a href="{{ url_for('auth.admin_moderation') }}" class="btn btn-lg {% if flagged_reviews > 0 or pending_reports > 0 %}btn-danger{% endif %}" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);">⚠️ Moderation Queue ({{ flagged_reviews + pending_reports }})</a>
         <a href="{{ url_for('suggestions.admin_suggestions') }}" class="btn btn-lg" style="background: linear-gradient(135deg, #6f42c1 0%, #553399 100%);">💡 Manage Suggestions</a>
         <a href="{{ url_for('auth.admin_audit_logs') }}" class="btn btn-lg btn-secondary">🧾 Audit Logs</a>
     </div>
