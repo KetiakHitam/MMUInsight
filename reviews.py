@@ -309,7 +309,7 @@ def edit_review(review_id):
 def delete_review(review_id):
     review = Review.query.get_or_404(review_id)
     
-    if review.author != current_user:
+    if review.author != current_user and not current_user.is_mod():
         flash(_("You can only delete your own reviews"), "error")
         return redirect(url_for('index'))
 

@@ -238,17 +238,46 @@ def admin_audit_logs():
 @auth_bp.route("/admin/moderation")
 @admin_required
 def admin_moderation():
-    """Display flagged reviews pending moderation"""
-    # Get flagged reviews that haven't been approved/rejected yet
+    """Display flagged reviews and reported reviews pending moderation"""
+    filter_type = request.args.get('filter', 'all')  # 'all', 'automod', 'reported'
+    
+    # Get auto-moderation flagged reviews
     flagged_reviews = Review.query.filter_by(
         requires_human_review=True, 
         is_approved=None
     ).order_by(Review.review_date.desc()).all()
     
+    # Get reported reviews (pending reports)
+    reported_reviews_data = []
+    pending_reports = Report.query.filter_by(status='pending').order_by(Report.report_date.desc()).all()
+    
+    # Group reports by review to avoid duplicates
+    seen_review_ids = set()
+    for report in pending_reports:
+        if report.review_id not in seen_review_ids:
+            seen_review_ids.add(report.review_id)
+            # Count how many reports this review has
+            report_count = Report.query.filter_by(review_id=report.review_id, status='pending').count()
+            reported_reviews_data.append({
+                'review': report.review,
+                'report_count': report_count,
+                'latest_report': report
+            })
+    
+    # Apply filter
+    if filter_type == 'automod':
+        reported_reviews_data = []
+    elif filter_type == 'reported':
+        flagged_reviews = []
+    
+    total_count = len(flagged_reviews) + len(reported_reviews_data)
+    
     return render_template(
         "admin_moderation.html",
         flagged_reviews=flagged_reviews,
-        count=len(flagged_reviews)
+        reported_reviews=reported_reviews_data,
+        count=total_count,
+        filter_type=filter_type
     )
 
 @auth_bp.route("/admin/moderation/<int:review_id>/approve", methods=["POST"])
