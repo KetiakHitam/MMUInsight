@@ -1957,40 +1957,91 @@ a[onmouseover][style*="background-color"]:active {
    ============================================ */
 
 .alert {
-  padding: 1rem;
-  border-radius: var(--border-radius);
+  padding: 16px 20px;
+  border-radius: 16px;
   margin-bottom: 1.5rem;
-  border-left: 4px solid;
+  border: 1px solid;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .alert-success {
-  background-color: #dcfce7;
+  background: rgba(22, 163, 74, 0.12);
   color: #166534;
-  border-color: var(--success);
+  border-color: rgba(22, 163, 74, 0.3);
+}
+
+.alert-success::before {
+  content: "✓";
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #16a34a;
 }
 
 .alert-danger {
-  background-color: #fee2e2;
+  background: rgba(220, 38, 38, 0.12);
   color: #991b1b;
-  border-color: var(--danger);
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+.alert-danger::before {
+  content: "✕";
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #dc2626;
 }
 
 .alert-warning {
-  background-color: #fed7aa;
+  background: rgba(217, 119, 6, 0.12);
   color: #92400e;
-  border-color: var(--warning);
+  border-color: rgba(217, 119, 6, 0.3);
+}
+
+.alert-warning::before {
+  content: "⚠";
+  font-size: 1.2em;
+  color: #d97706;
 }
 
 .alert-info {
-  background-color: #dbeafe;
+  background: rgba(37, 99, 235, 0.12);
   color: #1e40af;
-  border-color: var(--primary);
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+.alert-info::before {
+  content: "ℹ";
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #2563eb;
 }
 
 .alert-error {
-  background-color: #fee2e2;
+  background: rgba(220, 38, 38, 0.12);
   color: #991b1b;
-  border-color: var(--danger);
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+.alert-error::before {
+  content: "✕";
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #dc2626;
 }
 
 /* ============================================

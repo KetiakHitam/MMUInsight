@@ -192,19 +192,21 @@ body.dark-mode label {
 }
 
 body.dark-mode .alert {
-  color: #e0e0e0;
+  background: rgba(19, 56, 152, 0.15) !important;
+  color: #a5d6ff !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
 }
 
 body.dark-mode .alert-error {
-  background-color: #4a2a2a;
-  color: #ff9999;
-  border: 1px solid #664444;
+  background: rgba(220, 38, 38, 0.15) !important;
+  color: #ff9999 !important;
+  border-color: rgba(220, 38, 38, 0.4) !important;
 }
 
 body.dark-mode .alert-success {
-  background-color: #2a4a2a;
-  color: #99ff99;
-  border: 1px solid #446644;
+  background: rgba(22, 163, 74, 0.15) !important;
+  color: #99ff99 !important;
+  border-color: rgba(22, 163, 74, 0.4) !important;
 }
 
 body.dark-mode a {
