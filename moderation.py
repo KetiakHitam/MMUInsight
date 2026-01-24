@@ -187,6 +187,7 @@ class ContentModerator:
         spaced_normalized = spaced_regex.sub(r'\1', clean_normalized)
         
         found_profanity = set()
+        obfuscation_methods = set()
         
         for word in clean_text.split():
             if word in PROFANITY_WORDS:
@@ -194,26 +195,45 @@ class ContentModerator:
         
         for word in clean_normalized.split():
             if word in PROFANITY_WORDS:
-                found_profanity.add(f"{word} (leetspeak)")
+                found_profanity.add(word)
+                if word not in clean_text.split():
+                    obfuscation_methods.add('leetspeak')
         
         for word in spaced_text.split():
             if word in PROFANITY_WORDS:
-                found_profanity.add(f"{word} (spaced)")
+                found_profanity.add(word)
+                if word not in clean_text.split():
+                    obfuscation_methods.add('spacing')
         
         for word in spaced_normalized.split():
             if word in PROFANITY_WORDS:
-                found_profanity.add(f"{word} (spaced+leetspeak)")
+                found_profanity.add(word)
+                if word not in clean_text.split():
+                    obfuscation_methods.add('leetspeak')
+                    obfuscation_methods.add('spacing')
         
         for word in ContentModerator.add_vowel_variations(clean_text):
-            found_profanity.add(f"{word} (vowels removed)")
+            found_profanity.add(word)
+            obfuscation_methods.add('vowel-removal')
         
         for word in ContentModerator.add_vowel_variations(clean_normalized):
-            found_profanity.add(f"{word} (vowels+leetspeak)")
+            found_profanity.add(word)
+            obfuscation_methods.add('vowel-removal')
+            obfuscation_methods.add('leetspeak')
         
-        found_profanity.update(ContentModerator.check_misspellings(clean_text))
+        misspellings = ContentModerator.check_misspellings(clean_text)
+        for misspelling_text in misspellings:
+            base_word = misspelling_text.split(' (misspelled')[0]
+            found_profanity.add(base_word)
+            obfuscation_methods.add('misspelling')
         
         if found_profanity:
-            return False, [f"profanity_detected: {', '.join(found_profanity)}"]
+            words_list = ', '.join(sorted(found_profanity))
+            if obfuscation_methods:
+                methods = ', '.join(sorted(obfuscation_methods))
+                return False, [f"profanity_detected: {words_list} (obfuscated: {methods})"]
+            else:
+                return False, [f"profanity_detected: {words_list}"]
         
         return True, []
     
