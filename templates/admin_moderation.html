@@ -164,6 +164,29 @@
                 <p style="margin: 0 0 8px 0; font-weight: 600; color: #dc3545;">📢 Latest Report Reason:</p>
                 <p style="margin: 0; color: #666;">{{ item.latest_report.reason }}</p>
                 <p style="margin: 8px 0 0 0; color: #999; font-size: 0.85em;">Reported by: {{ item.latest_report.reporter.email }}</p>
+                
+                <!-- Show all reports button if more than 1 report -->
+                {% if item.report_count > 1 %}
+                <button onclick="toggleReportHistory('report-history-{{ item.review.id }}')" 
+                        style="margin-top: 12px; padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em;">
+                    📜 Show All {{ item.report_count }} Reports
+                </button>
+                
+                <!-- Hidden report history -->
+                <div id="report-history-{{ item.review.id }}" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(220, 53, 69, 0.3);">
+                    <p style="margin: 0 0 12px 0; font-weight: 600; color: #dc3545; font-size: 0.9em;">All Report History:</p>
+                    {% for report in item.all_reports %}
+                    <div style="background: rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 6px; margin-bottom: 8px; {% if loop.first %}border: 2px solid #dc3545;{% else %}border: 1px solid rgba(220, 53, 69, 0.2);{% endif %}">
+                        <p style="margin: 0 0 6px 0; color: #666; font-size: 0.9em;">
+                            <strong>{% if loop.first %}Latest Report:{% else %}Report #{{ item.report_count - loop.index0 }}:{% endif %}</strong> {{ report.reason }}
+                        </p>
+                        <p style="margin: 0; color: #999; font-size: 0.8em;">
+                            By: {{ report.reporter.email }} | {{ report.report_date.strftime('%Y-%m-%d %H:%M') }}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
 
             <!-- Moderation History -->
@@ -201,4 +224,20 @@
     <hr style="margin: 40px 0; border: none; border-top: 1px solid #e0e0e0;">
     <a href="{{ url_for('auth.admin_dashboard') }}" style="color: #2563eb; text-decoration: none; font-weight: 500;">← Back to Admin Dashboard</a>
 </div>
+
+<script>
+function toggleReportHistory(elementId) {
+    const element = document.getElementById(elementId);
+    const button = event.target;
+    
+    if (element.style.display === 'none') {
+        element.style.display = 'block';
+        button.textContent = '🔼 Hide Report History';
+    } else {
+        element.style.display = 'none';
+        const reportCount = button.textContent.match(/\d+/)[0];
+        button.textContent = `📜 Show All ${reportCount} Reports`;
+    }
+}
+</script>
 {% endblock %}

@@ -262,12 +262,13 @@ def admin_moderation():
     for report in pending_reports:
         if report.review_id not in seen_review_ids:
             seen_review_ids.add(report.review_id)
-            # Count how many reports this review has
-            report_count = Report.query.filter_by(review_id=report.review_id, status='pending').count()
+            # Get all reports for this review
+            all_reports = Report.query.filter_by(review_id=report.review_id, status='pending').order_by(Report.report_date.desc()).all()
             reported_reviews_data.append({
                 'review': report.review,
-                'report_count': report_count,
-                'latest_report': report
+                'report_count': len(all_reports),
+                'latest_report': report,
+                'all_reports': all_reports
             })
     
     # Apply filter
