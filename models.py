@@ -22,7 +22,6 @@ class User(UserMixin, db.Model):
     search_history = db.Column(db.Text, nullable=True)
 
     reviews_written = db.relationship('Review', foreign_keys='Review.user_id', backref='author', lazy=True)
-    reviews_received = db.relationship('Review', foreign_keys='Review.lecturer_id', backref='lecturer', lazy=True)
     replies = db.relationship('Reply', backref='author', lazy=True)
     reports_made = db.relationship('Report', backref='reporter', lazy=True)
     
@@ -63,6 +62,21 @@ class User(UserMixin, db.Model):
             return False
         return self.is_mod()
 
+class Lecturer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(150), unique=True, nullable=False)
+    name = db.Column(db.String(150), nullable=False)
+    department = db.Column(db.String(100), nullable=True)
+    claimed_by_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    
+    reviews = db.relationship('Review', backref='lecturer', lazy=True, cascade='all, delete-orphan')
+    claimed_by_user = db.relationship('User', backref='claimed_lecturer_profiles', lazy=True)
+    
+    def is_verified(self):
+        """Check if this lecturer has claimed their profile"""
+        return self.claimed_by_user_id is not None
+
 class Subject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subject_code = db.Column(db.String(100), nullable=True)
@@ -91,7 +105,7 @@ class Review(db.Model):
     rating_fairness = db.Column(db.Integer, nullable=False)
     recommend = db.Column(db.Boolean, nullable=False, default=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    lecturer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    lecturer_id = db.Column(db.Integer, db.ForeignKey('lecturer.id'), nullable=False)
     subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=True)
     review_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     is_anonymous = db.Column(db.Boolean, nullable=False, default=False)

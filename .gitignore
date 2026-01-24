@@ -38,3 +38,8 @@ init_db*.py
 seed_db.py
 new_table_db.py
 migrate_add_usage_count.py
+scrape_mmuexpert.py
+dump_lecturers.py
+deduplicate_lecturers.py
+scraped_lecturers.txt
+all_lecturers_db.txt

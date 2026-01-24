@@ -3,7 +3,7 @@ from rapidfuzz import process, fuzz
 from sqlalchemy import func
 
 from extensions import db
-from models import User, Review
+from models import Lecturer, Review
 
 
 def _email_initials(email: str) -> str:
@@ -16,7 +16,7 @@ def _email_initials(email: str) -> str:
     return local_part[:2].upper()
 
 def search_lecturers_by_email(query, limit=20, threshold=60):
-    """Return list of (User, score) sorted by descending score.
+    """Return list of (Lecturer, score) sorted by descending score.
     
     Compares against the local part of email (before @) for similarity scoring.
     Results are sorted by relevance score in descending order (highest first).
@@ -24,8 +24,8 @@ def search_lecturers_by_email(query, limit=20, threshold=60):
     if not query:
         return []
 
-    # Get all lecturer users
-    lecturers = User.query.filter_by(user_type='lecturer').all()
+    # Get all lecturers
+    lecturers = Lecturer.query.all()
     
     # Extract local parts of emails (before @) for fuzzy matching
     local_parts = [u.email.split("@")[0] for u in lecturers]

@@ -86,7 +86,7 @@ with app.app_context():
         ("owner@mmu.edu.my", "OWNER", owner_pass),
     ]:
         if not User.query.filter_by(email=email).first():
-            user = User(email=email, user_type="lecturer", role=role, is_verified=True, is_claimed=True)
+            user = User(email=email, user_type="admin", role=role, is_verified=True, is_claimed=True)
             user.password_hash = bcrypt.generate_password_hash(password)
             db.session.add(user)
     

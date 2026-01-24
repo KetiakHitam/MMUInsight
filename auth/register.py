@@ -4,7 +4,7 @@ from flask import render_template, request, redirect, url_for, flash
 from flask_babel import gettext as _
 from . import auth_bp
 from extensions import db, bcrypt, limiter
-from models import User
+from models import User, Lecturer
 
 def validate_password_strength(password):
      """Validate password meets security requirements"""
@@ -77,6 +77,17 @@ def register():
         db.session.rollback()
         flash(_("An error occurred while creating your account. Please try again."), "error")
         return redirect(url_for("auth.register"))
+    
+    # Auto-claim lecturer profile if email matches
+    if user_type == "lecturer":
+        lecturer = Lecturer.query.filter_by(email=email).first()
+        if lecturer and not lecturer.claimed_by_user_id:
+            lecturer.claimed_by_user_id = user.id
+            try:
+                db.session.commit()
+                flash(_("Your lecturer profile has been automatically claimed!"), "success")
+            except Exception as e:
+                db.session.rollback()
     
     flash(_("Account created successfully! You can now log in."), "success")
     return redirect(url_for("auth.login"))
