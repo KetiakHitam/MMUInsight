@@ -6,19 +6,21 @@ Detects spam, profanity, and low-quality content
 import re
 from typing import Tuple, List
 
-# profanity word list (can be expanded)
+# profanity/slurs word list (can be expanded)
 PROFANITY_WORDS = {
-    'fuck', 'shit', 'ass', 'bitch', 'retard', 'damn', 'crap', 'piss', 'bastard',
-    'asshole', 'dick', 'cock', 'pussy', 'whore', 'slut', 'cunt', 'motherfucker',
-    'fucker',
+    'fuck', 'fucks', 'fucker','fuckers', 'shit', 'shits', 'shitter', 'ass', 
+    'bitch', 'bitches', 'bitch ass', 'retard', 'retards', 'retarded', 
+    'crap', 'piss', 'bastard', 'asshole', 'dick', 'cock', 'pussy', 
+    'whore', 'slut', 'cunt', 'motherfucker','fag','fags','faggot', 
+    'nigga', 'nigger', 'nga', 'chink'
 }
 
 class ModerationResult:
     """Result of content moderation"""
     def __init__(self, is_clean: bool, flags: List[str], severity: str = 'low'):
-        self.is_clean = is_clean  # True if content passes all checks
-        self.flags = flags  # List of issues found
-        self.severity = severity  # 'low', 'medium', 'high'
+        self.is_clean = is_clean  
+        self.flags = flags 
+        self.severity = severity  
         self.requires_review = not is_clean
     
     def __repr__(self):
@@ -28,12 +30,67 @@ class ModerationResult:
 class ContentModerator:
     """Auto-moderation system for reviews and replies"""
     
-    MIN_LENGTH = 10  # Minimum character length
-    MAX_LENGTH = 5000  # Maximum character length
-    MIN_WORDS = 3  # Minimum word count
-    MAX_CAPS_RATIO = 0.3  # Max allowed ratio of capital letters
-    MAX_REPEATED_CHARS = 5  # Max repeated characters in a row
-    MAX_REPEATED_WORDS = 5  # Max allowed repetitions of same word
+    MIN_LENGTH = 10 
+    MAX_LENGTH = 5000  
+    MIN_WORDS = 3  
+    MAX_CAPS_RATIO = 0.3  
+    MAX_REPEATED_CHARS = 5  
+    MAX_REPEATED_WORDS = 5 
+    
+    LEETSPEAK_MAP = {
+        '@': 'a', '4': 'a', '/-\\': 'a',
+        '8': 'b', '|3': 'b',
+        '(': 'c', '<': 'c', '{': 'c',
+        '|)': 'd', '|>': 'd',
+        '3': 'e', '€': 'e',
+        '|=': 'f', 'ph': 'f',
+        '6': 'g', '9': 'g',
+        '#': 'h', '|-|': 'h',
+        '1': 'i', '!': 'i', '|': 'i',
+        '_|': 'j',
+        '|<': 'k',
+        '|_': 'l', '1': 'l',
+        '|v|': 'm', '/\\/\\': 'm',
+        '|\\|': 'n',
+        '0': 'o', '()': 'o',
+        '|*': 'p', '|>': 'p',
+        '9': 'q',
+        '|2': 'r',
+        '5': 's', '$': 's', 'z': 's',
+        '7': 't', '+': 't',
+        '|_|': 'u', '\\_/': 'u',
+        '\\/': 'v',
+        '\\/\\/': 'w', 'vv': 'w',
+        '><': 'x', '%': 'x',
+        '`/': 'y',
+        '2': 'z'
+    }
+    
+    @staticmethod
+    def normalize_leetspeak(text: str) -> str:
+        """Convert leetspeak to normal text"""
+        normalized = text.lower()
+        
+        replacements = {
+            '@': 'a', '4': 'a',
+            '8': 'b',
+            '(': 'c',
+            '3': 'e',
+            '6': 'g', '9': 'g',
+            '#': 'h',
+            '1': 'i', '!': 'i', '|': 'i',
+            '0': 'o',
+            '5': 's', '$': 's',
+            '7': 't', '+': 't',
+            '2': 'z'
+        }
+        
+        for leet, normal in replacements.items():
+            normalized = normalized.replace(leet, normal)
+        
+        normalized = re.sub(r'[_\-\*]', '', normalized)
+        
+        return normalized
     
     @staticmethod
     def check_profanity(text: str) -> Tuple[bool, List[str]]:
@@ -41,13 +98,36 @@ class ContentModerator:
         flags = []
         text_lower = text.lower()
         
+        normalized_text = ContentModerator.normalize_leetspeak(text_lower)
+        
         clean_text = re.sub(r'[^\w\s]', '', text_lower)
+        clean_normalized = re.sub(r'[^\w\s]', '', normalized_text)
+        
         words = clean_text.split()
+        normalized_words = clean_normalized.split()
+        
+        spaced_text = re.sub(r'\b(\w)\s+(?=\w\s|\w$)', r'\1', clean_text)
+        spaced_normalized = re.sub(r'\b(\w)\s+(?=\w\s|\w$)', r'\1', clean_normalized)
+        spaced_words = spaced_text.split()
+        spaced_normalized_words = spaced_normalized.split()
         
         found_profanity = []
+        
         for word in words:
             if word in PROFANITY_WORDS:
                 found_profanity.append(word)
+
+        for word in normalized_words:
+            if word in PROFANITY_WORDS and word not in found_profanity:
+                found_profanity.append(f"{word} (leetspeak)")
+
+        for word in spaced_words:
+            if word in PROFANITY_WORDS and word not in found_profanity:
+                found_profanity.append(f"{word} (spaced)")
+        
+        for word in spaced_normalized_words:
+            if word in PROFANITY_WORDS and word not in found_profanity:
+                found_profanity.append(f"{word} (spaced+leetspeak)")
         
         if found_profanity:
             flags.append(f"profanity_detected: {', '.join(set(found_profanity))}")

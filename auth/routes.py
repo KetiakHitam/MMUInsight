@@ -123,37 +123,43 @@ def admin_delete_user(user_id):
         flash("You don't have permission to delete this user", "danger")
     return redirect(url_for("auth.admin_users"))
 
-@auth_bp.route("/admin/reports")
-@admin_required
-def admin_reports():
-    reports = Report.query.order_by(Report.report_date.desc()).all()
-    return render_template("admin_reports.html", reports=reports)
-
 @auth_bp.route("/admin/report/<int:report_id>/dismiss")
 @admin_required
 def admin_dismiss_report(report_id):
+    from datetime import datetime
     report = Report.query.get(report_id)
     if report:
         report.status = 'dismissed'
+        # Track moderation on the review
+        if report.review:
+            report.review.moderated_by_id = current_user.id
+            report.review.moderated_at = datetime.utcnow()
+            report.review.moderation_action = 'report_dismissed'
         db.session.commit()
         log_admin_action(f"Dismissed report {report.id}", "review")
         flash("Report dismissed", "success")
-    return redirect(url_for("auth.admin_reports"))
+    return redirect(url_for("auth.admin_moderation", filter='reported'))
 
 @auth_bp.route("/admin/report/<int:report_id>/delete-review")
 @admin_required
 def admin_delete_reported_review(report_id):
+    from datetime import datetime
     report = Report.query.get(report_id)
     if report:
         review = report.review
         review_id = review.id if review else None
         if review:
+            # Track moderation before deletion
+            review.moderated_by_id = current_user.id
+            review.moderated_at = datetime.utcnow()
+            review.moderation_action = 'deleted_from_report'
+            db.session.flush()  # Save moderation info before delete
             db.session.delete(review)
         report.status = 'deleted'
         db.session.commit()
         log_admin_action(f"Deleted reported review {review_id} via report {report.id}", "review")
         flash("Review deleted", "success")
-    return redirect(url_for("auth.admin_reports"))
+    return redirect(url_for("auth.admin_moderation", filter='reported'))
 
 
 @auth_bp.route("/admin/audit-logs")
@@ -284,8 +290,12 @@ def admin_moderation():
 @admin_required
 def approve_flagged_review(review_id):
     """Approve a flagged review"""
+    from datetime import datetime
     review = Review.query.get_or_404(review_id)
     review.is_approved = True
+    review.moderated_by_id = current_user.id
+    review.moderated_at = datetime.utcnow()
+    review.moderation_action = 'approved'
     db.session.commit()
     log_admin_action(f"Approved flagged review {review_id}", "review")
     flash("Review approved and will now be visible.", "success")
@@ -295,8 +305,12 @@ def approve_flagged_review(review_id):
 @admin_required
 def reject_flagged_review(review_id):
     """Reject a flagged review"""
+    from datetime import datetime
     review = Review.query.get_or_404(review_id)
     review.is_approved = False
+    review.moderated_by_id = current_user.id
+    review.moderated_at = datetime.utcnow()
+    review.moderation_action = 'rejected'
     db.session.commit()
     log_admin_action(f"Rejected flagged review {review_id}", "review")
     flash("Review rejected and will not be visible.", "error")

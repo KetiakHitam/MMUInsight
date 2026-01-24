@@ -95,13 +95,17 @@ class Review(db.Model):
     is_pinned = db.Column(db.Boolean, nullable=False, default=False)
     subject_code = db.Column(db.String(100), nullable=True)
     
-    moderation_flags = db.Column(db.Text, nullable=True)  # Comma-separated flags
-    moderation_severity = db.Column(db.String(20), nullable=True)  # 'low', 'medium', 'high'
+    moderation_flags = db.Column(db.Text, nullable=True) 
+    moderation_severity = db.Column(db.String(20), nullable=True)  
     requires_human_review = db.Column(db.Boolean, nullable=False, default=False)
-    is_approved = db.Column(db.Boolean, nullable=True)  # None = pending, True = approved, False = rejected
+    is_approved = db.Column(db.Boolean, nullable=True)  
+    moderated_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    moderated_at = db.Column(db.DateTime, nullable=True)
+    moderation_action = db.Column(db.String(20), nullable=True)
     
     replies = db.relationship('Reply', backref='review', lazy=True, cascade='all, delete-orphan')
     reports = db.relationship('Report', backref='review', lazy=True)
+    moderated_by = db.relationship('User', foreign_keys=[moderated_by_id], backref='moderated_reviews')
 
 class Reply(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -104,15 +104,27 @@
             </div>
             {% endif %}
 
+            <!-- Moderation History -->
+            {% if review.moderated_at %}
+            <div style="background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                <p style="margin: 0 0 8px 0; font-weight: 600; color: #2563eb;">📜 Moderation History:</p>
+                <p style="margin: 0; color: #666; font-size: 0.9em;">
+                    <strong style="text-transform: capitalize;">{{ review.moderation_action.replace('_', ' ') }}</strong> 
+                    by <strong>{{ review.moderated_by.email }}</strong> 
+                    on {{ review.moderated_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                </p>
+            </div>
+            {% endif %}
+
             <!-- Action Buttons -->
             <div style="display: flex; gap: 10px; align-items: center;">
                 <form method="POST" action="{{ url_for('auth.approve_flagged_review', review_id=review.id) }}" style="display: inline;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <button type="submit" class="btn btn-success" style="padding: 10px 20px;">✓ Approve</button>
+                    <button type="submit" class="btn" style="padding: 10px 20px; background: #16a34a; color: white; border: none; border-radius: 6px; cursor: pointer;">✓ Approve</button>
                 </form>
                 <form method="POST" action="{{ url_for('auth.reject_flagged_review', review_id=review.id) }}" style="display: inline;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <button type="submit" class="btn btn-danger" style="padding: 10px 20px;" onclick="return confirm('Are you sure you want to reject this review? It will not be visible on the platform.');">✕ Reject</button>
+                    <button type="submit" class="btn" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer;" onclick="return confirm('Are you sure you want to reject this review? It will not be visible on the platform.');">✕ Reject</button>
                 </form>
                 <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id) }}" class="btn btn-secondary" style="padding: 10px 20px;">👁️ View Profile</a>
             </div>
@@ -154,9 +166,25 @@
                 <p style="margin: 8px 0 0 0; color: #999; font-size: 0.85em;">Reported by: {{ item.latest_report.reporter.email }}</p>
             </div>
 
+            <!-- Moderation History -->
+            {% if item.review.moderated_at %}
+            <div style="background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                <p style="margin: 0 0 8px 0; font-weight: 600; color: #2563eb;">📜 Moderation History:</p>
+                <p style="margin: 0; color: #666; font-size: 0.9em;">
+                    <strong style="text-transform: capitalize;">{{ item.review.moderation_action.replace('_', ' ') }}</strong> 
+                    by <strong>{{ item.review.moderated_by.email }}</strong> 
+                    on {{ item.review.moderated_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                </p>
+            </div>
+            {% endif %}
+
             <!-- Action Buttons -->
             <div style="display: flex; gap: 10px; align-items: center;">
-                <a href="{{ url_for('auth.admin_reports') }}" class="btn btn-primary" style="padding: 10px 20px;">📋 View All Reports</a>
+                <a href="{{ url_for('auth.admin_dismiss_report', report_id=item.latest_report.id) }}" 
+                   class="btn" style="padding: 10px 20px; background: #16a34a; color: white; border: none; border-radius: 6px; text-decoration: none; display: inline-block;">✓ Approve</a>
+                <a href="{{ url_for('auth.admin_delete_reported_review', report_id=item.latest_report.id) }}" 
+                   onclick="return confirm('Permanently delete this review? This cannot be undone.');"
+                   class="btn" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 6px; text-decoration: none; display: inline-block;">✕ Reject</a>
                 <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=item.review.lecturer_id) }}" class="btn btn-secondary" style="padding: 10px 20px;">👁️ View Profile</a>
             </div>
         </div>
