@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from flask_babel import gettext as _
 from extensions import db, limiter
 from models import Review, User, Reply, Report, Subject
+from moderation import ContentModerator, get_moderation_summary
 from audit import log_admin_action
 from datetime import datetime
 from sqlalchemy import func
@@ -144,6 +145,9 @@ def create_review(lecturer_id):
             db.session.flush()  # Get the ID before commit
             subject_id = new_subject.id
     
+    # Run auto-moderation on review text
+    moderation_result = ContentModerator.moderate(review_text, content_type='review')
+    
     review = Review(
         review_text=review_text,
         rating_clarity=rating_clarity,
@@ -156,13 +160,23 @@ def create_review(lecturer_id):
         lecturer_id=lecturer_id,
         subject_id=subject_id,
         is_anonymous=is_anonymous,
-        subject_code=subject_input
+        subject_code=subject_input,
+        # Set moderation flags
+        moderation_flags=','.join(moderation_result.flags) if moderation_result.flags else None,
+        moderation_severity=moderation_result.severity,
+        requires_human_review=not moderation_result.is_clean,
+        is_approved=True if moderation_result.is_clean else None  # Auto-approved if clean
     )
     
     db.session.add(review)
     db.session.commit()
     
-    flash(_("Review submitted successfully!"), "success")
+    if moderation_result.is_clean:
+        flash(_("Review submitted successfully!"), "success")
+    else:
+        summary = get_moderation_summary(moderation_result.flags)
+        flash(f"Review submitted but flagged for review: {summary}", "warning")
+    
     return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
 
 @reviews_bp.route('/lecturer/<int:lecturer_id>')
@@ -195,7 +209,11 @@ def lecturer_profile(lecturer_id):
         current_user.search_history = ','.join(history)
         db.session.commit()
 
-    reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.review_date.desc()).all()
+    # Get all reviews, filtering out unapproved flagged ones
+    all_reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.review_date.desc()).all()
+    
+    # Filter: show approved reviews and auto-approved (clean) reviews, hide pending moderation
+    reviews = [r for r in all_reviews if r.is_approved is not False and (r.is_approved is True or not r.requires_human_review)]
     
     user_review = None
     student_has_review = False
@@ -356,7 +374,7 @@ def edit_review(review_id):
 def delete_review(review_id):
     review = Review.query.get_or_404(review_id)
     
-    if review.author != current_user:
+    if review.author != current_user and not current_user.is_mod():
         flash(_("You can only delete your own reviews"), "error")
         return redirect(url_for('index'))
 
