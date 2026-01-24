@@ -95,6 +95,11 @@ class Review(db.Model):
     is_pinned = db.Column(db.Boolean, nullable=False, default=False)
     subject_code = db.Column(db.String(100), nullable=True)
     
+    moderation_flags = db.Column(db.Text, nullable=True)  # Comma-separated flags
+    moderation_severity = db.Column(db.String(20), nullable=True)  # 'low', 'medium', 'high'
+    requires_human_review = db.Column(db.Boolean, nullable=False, default=False)
+    is_approved = db.Column(db.Boolean, nullable=True)  # None = pending, True = approved, False = rejected
+    
     replies = db.relationship('Reply', backref='review', lazy=True, cascade='all, delete-orphan')
     reports = db.relationship('Report', backref='review', lazy=True)
 

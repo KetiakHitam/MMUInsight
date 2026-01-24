@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Moderation Queue - Admin{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1200px;">
+    <h2 style="margin-bottom: 10px;">📋 Moderation Queue</h2>
+    <p style="color: #666; margin-bottom: 30px;">Review and approve/reject flagged content</p>
+
+    {% if flagged_reviews %}
+        <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 8px; padding: 15px; margin-bottom: 30px;">
+            <p style="margin: 0; color: #ff9800;"><strong>⚠️ {{ count }} review(s) awaiting moderation</strong></p>
+        </div>
+
+        {% for review in flagged_reviews %}
+        <div class="glass-card" style="margin-bottom: 20px; padding: 24px;">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px; gap: 16px;">
+                <div style="flex: 1;">
+                    <h3 style="margin: 0 0 8px 0; color: #333;">
+                        <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id) }}" style="color: #2563eb; text-decoration: none;">
+                            {{ review.lecturer.email.split('@')[0] }}
+                        </a>
+                    </h3>
+                    <p style="margin: 0; color: #666; font-size: 0.9em;">
+                        By: <strong>{{ review.author.email if not review.is_anonymous else 'Anonymous Student' }}</strong> 
+                        | {{ review.review_date.strftime('%Y-%m-%d %H:%M') }}
+                    </p>
+                </div>
+                <div style="text-align: right;">
+                    {% if review.moderation_severity == 'low' %}
+                    <span style="display: inline-block; background: #ffd207; color: #333; padding: 6px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 600;">
+                        🚩 LOW
+                    </span>
+                    {% elif review.moderation_severity == 'medium' %}
+                    <span style="display: inline-block; background: #ff9800; color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 600;">
+                        🚩 MEDIUM
+                    </span>
+                    {% elif review.moderation_severity == 'high' %}
+                    <span style="display: inline-block; background: #dc3545; color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 600;">
+                        🚩 HIGH
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Review Content -->
+            <div style="background: rgba(0, 0, 0, 0.02); border-left: 4px solid #2563eb; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                <p style="margin: 0; color: #333; line-height: 1.6;">{{ review.review_text }}</p>
+            </div>
+
+            <!-- Ratings -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                <div style="text-align: center; padding: 12px; background: rgba(0, 0, 0, 0.02); border-radius: 8px;">
+                    <p style="margin: 0; color: #666; font-size: 0.85em;">Clarity</p>
+                    <p style="margin: 4px 0 0 0; font-weight: bold; color: #2563eb; font-size: 1.2em;">{{ review.rating_clarity }}/5</p>
+                </div>
+                <div style="text-align: center; padding: 12px; background: rgba(0, 0, 0, 0.02); border-radius: 8px;">
+                    <p style="margin: 0; color: #666; font-size: 0.85em;">Engagement</p>
+                    <p style="margin: 4px 0 0 0; font-weight: bold; color: #2563eb; font-size: 1.2em;">{{ review.rating_engagement }}/5</p>
+                </div>
+                <div style="text-align: center; padding: 12px; background: rgba(0, 0, 0, 0.02); border-radius: 8px;">
+                    <p style="margin: 0; color: #666; font-size: 0.85em;">Punctuality</p>
+                    <p style="margin: 4px 0 0 0; font-weight: bold; color: #2563eb; font-size: 1.2em;">{{ review.rating_punctuality }}/5</p>
+                </div>
+                <div style="text-align: center; padding: 12px; background: rgba(0, 0, 0, 0.02); border-radius: 8px;">
+                    <p style="margin: 0; color: #666; font-size: 0.85em;">Responsiveness</p>
+                    <p style="margin: 4px 0 0 0; font-weight: bold; color: #2563eb; font-size: 1.2em;">{{ review.rating_responsiveness }}/5</p>
+                </div>
+                <div style="text-align: center; padding: 12px; background: rgba(0, 0, 0, 0.02); border-radius: 8px;">
+                    <p style="margin: 0; color: #666; font-size: 0.85em;">Fairness</p>
+                    <p style="margin: 4px 0 0 0; font-weight: bold; color: #2563eb; font-size: 1.2em;">{{ review.rating_fairness }}/5</p>
+                </div>
+            </div>
+
+            <!-- Moderation Flags -->
+            {% if review.moderation_flags %}
+            <div style="background: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                <p style="margin: 0 0 8px 0; font-weight: 600; color: #ff6b6b;">🚩 Moderation Flags:</p>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    {% for flag in review.moderation_flags.split(',') %}
+                    <span style="background: #ff6b6b; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85em;">{{ flag.strip().replace('_', ' ') }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <form method="POST" action="{{ url_for('auth.approve_flagged_review', review_id=review.id) }}" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn btn-success" style="padding: 10px 20px;">✓ Approve</button>
+                </form>
+                <form method="POST" action="{{ url_for('auth.reject_flagged_review', review_id=review.id) }}" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn btn-danger" style="padding: 10px 20px;" onclick="return confirm('Are you sure you want to reject this review? It will not be visible on the platform.');">✕ Reject</button>
+                </form>
+                <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id) }}" class="btn btn-secondary" style="padding: 10px 20px;">👁️ View Profile</a>
+            </div>
+        </div>
+        {% endfor %}
+
+    {% else %}
+        <div class="glass-card" style="text-align: center; padding: 60px 20px;">
+            <p style="font-size: 3em; margin: 0 0 16px 0;">✓</p>
+            <h3 style="margin: 0 0 8px 0; color: #16a34a;">No Flagged Reviews</h3>
+            <p style="color: #666; margin: 0;">All reviews have been moderated successfully.</p>
+        </div>
+    {% endif %}
+
+    <hr style="margin: 40px 0; border: none; border-top: 1px solid #e0e0e0;">
+    <a href="{{ url_for('auth.admin_dashboard') }}" style="color: #2563eb; text-decoration: none; font-weight: 500;">← Back to Admin Dashboard</a>
+</div>
+{% endblock %}
