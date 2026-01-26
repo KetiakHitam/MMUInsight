@@ -205,6 +205,10 @@ def privacy_policy():
 def about_us():
     return render_template('about_us.html')
 
+@app.route("/faq")
+def faq():
+    return render_template('FAQ.html')
+
 if __name__ == "__main__":
     debug_mode = os.environ.get("DEBUG", "False").lower() in ['true', '1', 'yes']
     app.run(debug=debug_mode)
