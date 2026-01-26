@@ -2499,29 +2499,21 @@ body.dark-mode a:hover {
   left: 0;
   pointer-events: none;
   background-image: 
-    radial-gradient(circle, rgba(230, 240, 255, 0.8) 1.5px, transparent 1.5px),
-    radial-gradient(circle, rgba(210, 230, 255, 0.7) 1px, transparent 1px),
-    radial-gradient(circle, rgba(220, 235, 255, 0.75) 1.2px, transparent 1.2px),
-    radial-gradient(circle, rgba(200, 225, 255, 0.65) 0.8px, transparent 0.8px),
-    radial-gradient(circle, rgba(225, 237, 255, 0.7) 1.3px, transparent 1.3px);
+    radial-gradient(circle, rgba(230, 240, 255, 0.75) 1.3px, transparent 1.3px),
+    radial-gradient(circle, rgba(215, 235, 255, 0.65) 1px, transparent 1px),
+    radial-gradient(circle, rgba(225, 237, 255, 0.7) 1.1px, transparent 1.1px);
   background-size: 
-    150px 200px,
-    200px 250px,
-    180px 220px,
-    220px 280px,
-    160px 240px;
+    280px 350px,
+    320px 400px,
+    300px 380px;
   background-position: 
     0 0,
-    40px 60px,
-    80px 120px,
-    20px 40px,
-    60px 80px;
+    120px 180px,
+    240px 290px;
   animation: 
-    float1 28s linear infinite,
-    float2 35s linear infinite 5s,
-    float3 32s linear infinite 10s,
-    float4 30s linear infinite 2s,
-    float5 36s linear infinite 7s;
+    float1 32s linear infinite,
+    float2 40s linear infinite 8s,
+    float3 38s linear infinite 14s;
   opacity: 1;
 }
 
@@ -2576,39 +2568,7 @@ body.dark-mode a:hover {
   }
 }
 
-@keyframes float4 {
-  0% {
-    transform: translateY(100vh) translateX(0);
-    opacity: 0;
-  }
-  5% {
-    opacity: 0.8;
-  }
-  95% {
-    opacity: 0.8;
-  }
-  100% {
-    transform: translateY(-100vh) translateX(-30px);
-    opacity: 0;
-  }
-}
 
-@keyframes float5 {
-  0% {
-    transform: translateY(100vh) translateX(0);
-    opacity: 0;
-  }
-  5% {
-    opacity: 0.75;
-  }
-  95% {
-    opacity: 0.75;
-  }
-  100% {
-    transform: translateY(-100vh) translateX(45px);
-    opacity: 0;
-  }
-}
 
 .hero-container {
   max-width: 1000px;
