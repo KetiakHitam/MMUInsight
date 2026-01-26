@@ -18,7 +18,7 @@ def _email_initials(email: str) -> str:
 def search_lecturers_by_email(query, limit=20, threshold=60):
     """Return list of (Lecturer, score) sorted by descending score.
     
-    Compares against the local part of email (before @) for similarity scoring.
+    Searches against both email (local part) and lecturer name.
     Results are sorted by relevance score in descending order (highest first).
     """
     if not query:
@@ -30,17 +30,47 @@ def search_lecturers_by_email(query, limit=20, threshold=60):
     # Extract local parts of emails (before @) for fuzzy matching
     local_parts = [u.email.split("@")[0] for u in lecturers]
     
-    # Perform fuzzy matching against local parts only
-    # Returns tuples (matched_string, score, index_in_input_list)
-    matches = process.extract(query, local_parts, scorer=fuzz.WRatio, limit=limit)
+    # Extract names for fuzzy matching
+    names = [u.name for u in lecturers]
     
-    results = []
-    for matched, score, idx in matches:
+    # Perform fuzzy matching against local parts
+    email_matches = process.extract(query, local_parts, scorer=fuzz.WRatio, limit=len(lecturers))
+    
+    # Perform fuzzy matching against names
+    name_matches = process.extract(query, names, scorer=fuzz.WRatio, limit=len(lecturers))
+    
+    # Combine results: use the highest score for each lecturer
+    # Build a dict: lecturer_id -> (lecturer, max_score)
+    lecturer_scores = {}
+    
+    for matched, score, idx in email_matches:
         if score >= threshold:
-            results.append((lecturers[idx], score))
+            lecturer = lecturers[idx]
+            if lecturer.id not in lecturer_scores:
+                lecturer_scores[lecturer.id] = (lecturer, score)
+            else:
+                # Keep the higher score
+                current_score = lecturer_scores[lecturer.id][1]
+                if score > current_score:
+                    lecturer_scores[lecturer.id] = (lecturer, score)
     
-    # Sort by score descending (highest similarity first)
+    for matched, score, idx in name_matches:
+        if score >= threshold:
+            lecturer = lecturers[idx]
+            if lecturer.id not in lecturer_scores:
+                lecturer_scores[lecturer.id] = (lecturer, score)
+            else:
+                # Keep the higher score
+                current_score = lecturer_scores[lecturer.id][1]
+                if score > current_score:
+                    lecturer_scores[lecturer.id] = (lecturer, score)
+    
+    # Convert to list and sort by score descending
+    results = list(lecturer_scores.values())
     results.sort(key=lambda x: x[1], reverse=True)
+    
+    # Limit to requested number of results
+    results = results[:limit]
     
     # Attach metadata to lecturer objects for display
     lecturer_ids = [u.id for u, s in results]
