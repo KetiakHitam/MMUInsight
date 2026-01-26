@@ -15,6 +15,23 @@ def _email_initials(email: str) -> str:
         return (parts[0][:1] + parts[1][:1]).upper()
     return local_part[:2].upper()
 
+def _clean_lecturer_name(name: str) -> str:
+    """Extract just the name part, removing job titles and extra whitespace.
+    
+    Names in the database have format: "NAME ... JOB_TITLE"
+    We want just the name part (usually the first line or first few words).
+    """
+    if not name:
+        return ""
+    
+    # Split by newlines and take first part (the name)
+    name_part = name.split('\n')[0]
+    
+    # Normalize whitespace
+    name_part = ' '.join(name_part.split())
+    
+    return name_part
+
 def search_lecturers_by_email(query, limit=20, threshold=60):
     """Return list of (Lecturer, score) sorted by descending score.
     
@@ -30,14 +47,19 @@ def search_lecturers_by_email(query, limit=20, threshold=60):
     # Extract local parts of emails (before @) for fuzzy matching
     local_parts = [u.email.split("@")[0] for u in lecturers]
     
-    # Extract names for fuzzy matching
-    names = [u.name for u in lecturers]
+    # Extract names for fuzzy matching, cleaned (remove job titles and normalize whitespace)
+    names = [_clean_lecturer_name(u.name) for u in lecturers]
+    
+    # Normalize query to lowercase for case-insensitive matching
+    query_lower = query.lower()
+    local_parts_lower = [lp.lower() for lp in local_parts]
+    names_lower = [n.lower() for n in names]
     
     # Perform fuzzy matching against local parts
-    email_matches = process.extract(query, local_parts, scorer=fuzz.WRatio, limit=len(lecturers))
+    email_matches = process.extract(query_lower, local_parts_lower, scorer=fuzz.WRatio, limit=len(lecturers))
     
     # Perform fuzzy matching against names
-    name_matches = process.extract(query, names, scorer=fuzz.WRatio, limit=len(lecturers))
+    name_matches = process.extract(query_lower, names_lower, scorer=fuzz.WRatio, limit=len(lecturers))
     
     # Combine results: use the highest score for each lecturer
     # Build a dict: lecturer_id -> (lecturer, max_score)
