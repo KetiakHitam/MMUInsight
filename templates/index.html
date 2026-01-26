@@ -3,7 +3,7 @@
 {% block title %}MMUInsight{% endblock %}
 
 {% block content %}
-<section class="hero">
+<section class="hero" style="z-index: 100; position: relative;">
     <div class="hero-container">
         <div class="hero-content">
             <h1 class="hero-title">Rate your lecturers. Shape your future.</h1>
@@ -121,6 +121,7 @@
                 <div id="hero-results-panel" class="hero-results-panel">
                     <div class="hero-results-title">
                         <span>Search Results</span>
+                        <a class="hero-results-more" href="{{ url_for('search_results_page', q=search_query) }}">Open full results</a>
                     </div>
                     {% if search_results|length == 0 %}
                         <div class="hero-results-empty">No results found.</div>
@@ -184,7 +185,7 @@
     </div>
 </section>
 
-<section class="features">
+<section class="features" style="z-index: 1; position: relative; height: 300px;">
     <div class="hero-container" style="z-index: 1;">
         <div class="features-grid">
             <div class="feature-card">
