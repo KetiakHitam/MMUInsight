@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h1 class="mb-4">{{ _('Bug Reports') }}</h1>
+    
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label for="status" class="form-label">{{ _('Status') }}</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">{{ _('All Statuses') }}</option>
+                        <option value="new" {% if current_status == 'new' %}selected{% endif %}>{{ _('New') }}</option>
+                        <option value="in_progress" {% if current_status == 'in_progress' %}selected{% endif %}>{{ _('In Progress') }}</option>
+                        <option value="resolved" {% if current_status == 'resolved' %}selected{% endif %}>{{ _('Resolved') }}</option>
+                        <option value="closed" {% if current_status == 'closed' %}selected{% endif %}>{{ _('Closed') }}</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="priority" class="form-label">{{ _('Priority') }}</label>
+                    <select class="form-select" id="priority" name="priority">
+                        <option value="">{{ _('All Priorities') }}</option>
+                        <option value="critical" {% if current_priority == 'critical' %}selected{% endif %}>🔴 {{ _('Critical') }}</option>
+                        <option value="high" {% if current_priority == 'high' %}selected{% endif %}>🟠 {{ _('High') }}</option>
+                        <option value="normal" {% if current_priority == 'normal' %}selected{% endif %}>🟡 {{ _('Normal') }}</option>
+                        <option value="low" {% if current_priority == 'low' %}selected{% endif %}>🟢 {{ _('Low') }}</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="sort" class="form-label">{{ _('Sort By') }}</label>
+                    <select class="form-select" id="sort" name="sort">
+                        <option value="reported_at" {% if current_sort == 'reported_at' %}selected{% endif %}>{{ _('Date Reported') }}</option>
+                        <option value="priority" {% if current_sort == 'priority' %}selected{% endif %}>{{ _('Priority') }}</option>
+                        <option value="status" {% if current_sort == 'status' %}selected{% endif %}>{{ _('Status') }}</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">{{ _('Filter') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Bug List -->
+    {% if bugs %}
+        <div class="row">
+            {% for bug in bugs %}
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="card-title mb-1">#{{ bug.id }} - {{ bug.title }}</h5>
+                                    <small class="text-muted">{{ _('Reported') }} {{ bug.reported_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                                </div>
+                                <!-- Status Badge -->
+                                {% if bug.status == 'new' %}
+                                    <span class="badge bg-info">{{ _('New') }}</span>
+                                {% elif bug.status == 'in_progress' %}
+                                    <span class="badge bg-warning text-dark">{{ _('In Progress') }}</span>
+                                {% elif bug.status == 'resolved' %}
+                                    <span class="badge bg-success">{{ _('Resolved') }}</span>
+                                {% elif bug.status == 'closed' %}
+                                    <span class="badge bg-secondary">{{ _('Closed') }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ bug.description[:150] }}{% if bug.description|length > 150 %}...{% endif %}</p>
+                            
+                            {% if bug.affected_feature %}
+                                <p class="mb-2"><small><strong>{{ _('Feature') }}:</strong> {{ bug.affected_feature }}</small></p>
+                            {% endif %}
+                            
+                            {% if bug.priority %}
+                                <p class="mb-2">
+                                    <small>
+                                        <strong>{{ _('Priority') }}:</strong>
+                                        {% if bug.priority == 'critical' %}
+                                            🔴 {{ _('Critical') }}
+                                        {% elif bug.priority == 'high' %}
+                                            🟠 {{ _('High') }}
+                                        {% elif bug.priority == 'normal' %}
+                                            🟡 {{ _('Normal') }}
+                                        {% elif bug.priority == 'low' %}
+                                            🟢 {{ _('Low') }}
+                                        {% endif %}
+                                    </small>
+                                </p>
+                            {% else %}
+                                <p class="mb-2"><small class="text-muted">{{ _('No priority assigned') }}</small></p>
+                            {% endif %}
+                            
+                            {% if bug.reporter %}
+                                <p class="mb-0"><small><strong>{{ _('Reporter') }}:</strong> {{ bug.reporter.email }}</small></p>
+                            {% else %}
+                                <p class="mb-0"><small class="text-muted">{{ _('Anonymous') }}</small></p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ url_for('bugs.view_bug_detail', bug_id=bug.id) }}" class="btn btn-sm btn-primary">{{ _('View Details') }}</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">{{ _('No bug reports found') }}</div>
+    {% endif %}
+</div>
+{% endblock %}

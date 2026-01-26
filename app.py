@@ -20,6 +20,7 @@ from models import User, Subject, Review, Suggestion, SuggestionVote
 from auth import auth_bp
 from reviews import reviews_bp
 from suggestions import suggestions_bp
+from bug_reporting import bug_bp
 from lecturer_search import search_lecturers_by_email
 
 app = Flask(__name__)
@@ -119,6 +120,7 @@ def load_user(user_id):
 app.register_blueprint(auth_bp)
 app.register_blueprint(reviews_bp)
 app.register_blueprint(suggestions_bp)
+app.register_blueprint(bug_bp)
 
 @app.route("/set-language/<language>")
 def set_language(language):

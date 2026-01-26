@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-6 mx-auto">
+            <h1 class="mb-4">{{ _('Report a Bug') }}</h1>
+            
+            <div class="card">
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        {{ _('Found something broken? Help us fix it by describing the issue in as much detail as possible.') }}
+                    </p>
+                    
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">{{ _('Bug Title') }} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="title" name="title" 
+                                   placeholder="{{ _('Brief description of the bug') }}" 
+                                   maxlength="200" required>
+                            <small class="text-muted">{{ _('Max 200 characters') }}</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">{{ _('Description') }} <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      placeholder="{{ _('What happened? What did you expect to happen?') }}"
+                                      rows="5" required></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="affected_feature" class="form-label">{{ _('Affected Feature (Optional)') }}</label>
+                            <input type="text" class="form-control" id="affected_feature" name="affected_feature"
+                                   placeholder="{{ _('e.g., Lecturer Search, Review Submission, Login') }}">
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('index') }}" class="btn btn-secondary">{{ _('Cancel') }}</a>
+                            <button type="submit" class="btn btn-primary">{{ _('Submit Bug Report') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

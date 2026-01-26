@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Bug Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">#{{ bug.id }} - {{ bug.title }}</h4>
+                        {% if bug.status == 'new' %}
+                            <span class="badge bg-info">{{ _('New') }}</span>
+                        {% elif bug.status == 'in_progress' %}
+                            <span class="badge bg-warning text-dark">{{ _('In Progress') }}</span>
+                        {% elif bug.status == 'resolved' %}
+                            <span class="badge bg-success">{{ _('Resolved') }}</span>
+                        {% elif bug.status == 'closed' %}
+                            <span class="badge bg-secondary">{{ _('Closed') }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p><strong>{{ _('Description') }}:</strong></p>
+                    <p>{{ bug.description }}</p>
+                    
+                    {% if bug.affected_feature %}
+                        <p><strong>{{ _('Affected Feature') }}:</strong> {{ bug.affected_feature }}</p>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>{{ _('Reported By') }}:</strong> 
+                                {% if bug.reporter %}
+                                    {{ bug.reporter.email }}
+                                {% else %}
+                                    <span class="text-muted">{{ _('Anonymous') }}</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>{{ _('Reported At') }}:</strong> {{ bug.reported_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            {% if bug.resolved_by %}
+                                <p><strong>{{ _('Resolved By') }}:</strong> {{ bug.resolved_by.email }}</p>
+                                <p><strong>{{ _('Resolved At') }}:</strong> {{ bug.resolved_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Comments Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ _('Internal Notes') }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if bug.comments %}
+                        {% for comment in bug.comments %}
+                            <div class="mb-3 p-3 bg-light rounded">
+                                <strong>{{ comment.admin.email }}</strong>
+                                <small class="text-muted d-block">{{ comment.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                                <p class="mt-2 mb-0">{{ comment.comment_text }}</p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">{{ _('No comments yet') }}</p>
+                    {% endif %}
+                    
+                    <form method="POST" class="mt-4">
+                        <input type="hidden" name="action" value="add_comment">
+                        <div class="mb-3">
+                            <textarea class="form-control" name="comment_text" placeholder="{{ _('Add a note...') }}" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-secondary">{{ _('Add Note') }}</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Resolution Notes -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ _('Resolution Notes') }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if bug.resolution_notes %}
+                        <p>{{ bug.resolution_notes }}</p>
+                    {% else %}
+                        <p class="text-muted">{{ _('No resolution notes') }}</p>
+                    {% endif %}
+                    
+                    <form method="POST" class="mt-3">
+                        <input type="hidden" name="action" value="add_resolution_notes">
+                        <div class="mb-3">
+                            <textarea class="form-control" name="resolution_notes" placeholder="{{ _('Resolution details...') }}" rows="3">{{ bug.resolution_notes or '' }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary">{{ _('Update Notes') }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar Controls -->
+        <div class="col-lg-4">
+            <!-- Status Control -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ _('Status') }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <input type="hidden" name="action" value="update_status">
+                        <div class="mb-3">
+                            <select class="form-select" name="status" required>
+                                <option value="new" {% if bug.status == 'new' %}selected{% endif %}>{{ _('New') }}</option>
+                                <option value="in_progress" {% if bug.status == 'in_progress' %}selected{% endif %}>{{ _('In Progress') }}</option>
+                                <option value="resolved" {% if bug.status == 'resolved' %}selected{% endif %}>{{ _('Resolved') }}</option>
+                                <option value="closed" {% if bug.status == 'closed' %}selected{% endif %}>{{ _('Closed') }}</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">{{ _('Update Status') }}</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Priority Control -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ _('Priority') }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <input type="hidden" name="action" value="update_priority">
+                        <div class="mb-3">
+                            <select class="form-select" name="priority" required>
+                                <option value="">{{ _('None') }}</option>
+                                <option value="critical" {% if bug.priority == 'critical' %}selected{% endif %}>🔴 {{ _('Critical') }}</option>
+                                <option value="high" {% if bug.priority == 'high' %}selected{% endif %}>🟠 {{ _('High') }}</option>
+                                <option value="normal" {% if bug.priority == 'normal' %}selected{% endif %}>🟡 {{ _('Normal') }}</option>
+                                <option value="low" {% if bug.priority == 'low' %}selected{% endif %}>🟢 {{ _('Low') }}</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">{{ _('Update Priority') }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{{ url_for('bugs.view_bugs') }}" class="btn btn-secondary">{{ _('Back to Bug Reports') }}</a>
+    </div>
+</div>
+{% endblock %}
