@@ -1,7 +1,8 @@
 import uuid
-from flask import render_template, request
+from flask import current_app, render_template, request, url_for
+from flask_mail import Message
 from . import auth_bp
-from extensions import db, bcrypt
+from extensions import bcrypt, db, mail
 from models import User
 from datetime import datetime, timedelta
 
@@ -25,7 +26,29 @@ def forgot_password():
     user.reset_token_created_at = datetime.utcnow()
     db.session.commit()
 
-    return f"Password reset link (temporary): /reset-password/{token}"
+    reset_url = url_for("auth.reset_password", token=token, _external=True)
+    message_text = "If this email exists, a reset link has been sent."
+
+    if current_app.config.get("MAIL_USERNAME") and current_app.config.get("MAIL_PASSWORD"):
+        try:
+            msg = Message(
+                subject="MMUInsight Password Reset",
+                recipients=[email],
+                body=(
+                    "A password reset was requested for your MMUInsight account.\n\n"
+                    f"Reset your password using this link (expires in 10 minutes):\n{reset_url}\n\n"
+                    "If you did not request this, you can ignore this email."
+                ),
+            )
+            mail.send(msg)
+        except Exception:
+            current_app.logger.exception("Failed to send password reset email")
+    else:
+        # dev convenience: show the link only when running in debug.
+        if current_app.debug or current_app.config.get("DEBUG") is True:
+            return f"Password reset link (debug): {reset_url}"
+
+    return message_text
 
 
 @auth_bp.route("/reset-password/<token>", methods=["GET", "POST"])
@@ -53,12 +76,10 @@ def reset_password(token):
     if new_pw != confirm_pw:
         return "Passwords do not match."
 
-    # SECURITY FIX: Clear token immediately after validation passes
-    # This prevents race condition where token could be reused between validation and clearing
+    # clear token immediately after validation passes
     user.reset_token = None
     user.reset_token_created_at = None
     
-    # Now update password in same transaction
     user.password_hash = bcrypt.generate_password_hash(new_pw).decode("utf-8")
     db.session.commit()
 
