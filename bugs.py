@@ -11,7 +11,6 @@ bugs_bp = Blueprint('bugs', __name__)
 
 @bugs_bp.route('/report-bug', methods=['GET', 'POST'])
 @login_required
-@limiter.limit("5 per hour")
 def report_bug():
     if request.method == 'GET':
         return render_template('report_bug.html')
