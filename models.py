@@ -175,26 +175,24 @@ class AuditLog(db.Model):
 
 class BugReport(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    reported_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     status = db.Column(db.String(20), nullable=False, default='new')  # new, in_progress, resolved, closed
-    priority = db.Column(db.String(20), nullable=True)  # low, normal, high, critical
-    affected_feature = db.Column(db.String(200), nullable=True)
+    priority = db.Column(db.String(20), nullable=False, default='normal')  # low, normal, high, critical
+    reported_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    internal_notes = db.Column(db.Text, nullable=True)
     resolution_notes = db.Column(db.Text, nullable=True)
-    resolved_at = db.Column(db.DateTime, nullable=True)
-    resolved_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     
-    reporter = db.relationship('User', foreign_keys=[user_id], backref='bug_reports')
-    resolved_by = db.relationship('User', foreign_keys=[resolved_by_id], backref='resolved_bugs')
+    user = db.relationship('User', backref='bug_reports', lazy=True)
     comments = db.relationship('BugComment', backref='bug_report', lazy=True, cascade='all, delete-orphan')
 
 class BugComment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    bug_id = db.Column(db.Integer, db.ForeignKey('bug_report.id'), nullable=False)
-    admin_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    bug_report_id = db.Column(db.Integer, db.ForeignKey('bug_report.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     comment_text = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     
-    admin = db.relationship('User', backref='bug_comments')
+    user = db.relationship('User', backref='bug_comments', lazy=True)
