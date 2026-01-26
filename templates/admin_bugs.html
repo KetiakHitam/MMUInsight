@@ -58,36 +58,36 @@
     <!-- Bug List -->
     {% if bugs %}
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover table-striped" style="font-size: 0.95rem; table-layout: fixed;">
                 <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Status</th>
-                        <th>Priority</th>
-                        <th>Reported By</th>
-                        <th>Date</th>
-                        <th>Action</th>
+                    <tr style="height: 2.5rem;">
+                        <th style="width: 5%; padding: 0.75rem;">ID</th>
+                        <th style="width: 35%; padding: 0.75rem;">Title</th>
+                        <th style="width: 12%; padding: 0.75rem;">Status</th>
+                        <th style="width: 10%; padding: 0.75rem;">Priority</th>
+                        <th style="width: 20%; padding: 0.75rem;">Reported By</th>
+                        <th style="width: 13%; padding: 0.75rem;">Date</th>
+                        <th style="width: 5%; padding: 0.75rem;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for bug in bugs %}
-                        <tr>
-                            <td><strong>#{{ bug.id }}</strong></td>
-                            <td>{{ bug.title[:50] }}{% if bug.title|length > 50 %}...{% endif %}</td>
-                            <td>
-                                <span class="badge bg-{{ 'primary' if bug.status == 'new' else 'warning' if bug.status == 'in_progress' else 'success' if bug.status == 'resolved' else 'secondary' }}">
+                        <tr style="height: 2.75rem; vertical-align: middle;">
+                            <td style="padding: 0.75rem;"><strong>#{{ bug.id }}</strong></td>
+                            <td style="padding: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ bug.title }}</td>
+                            <td style="padding: 0.75rem;">
+                                <span style="display: inline-block; padding: 0.4rem 0.8rem; border-radius: 0.375rem; font-weight: 500; color: white; font-size: 0.85rem; background-color: {% if bug.status == 'new' %}#28a745{% elif bug.status == 'in_progress' %}#ffc107{% elif bug.status == 'resolved' %}#17a2b8{% else %}#dc3545{% endif %};">
                                     {{ bug.status.replace('_', ' ').title() }}
                                 </span>
                             </td>
-                            <td>
-                                <span class="badge bg-{{ 'danger' if bug.priority == 'critical' else 'warning' if bug.priority == 'high' else 'info' if bug.priority == 'normal' else 'secondary' }}">
+                            <td style="padding: 0.75rem;">
+                                <span style="display: inline-block; padding: 0.4rem 0.8rem; border-radius: 0.375rem; font-weight: 500; color: white; font-size: 0.85rem; background-color: {% if bug.priority == 'critical' %}#dc3545{% elif bug.priority == 'high' %}#ffc107{% elif bug.priority == 'normal' %}#007bff{% else %}#6c757d{% endif %};">
                                     {{ bug.priority.title() }}
                                 </span>
                             </td>
-                            <td>{{ bug.user.email }}</td>
-                            <td>{{ bug.reported_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                            <td>
+                            <td style="padding: 0.75rem; white-space: nowrap;">{{ bug.user.email[:20] }}{% if bug.user.email|length > 20 %}...{% endif %}</td>
+                            <td style="padding: 0.75rem; white-space: nowrap;">{{ bug.reported_at.strftime('%m-%d %H:%M') }}</td>
+                            <td style="padding: 0.75rem;">
                                 <a href="{{ url_for('bugs.view_bug', bug_id=bug.id) }}" class="btn btn-sm btn-primary">View</a>
                             </td>
                         </tr>

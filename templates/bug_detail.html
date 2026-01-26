@@ -14,11 +14,11 @@
                             <h4 class="mb-1">{{ bug.title }}</h4>
                             <small class="text-muted">Bug #{{ bug.id }} • Reported {{ bug.reported_at.strftime('%Y-%m-%d %H:%M') }}</small>
                         </div>
-                        <div>
-                            <span class="badge bg-{{ 'primary' if bug.status == 'new' else 'warning' if bug.status == 'in_progress' else 'success' if bug.status == 'resolved' else 'secondary' }}">
+                        <div style="display: flex; gap: 0.5rem;">
+                            <span style="display: inline-block; padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 500; color: white; background-color: {% if bug.status == 'new' %}#28a745{% elif bug.status == 'in_progress' %}#ffc107{% elif bug.status == 'resolved' %}#17a2b8{% else %}#dc3545{% endif %};">
                                 {{ bug.status.replace('_', ' ').title() }}
                             </span>
-                            <span class="badge bg-{{ 'danger' if bug.priority == 'critical' else 'warning' if bug.priority == 'high' else 'info' if bug.priority == 'normal' else 'secondary' }}">
+                            <span style="display: inline-block; padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 500; color: white; background-color: {% if bug.priority == 'critical' %}#dc3545{% elif bug.priority == 'high' %}#ffc107{% elif bug.priority == 'normal' %}#007bff{% else %}#6c757d{% endif %};">
                                 {{ bug.priority.title() }}
                             </span>
                         </div>
@@ -67,6 +67,7 @@
                     {% endif %}
 
                     <form id="commentForm" method="POST" action="{{ url_for('bugs.add_bug_comment', bug_id=bug.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <div class="mb-3">
                             <textarea class="form-control" id="comment_text" name="comment_text" 
                                       placeholder="Add an internal comment..." rows="3" maxlength="5000" required></textarea>
@@ -86,6 +87,7 @@
                 </div>
                 <div class="card-body">
                     <form id="updateForm" method="POST" action="{{ url_for('bugs.update_bug', bug_id=bug.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <div class="mb-3">
                             <label for="status" class="form-label">Status</label>
                             <select class="form-select" id="status" name="status">
