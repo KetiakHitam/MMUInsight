@@ -6,22 +6,102 @@
 <section class="hero">
     <div class="hero-container">
         <div class="hero-content">
-            <h1 class="hero-title">Rate your lecturers. Shape your future.</h1>
+            <h1 class="hero-title">Rate your lecturers.<br>Shape your future.</h1>
             <div class="hero-badge">Built for MMU Students by MMU Students</div>
             <p class="hero-subtitle">Search, review, and compare lecturers with feedback from other students.</p>
 
             {% if current_user.is_authenticated %}
+            <style>
+                .search-input-wrapper {
+                    position: relative;
+                    flex-grow: 1;
+                }
+                .recent-searches-dropdown {
+                    display: none;
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    right: 0;
+                    background: white;
+                    border: 1px solid #ddd;
+                    border-radius: 0 0 8px 8px;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    z-index: 100;
+                    margin-top: 4px;
+                    overflow: hidden;
+                    text-align: left;
+                }
+                .hero-search-input:focus + .recent-searches-dropdown,
+                .recent-searches-dropdown:hover {
+                    display: block;
+                }
+                .recent-search-item {
+                    display: flex;
+                    align-items: center;
+                    padding: 10px 15px;
+                    text-decoration: none;
+                    color: #333;
+                    border-bottom: 1px solid #eee;
+                    transition: background 0.2s;
+                }
+                .recent-search-item:last-child {
+                    border-bottom: none;
+                }
+                .recent-search-item:hover {
+                    background: #f5f5f5;
+                }
+                .recent-searches-title {
+                    padding: 8px 15px;
+                    font-size: 0.85em;
+                    color: #666;
+                    background: #f9f9f9;
+                    border-bottom: 1px solid #eee;
+                }
+                .recent-search-avatar {
+                    width: 32px;
+                    height: 32px;
+                    background: #007bff;
+                    color: white;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: 10px;
+                    font-weight: bold;
+                    font-size: 14px;
+                }
+                .recent-search-email {
+                    font-weight: 500;
+                    font-size: 14px;
+                }
+            </style>
             <form method="GET" action="/search" class="hero-search" role="search">
                 <label class="sr-only" for="hero-search-input">Search for a lecturer</label>
-                <input
-                    id="hero-search-input"
-                    name="q"
-                    type="search"
-                    placeholder="Search lecturers by email or name"
-                    value="{{ search_query or '' }}"
-                    autocomplete="off"
-                    class="hero-search-input"
-                >
+                <div class="search-input-wrapper">
+                    <input
+                        id="hero-search-input"
+                        name="q"
+                        type="search"
+                        placeholder="Search lecturers by email or name"
+                        value="{{ search_query or '' }}"
+                        autocomplete="off"
+                        class="hero-search-input"
+                        style="width: 100%;"
+                    >
+                    {% if recent_searches %}
+                    <div class="recent-searches-dropdown">
+                        <div class="recent-searches-title">Recent Searches</div>
+                        {% for lecturer in recent_searches %}
+                        <a href="/lecturer/{{ lecturer.id }}" class="recent-search-item">
+                            <div class="recent-search-avatar">{{ lecturer.email[0]|upper }}</div>
+                            <div class="recent-search-info">
+                                <div class="recent-search-email">{{ lecturer.email }}</div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
                 <button type="submit" class="hero-search-button">Search</button>
             </form>
             <div class="hero-hint">Tip: you can search by a lecturer's name, e.g. “Willie”.</div>
@@ -41,7 +121,6 @@
                 <div id="hero-results-panel" class="hero-results-panel">
                     <div class="hero-results-title">
                         <span>Search Results</span>
-                        <a class="hero-results-more" href="{{ url_for('search_results_page', q=search_query) }}">Open full results</a>
                     </div>
                     {% if search_results|length == 0 %}
                         <div class="hero-results-empty">No results found.</div>
@@ -123,7 +202,29 @@
                 <h4 class="feature-title">Lecturer responses</h4>
                 <p class="feature-text">See lecturer responses in to your reviews.</p>
             </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h4 class="feature-title">View analytics</h4>
+                <p class="feature-text">See rating distributions and compare lecturers side by side.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⭐</div>
+                <h4 class="feature-title">Rate and compare</h4>
+                <p class="feature-text">Rate lecturers on multiple criteria for fair evaluation.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h4 class="feature-title">Safe and moderated</h4>
+                <p class="feature-text">All reviews are moderated to maintain a respectful community.</p>
+            </div>
         </div>
     </div>
 </section>
+
+
 {% endblock %}
+
+                <div class="result-item">
+                    <a href="/lecturer/{{ lecturer.id }}">{{ lecturer.email }}</a>
+                </div>
+</html>

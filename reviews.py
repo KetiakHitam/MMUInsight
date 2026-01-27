@@ -1,13 +1,57 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from flask_babel import gettext as _
 from extensions import db, limiter
-from models import Review, User, Reply, Report, Subject
+from models import Review, User, Reply, Report, Subject, Lecturer
+from moderation import ContentModerator, get_moderation_summary
 from audit import log_admin_action
 from datetime import datetime
 from sqlalchemy import func
 
 reviews_bp = Blueprint('reviews', __name__)
+
+@reviews_bp.route('/lecturer/<int:lecturer_id>/terms', methods=['GET'])
+@login_required
+def lecturer_terms(lecturer_id):
+    # Only students must accept the terms; others are redirected to the profile
+    if current_user.user_type != 'student':
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+
+    lecturer = Lecturer.query.get_or_404(lecturer_id)
+    if not lecturer:
+        flash(_("Invalid lecturer"), "error")
+        return redirect(url_for('index'))
+
+    # If already accepted, send them to the profile
+    if current_user.profile_consent:
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+
+    return render_template('lecturer_terms.html', lecturer=lecturer)
+
+
+@reviews_bp.route('/lecturer/<int:lecturer_id>/accept_terms', methods=['POST'])
+@login_required
+def accept_lecturer_terms(lecturer_id):
+    if current_user.user_type != 'student':
+        flash(_("Only students need to accept terms"), "error")
+        return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+
+    lecturer = Lecturer.query.get_or_404(lecturer_id)
+    if not lecturer:
+        flash(_("Invalid lecturer"), "error")
+        return redirect(url_for('index'))
+
+    accepted = request.form.get('accepted') == 'on'
+    if not accepted:
+        flash(_("You must confirm that you have read and agree to the terms"), "error")
+        return redirect(url_for('reviews.lecturer_terms', lecturer_id=lecturer_id))
+
+    current_user.profile_consent = True
+    db.session.commit()
+
+    flash(_("Thank you — you may now view lecturer profiles."), "success")
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
+
 
 def validate_rating(value):
     """Validate that rating is an integer between 1 and 5"""
@@ -25,8 +69,8 @@ def create_review(lecturer_id):
         flash(_("Only students can write reviews"), "error")
         return redirect(url_for('index'))
     
-    lecturer = User.query.get_or_404(lecturer_id)
-    if lecturer.user_type != 'lecturer':
+    lecturer = Lecturer.query.get_or_404(lecturer_id)
+    if not lecturer:
         flash(_("Invalid lecturer"), "error")
         return redirect(url_for('index'))
     
@@ -101,6 +145,9 @@ def create_review(lecturer_id):
             db.session.flush()  # Get the ID before commit
             subject_id = new_subject.id
     
+    # Run auto-moderation on review text
+    moderation_result = ContentModerator.moderate(review_text, content_type='review')
+    
     review = Review(
         review_text=review_text,
         rating_clarity=rating_clarity,
@@ -113,24 +160,60 @@ def create_review(lecturer_id):
         lecturer_id=lecturer_id,
         subject_id=subject_id,
         is_anonymous=is_anonymous,
-        subject_code=subject_input
+        subject_code=subject_input,
+        # Set moderation flags
+        moderation_flags=','.join(moderation_result.flags) if moderation_result.flags else None,
+        moderation_severity=moderation_result.severity,
+        requires_human_review=not moderation_result.is_clean,
+        is_approved=True if moderation_result.is_clean else None  # Auto-approved if clean
     )
     
     db.session.add(review)
     db.session.commit()
     
-    flash(_("Review submitted successfully!"), "success")
+    if moderation_result.is_clean:
+        flash(_("Review submitted successfully!"), "success")
+    else:
+        summary = get_moderation_summary(moderation_result.flags)
+        flash(f"Review submitted but flagged for review: {summary}", "warning")
+    
     return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
 
 @reviews_bp.route('/lecturer/<int:lecturer_id>')
 @login_required
 def lecturer_profile(lecturer_id):
-    lecturer = User.query.get_or_404(lecturer_id)
-    if lecturer.user_type != 'lecturer':
+    lecturer = Lecturer.query.get_or_404(lecturer_id)
+    if not lecturer:
         flash(_("Invalid lecturer"), "error")
         return redirect(url_for('index'))
+
+    # Students must accept the profile viewing terms before viewing profiles.
+    if current_user.user_type == 'student' and not current_user.profile_consent:
+        return redirect(url_for('reviews.lecturer_terms', lecturer_id=lecturer_id))
     
-    reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.review_date.desc()).all()
+    # Update search history for students
+    if current_user.user_type == 'student':
+        history = current_user.search_history.split(',') if current_user.search_history else []
+        lecturer_id_str = str(lecturer_id)
+        
+        # Remove if exists (to move to top)
+        if lecturer_id_str in history:
+            history.remove(lecturer_id_str)
+        
+        # Add to top
+        history.insert(0, lecturer_id_str)
+        
+        # Keep only top 3
+        history = history[:3]
+        
+        current_user.search_history = ','.join(history)
+        db.session.commit()
+
+    # Get all reviews, filtering out unapproved flagged ones
+    all_reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.review_date.desc()).all()
+    
+    # Filter: show approved reviews and auto-approved (clean) reviews, hide pending moderation
+    reviews = [r for r in all_reviews if r.is_approved is not False and (r.is_approved is True or not r.requires_human_review)]
     
     user_review = None
     student_has_review = False
@@ -187,13 +270,13 @@ def claim_profile(lecturer_id):
         flash(_("Only official MMU email addresses (@mmu.edu.my) can claim profiles"), "error")
         return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
     
-    lecturer = User.query.get_or_404(lecturer_id)
+    lecturer = Lecturer.query.get_or_404(lecturer_id)
     
     if current_user.email != lecturer.email:
         flash(_("You can only claim your own profile"), "error")
         return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
     
-    if lecturer.user_type != 'lecturer':
+    if not lecturer:
         flash(_("Invalid profile"), "error")
         return redirect(url_for('index'))
     
@@ -291,7 +374,7 @@ def edit_review(review_id):
 def delete_review(review_id):
     review = Review.query.get_or_404(review_id)
     
-    if review.author != current_user:
+    if review.author != current_user and not current_user.is_mod():
         flash(_("You can only delete your own reviews"), "error")
         return redirect(url_for('index'))
 
@@ -368,13 +451,13 @@ def report_review(review_id):
 @reviews_bp.route('/analytics/<int:lecturer_id>')
 @login_required
 def analytics(lecturer_id):
-    lecturer = User.query.get_or_404(lecturer_id)
+    lecturer = Lecturer.query.get_or_404(lecturer_id)
     
-    if current_user.id != lecturer_id and not current_user.is_admin():
+    if not lecturer:
         flash(_("You don't have permission to view this analytics page"), "error")
         return redirect(url_for('index'))
     
-    if lecturer.user_type != 'lecturer':
+    if not lecturer:
         flash(_("Invalid lecturer"), "error")
         return redirect(url_for('index'))
     
@@ -440,9 +523,9 @@ def analytics(lecturer_id):
 @reviews_bp.route('/student-analytics/<int:lecturer_id>')
 @login_required
 def student_analytics(lecturer_id):
-    lecturer = User.query.get_or_404(lecturer_id)
+    lecturer = Lecturer.query.get_or_404(lecturer_id)
     
-    if lecturer.user_type != 'lecturer':
+    if not lecturer:
         flash(_("Invalid lecturer"), "error")
         return redirect(url_for('index'))
     
@@ -568,9 +651,9 @@ def delete_reply(reply_id):
 @reviews_bp.route('/lecturer/<int:lecturer_id>/bio', methods=['GET', 'POST'])
 @login_required
 def lecturer_bio(lecturer_id):
-    lecturer = User.query.get_or_404(lecturer_id)
+    lecturer = Lecturer.query.get_or_404(lecturer_id)
     
-    if lecturer.user_type != 'lecturer':
+    if not lecturer:
         flash(_("Invalid lecturer"), "error")
         return redirect(url_for('index'))
     
@@ -584,6 +667,16 @@ def lecturer_bio(lecturer_id):
             return redirect(url_for('reviews.lecturer_bio', lecturer_id=lecturer_id))
         
         bio_text = request.form.get('bio', '').strip()
+
+        if bio_text:
+            bio_word_limit = 40
+            word_count = len(bio_text.split())
+            if word_count > bio_word_limit:
+                flash(
+                    _("Bio must be %(limit)s words or fewer (currently %(count)s).", limit=bio_word_limit, count=word_count),
+                    "error",
+                )
+                return redirect(url_for('reviews.lecturer_bio', lecturer_id=lecturer_id))
         
         lecturer.bio = bio_text if bio_text else None
         db.session.commit()

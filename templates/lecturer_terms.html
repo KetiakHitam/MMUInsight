@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Read Terms - {{ lecturer.email }}{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Before viewing {{ lecturer.email }}'s profile</h2>
+
+    <p>Please read the following guidelines carefully before viewing lecturer profiles. You must scroll to the end of the box below and then check the confirmation checkbox to proceed. Confirmation is recorded with your account so you won't be asked again.</p>
+
+    <div style="max-height: 420px; overflow-y: auto; border: 1px solid #e6e6e6; padding: 12px; border-radius: 6px; background: #fcfcfc; margin-bottom: 12px;">
+        <h4>Community Guidelines & Privacy</h4>
+        <ol>
+            <li>Be respectful and avoid abusive or harassing language.</li>
+            <li>Never attempt to doxx or share personal contact information without consent.</li>
+            <li>Use the site reporting tools if you see content that violates the rules.</li>
+            <li>If you are the person represented, use the "Claim This Profile" feature to verify ownership.</li>
+            <li>These guidelines help us maintain a safe and useful community for students and staff.</li>
+        </ol>
+
+        <p style="margin-top: 12px;">By confirming below you acknowledge you have read these guidelines and will follow them. You will only need to confirm once per account.</p>
+
+        <div style="height: 40px;"></div>
+    </div>
+
+    <form method="POST" action="{{ url_for('reviews.accept_lecturer_terms', lecturer_id=lecturer.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <div style="margin-bottom: 12px;">
+            <label><input type="checkbox" name="accepted" required> I have read the information above and agree to follow the guidelines.</label>
+        </div>
+        <button type="submit" style="background-color: #28a745; color: white; padding: 8px 15px; border: none; border-radius: 3px;">Confirm and Continue</button>
+        <a href="{{ url_for('index') }}" style="margin-left: 12px;">Cancel</a>
+    </form>
+</div>
+{% endblock %}
