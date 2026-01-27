@@ -2,6 +2,20 @@
 
 {% block title %}{{ lecturer.email }} - Profile{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <style>
+        body.dark-mode {
+            background: #0a0e27 !important;
+            background-image: none !important;
+        }
+        body.dark-mode .container {
+            background: transparent !important;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
 <div class="container" style="max-width: 900px; margin: 0 auto;">
     <div class="glass-header-profile">
