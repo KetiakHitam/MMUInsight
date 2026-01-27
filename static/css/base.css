@@ -333,8 +333,8 @@ body.dark-mode [style*="background-color: #e0e0e0"][style*="height: 10px"] {
 
 .review-card {
   border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 25px;
-  margin-bottom: 25px;
+  padding: 32px;
+  margin-bottom: 32px;
   border-radius: 12px;
   max-width: 800px;
   margin-left: auto;
@@ -349,8 +349,9 @@ body.dark-mode [style*="background-color: #e0e0e0"][style*="height: 10px"] {
 
 .review-card:hover {
   background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
   border-color: rgba(37, 99, 235, 0.3);
+  transform: translateY(-4px);
 }
 
 .review-card.own-review {
@@ -861,6 +862,7 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
+
 
 button,
 input,
@@ -1692,7 +1694,7 @@ a.btn:visited {
 }
 
 .btn-primary {
-  background-color: var(--primary);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
 }
 
 .btn-secondary {
@@ -1714,6 +1716,7 @@ input[type="button"]:hover {
   box-shadow: var(--btn-shadow-hover);
   filter: brightness(var(--btn-hover-brightness));
   text-decoration: none;
+  transform: translateY(-2px);
 }
 
 .btn-secondary:hover {
