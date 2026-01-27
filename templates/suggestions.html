@@ -4,7 +4,6 @@
 
 {% block content %}
 <div class="container" style="max-width: 900px;">
-    <h2 style="margin-bottom: 30px;">Feature Suggestions</h2>
     
     <!-- Submit Suggestion Form (logged in users only) -->
     {% if current_user.is_authenticated %}
@@ -27,10 +26,10 @@
                             <label for="description" class="form-label">Description</label>
                             <textarea id="description" name="description" rows="4" placeholder="Describe your feature idea..." required class="form-control"></textarea>
                         </div>
-                        <div class="form-check mb-3">
-                            <input type="checkbox" class="form-check-input" id="is_anonymous" name="is_anonymous">
-                            <label class="form-check-label" for="is_anonymous">Submit anonymously</label>
-                        </div>
+                        <label class="d-flex align-items-center mb-3" style="gap:10px; cursor:pointer; padding-left:4px;">
+                            <input type="checkbox" id="is_anonymous" name="is_anonymous" style="width:20px; height:20px; transform:scale(1.15); margin:0;">
+                            <span style="font-weight:600; color:var(--text-primary);">Submit anonymously</span>
+                        </label>
                         <div class="d-grid gap-2 d-sm-flex justify-content-sm-end">
                             <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
                             <button type="submit" class="btn btn-primary">Submit Suggestion</button>
