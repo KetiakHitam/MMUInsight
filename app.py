@@ -20,6 +20,7 @@ from models import User, Subject, Review, Suggestion, SuggestionVote
 from auth import auth_bp
 from reviews import reviews_bp
 from suggestions import suggestions_bp
+from bugs import bugs_bp
 from lecturer_search import search_lecturers_by_email
 
 app = Flask(__name__)
@@ -33,14 +34,17 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-key-please-change-i
 app.config["SESSION_COOKIE_SECURE"] = not debug_mode
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 
-# Use environment variable for database path, default to parent directory for security
-db_path = os.environ.get('DATABASE_PATH', os.path.join(os.path.dirname(BASE_DIR), 'mmuinsight_data', 'mmuinsight.db'))
-# Create directory if it doesn't exist
-db_dir = os.path.dirname(db_path)
-os.makedirs(db_dir, exist_ok=True)
-# Ensure the file path is absolute and convert to forward slashes for SQLite URI
-db_path = os.path.abspath(db_path)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path.replace('\\', '/')
+# Use PostgreSQL in production (Railway), SQLite in development
+db_url = os.environ.get('DATABASE_URL')
+if db_url:
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+else:
+    # Fallback to SQLite for local development
+    db_path = os.environ.get('DATABASE_PATH', os.path.join(os.path.dirname(BASE_DIR), 'mmuinsight_data', 'mmuinsight.db'))
+    db_dir = os.path.dirname(db_path)
+    os.makedirs(db_dir, exist_ok=True)
+    db_path = os.path.abspath(db_path)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path.replace('\\', '/')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
@@ -70,6 +74,25 @@ csrf.init_app(app)
 mail.init_app(app)
 babel = Babel(app, locale_selector=get_locale)
 
+# Create database tables on startup
+with app.app_context():
+    db.create_all()
+    
+    # Create admin/owner accounts from env vars if not exists
+    admin_pass = os.environ.get('ADMIN_PASSWORD', 'admin')
+    owner_pass = os.environ.get('OWNER_PASSWORD', 'owner')
+    
+    for email, role, password in [
+        ("admin@mmu.edu.my", "ADMIN", admin_pass),
+        ("owner@mmu.edu.my", "OWNER", owner_pass),
+    ]:
+        if not User.query.filter_by(email=email).first():
+            user = User(email=email, user_type="admin", role=role, is_verified=True, is_claimed=True)
+            user.password_hash = bcrypt.generate_password_hash(password)
+            db.session.add(user)
+    
+    db.session.commit()
+
 
 @app.before_request
 def enforce_https():
@@ -97,6 +120,7 @@ def load_user(user_id):
 app.register_blueprint(auth_bp)
 app.register_blueprint(reviews_bp)
 app.register_blueprint(suggestions_bp)
+app.register_blueprint(bugs_bp)
 
 @app.route("/set-language/<language>")
 def set_language(language):
@@ -112,7 +136,14 @@ def set_theme(theme):
 
 @app.route("/", methods=["GET"])
 def index():
-    return render_template('index.html')
+    recent_searches = []
+    if current_user.is_authenticated and current_user.user_type == 'student' and current_user.search_history:
+        ids = current_user.search_history.split(',')
+        # Fetch users and preserve order
+        lecturers = {str(u.id): u for u in User.query.filter(User.id.in_(ids)).all()}
+        recent_searches = [lecturers[id] for id in ids if id in lecturers]
+        
+    return render_template('index.html', recent_searches=recent_searches)
 
 @app.route("/search", methods=["GET"])
 def search_page():
@@ -124,12 +155,13 @@ def search_page():
             search_results=None,
         )
 
-    results = search_lecturers_by_email(q)
+    matches = search_lecturers_by_email(q)  # list of (User, score) sorted by score descending
+    results = [u for u, s in matches]
 
     return render_template(
         "index.html",
         search_query=q,
-        search_results=results
+        search_results=results,
     )
 
 
@@ -137,7 +169,8 @@ def search_page():
 @login_required
 def search_results_page():
     q = request.args.get("q", "").strip()
-    results = search_lecturers_by_email(q) if q else []
+    matches = search_lecturers_by_email(q) if q else []
+    results = [u for u, s in matches]
     return render_template(
         "results.html",
         q=q,
@@ -172,8 +205,10 @@ def privacy_policy():
 def about_us():
     return render_template('about_us.html')
 
+@app.route("/faq")
+def faq():
+    return render_template('FAQ.html')
+
 if __name__ == "__main__":
-    # use DEBUG from environment variable (.env file)
-    # never hardcode debug=True - it's a critical security risk in production
     debug_mode = os.environ.get("DEBUG", "False").lower() in ['true', '1', 'yes']
     app.run(debug=debug_mode)

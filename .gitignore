@@ -1,12 +1,44 @@
 # Virtual Environment
 venv/
 
+# Other common virtualenv names
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
 # Python cache
 __pycache__/
 
 # Environment Variables (contains secrets)
 .env
+.env.*
+*.env
 
 # Local Database
 mmuinsight.db
+*.db
 *.db.backup
+*.sqlite
+*.sqlite3
+*.sqlite3-journal
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Local data directories
+database/
+mmuinsight_data/
+
+# Dev-only tooling (seed/reset/test accounts)
+tools/dev/
+tools/diagnose_*.py
+init_db*.py
+seed_db.py
+new_table_db.py
+migrate_add_usage_count.py
+dump_lecturers.py
+deduplicate_lecturers.py
+scraped_lecturers.txt
+all_lecturers_db.txt
