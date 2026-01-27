@@ -26,8 +26,15 @@ body.dark-mode main {
 /* Catch all white backgrounds */
 body.dark-mode [style*="background-color: white"],
 body.dark-mode [style*="background-color:white"],
+body.dark-mode [style*="background-color: #ffffff"],
+body.dark-mode [style*="background-color: #f8f9fa"],
+body.dark-mode [style*="background-color: #f0f7ff"],
+body.dark-mode [style*="background: #ffffff"],
+body.dark-mode [style*="background: #f8f9fa"],
+body.dark-mode [style*="background: white"],
 body.dark-mode [bgcolor="white"] {
-  background-color: #2a2a2a !important;
+  background-color: #1a1f3a !important;
+  color: #d0d4e0 !important;
 }
 
 /* Cards and containers */
@@ -153,12 +160,6 @@ body.dark-mode .ui-dd__icon-btn:hover {
 body.dark-mode .site-footer {
     background-color: #0b0f1a !important;
     border-top-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-body.dark-mode .container {
-  background-color: #2a2a2a !important;
-  border-radius: 6px;
-  padding: 25px;
 }
 
 body.dark-mode {
@@ -568,28 +569,28 @@ body.dark-mode .theme-toggle:hover {
 
 /* Glass Design Components - Dark Mode Support (Liquid Glass) */
 body.dark-mode .glass-form {
-  background: rgba(13, 43, 122, 0.65) !important;
+  background: #1a1f3a !important;
   border-color: rgba(59, 130, 246, 0.4) !important;
-  backdrop-filter: blur(16px);
+  backdrop-filter: none;
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 body.dark-mode .glass-card {
-  background: rgba(13, 43, 122, 0.65) !important;
+  background: #1a1f3a !important;
   border-color: rgba(59, 130, 246, 0.4) !important;
-  backdrop-filter: blur(16px);
+  backdrop-filter: none !important;
 }
 
 body.dark-mode .glass-input {
-  background: rgba(10, 20, 60, 0.8) !important;
+  background: #252d4a !important;
   border-color: rgba(59, 130, 246, 0.5) !important;
   color: #e0e0e0 !important;
-  backdrop-filter: blur(16px);
+  backdrop-filter: none !important;
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 body.dark-mode .glass-input:focus {
-  background: rgba(19, 56, 152, 0.85) !important;
+  background: #2d3552 !important;
   border-color: rgba(93, 151, 255, 0.8) !important;
   color: #e0e0e0 !important;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
@@ -604,9 +605,63 @@ body.dark-mode .glass-button {
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* NUCLEAR OVERRIDE - Force all glass/light backgrounds in dark mode */
+body.dark-mode [style*="background-color: rgba(255"],
+body.dark-mode [style*="background: rgba(255"],
+body.dark-mode [style*="background-color: #fff"],
+body.dark-mode [style*="background-color: white"],
+body.dark-mode [style*="background: white"] {
+  background-color: #1a1f3a !important;
+  background: #1a1f3a !important;
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode div[class*="glass"] {
+  background-color: #1a1f3a !important;
+  background: #1a1f3a !important;
+  backdrop-filter: none !important;
+}
+
+body.dark-mode [class*="rating"]:not(.rating-bar-container):not(.rating-bar-fill),
+body.dark-mode [class*="review"],
+body.dark-mode [class*="card"] {
+  background-color: #1a1f3a !important;
+  backdrop-filter: none !important;
+}
+
+/* Remove all hover animations and transforms in dark mode */
+body.dark-mode *:hover {
+  transform: none !important;
+}
+
+/* Override table row hover in dark mode */
+body.dark-mode table tbody tr {
+  background-color: #1a1f3a !important;
+}
+
+body.dark-mode table tbody tr:hover {
+  background-color: #252d4a !important;
+}
+
+body.dark-mode table tbody tr td {
+  color: #d0d4e0 !important;
+}
+
+body.dark-mode table tbody tr[style*="background"] {
+  background-color: #252d4a !important;
+}
+
+body.dark-mode .glass-header-profile:hover,
+body.dark-mode .glass-rating-section:hover,
+body.dark-mode .feature-card:hover,
+body.dark-mode .result-card:hover {
+  box-shadow: none !important;
+  transform: none !important;
+}
+
 /* Static pages (TOS, Privacy, About) - Dark Mode */
 body.dark-mode .container {
-  background: rgba(13, 43, 122, 0.7) !important;
+  background: #0a0e27 !important;
   border-color: rgba(59, 130, 246, 0.4) !important;
   color: rgba(255, 255, 255, 0.95) !important;
 }

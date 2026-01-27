@@ -1,6 +1,9 @@
-body { 
+body{ 
     font-family: Arial; 
+    padding-top: 3% ;
     padding: 20px; 
+    text-decoration: none;
+    background-color: white;
 }
 .alert { 
     padding: 16px 20px;
@@ -36,14 +39,156 @@ a {
     margin: 10px; 
     padding: 10px 20px; 
     background-color: #007bff; 
-    color: white; 
-    text-decoration: none; 
+    color: white;  
     border-radius: 30px; 
     display: inline-block; 
 }
 .Logo{
     position: fixed;
-    top: 40px;
+    top: 5px;
+    left:30px;
+    width: 35px;
+    height: 20px;
+    font-size: small;
+}
+.div-1{
+    position: fixed;
+    top: 0px;
+    left:0px;
+    z-index: 99999;
+    width: 100%;
+    height: 60px;
+    background-color: lightskyblue;
+}
+.horizontal-line{
+    background-color: black;
+    height: 1px;
+    position: fixed;
+    width: 100%;
+    left: 0px;
+}
+.Title{
+    position: fixed;
+    text-align: center;
+    width: 20%;
+    margin-left: 38%;
+    margin-right: 38%;
+    top: 10px;
+    font-size: medium;
+}
+.buttons{
+    position: fixed;
+    float: right;
+    right: 50px;
+    top: 20px;
+    width: 5%;
+    text-align: center;
+}
+
+button{
+    border-radius: 10px 10px;
+    padding: 5px 5px;
+    font-size: small;
+    cursor: pointer;
+    transition-duration: 1s;
+}
+
+button:hover{
+    background-color: skyblue;
+}
+.div-2{
+    padding: 20px 20px;
+}
+.search-bar{
+    text-align: center;
+    font-weight: bolder;
+    font-size: xx-large;
+}
+.Account{
+    text-align: center;
+    font-size: 24px;
+    color: lightskyblue;
+}
+.div-2 input[type=search]{
+    width: 50%;
+    height: 50px;
+    font-size: 20px;
+    margin-left: 10%;
+    border-color: gray;
+}
+
+.header{
+    padding: 20px 20px;  
+}
+.result-item{
+    font-size: large;
+    text-align: center;
+}
+/* create_review.css */
+
+h2{ 
+    text-align: center;
+ }
+ .form-group-rating {
+    margin:auto;
+    display:block;
+    width: 400px;
+    text-align: left;
+ }
+ .review-submit {
+    float: left;
+ }
+ .review-cancel{
+    text-decoration: none;
+    float: right;
+ }
+@media (min-width: 768px) {
+body { 
+    font-family: Arial; 
+    padding: 20px; 
+    text-decoration: none;
+}
+.alert { 
+    padding: 16px 20px;
+    margin: 10px 0; 
+    border-radius: 16px;
+    border: 1px solid;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    animation: slideDown 0.3s ease-out;
+}
+.alert-error { 
+    background: rgba(220, 38, 38, 0.12);
+    color: #991b1b;
+    border-color: rgba(220, 38, 38, 0.3);
+}
+.alert-success { 
+    background: rgba(22, 163, 74, 0.12);
+    color: #166534;
+    border-color: rgba(22, 163, 74, 0.3);
+}
+a { 
+    color: #007bff; 
+    text-decoration: none; 
+}
+.login-links { 
+    text-align: center; 
+    padding: 40px; 
+}
+.login-links a { 
+    margin: 10px; 
+    padding: 10px 20px; 
+    background-color: #007bff; 
+    color: white;  
+    border-radius: 30px; 
+    display: inline-block; 
+}
+.Logo{
+    position: fixed;
+    top: 20px;
     left:50px;
     width: 35px;
     height: 20px;
@@ -70,7 +215,7 @@ a {
     position: fixed;
     float: right;
     right: 20px;
-    top: 45px;
+    top: 25px;
     width: 8%;
     text-align: center;
 }
@@ -100,12 +245,77 @@ button:hover{
     color: lightskyblue;
 }
 .div-2 input[type=search]{
-    width: 800px;
+    width: 70%;
     height: 50px;
     font-size: 20px;
-    margin-left: 25%;
+    margin-left: 15%;
+    border-color: gray;
 }
 
 .header{
     padding: 20px 20px;  
+}
+.result-item{
+    font-size: large;
+    text-align: center;
+    margin: auto;
+    width: 60%;
+    float: left;
+}
+.search-results{
+    margin: auto;
+    width: 60%;
+}
+.Filter{
+    position: relative;
+    display: inline-block;
+}
+.Filter-button{
+    position: fixed;
+    right:200px;
+    padding: 10px 10px;
+    font-size: medium;
+    cursor: pointer;
+    transition-duration: 1s;
+}
+.Filter-options{
+    display: none;
+    right: 150px;
+    position: fixed;
+    background-color: lightblue;
+    min-width:160px;
+}
+.Filter:hover .Filter-options{
+    display:block;
+}
+.Filter:hover .Filter-button{
+    background-color: blue;
+}
+.Filter-options a { display:block; padding:8px; color:black; text-decoration:none; }
+.Filter-options a.active { font-weight:bold; background:#d0e7ff; }
+/* create_review.css */
+
+h2{ 
+    text-align: center;
+ }
+ .form-group-rating {
+    margin:auto;
+    display:block;
+    width: 400px;
+    text-align: left;
+ }
+ .review-submit {
+    float: left;
+ }
+ .review-cancel{
+    text-decoration: none;
+    float: right;
+ }
+}
+/* fuzzy search hint */
+.did-mean {
+    font-weight: bold;
+    text-align: center;
+    margin-top: 8px;
+    color: #333;
 }

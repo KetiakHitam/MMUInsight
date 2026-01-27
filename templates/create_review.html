@@ -2,6 +2,10 @@
 
 {% block title %}Write Review{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="glass-form" style="max-width: 800px; margin: 0 auto;">
@@ -13,7 +17,8 @@
             <label for="review_text">Review:</label>
             <textarea id="review_text" name="review_text" rows="5" required></textarea>
         </div>
-        
+
+        <div style="margin:auto; display:block; width: 400px; text-align: left;">
         <h3>Rate the Lecturer</h3>
         
         <div class="form-group">
@@ -66,6 +71,10 @@
             </div>
             <input type="hidden" id="rating_responsiveness" name="rating_responsiveness" required>
             <small>Replies to emails/questions promptly</small>
+
+        <div class="form-group-rating">
+            <label for="rating_helpfulness">Helpfulness (1-5):</label>
+            <input type="number" id="rating_helpfulness" name="rating_helpfulness" min="1" max="5" required>
         </div>
         
         <div class="form-group">
@@ -86,7 +95,7 @@
                 <input type="checkbox" name="is_anonymous" id="is_anonymous" style="width: 20px; height: 20px; margin-right: 10px; cursor: pointer;">
                 <span>🕶️ Post this review anonymously</span>
             </label>
-            <small style="color: var(--text-secondary); display: block; margin-top: 8px; margin-left: 30px;">Your email will be hidden from other students, but you can still edit/delete the review</small>
+        <small style="color: var(--text-secondary); display: block; margin-top: 8px; margin-left: 30px;">Your email will be hidden from other students, but you can still edit/delete the review</small>        </div>
         </div>
         
         <div class="form-group">

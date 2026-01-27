@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}FAQ - MMUInsight{% endblock %}
+
+{% block content %}
+<div class="container" style="background: rgba(255, 255, 255, 0.92); border-radius: 20px; backdrop-filter: blur(18px); border: 1px solid rgba(255, 255, 255, 0.25); color: #1f2937; padding: 40px;">
+    <h2>Frequently Asked Questions</h2>
+    <p>Welcome to MMUInsight's FAQ section. Find answers to common questions about registration, reviews, profiles, and more.</p>
+
+    <h3>Registration & Account</h3>
+    
+    <h4>What email should I use to register?</h4>
+    <p>Use your MMU student email (@student.mmu.edu.my) for students or MMU staff email (@mmu.edu.my) for lecturers. Other emails won't be accepted.</p>
+    
+    <h4>Why do I need to verify my email?</h4>
+    <p>Email verification prevents fake accounts and ensures only real MMU users can review.</p>
+    
+    <h4>Do I have to verify my email to use the platform?</h4>
+    <p>Yes. You'll receive a verification link via email after signup. Click it to activate your account.</p>
+    
+    <h4>How long is the verification link valid?</h4>
+    <p>24 hours. If it expires, use the "Resend verification email" link on the login page.</p>
+    
+    <h4>How do I delete my account?</h4>
+    <p>Contact support. Account deletion will remove your reviews and associated data.</p>
+    
+    <h4>Can I change my email after registering?</h4>
+    <p>Not currently. You'll need to create a new account with the new email.</p>
+
+    <h3>Searching for Lecturers</h3>
+    
+    <h4>How do I find a specific lecturer?</h4>
+    <p>Use the search bar on the homepage. You can search by:</p>
+    <ul>
+        <li>Lecturer's name (e.g., "Willie", "Aliah")</li>
+        <li>Email or email prefix (e.g., "tjchan", "klpoh")</li>
+    </ul>
+    <p>The search uses fuzzy matching, so approximate spelling works too.</p>
+    
+    <h4>What do the stars and "New" label mean on search results?</h4>
+    <p>"New" means the lecturer has no reviews yet. Stars show their average rating based on submitted reviews.</p>
+
+    <h3>Reviews & Ratings</h3>
+    
+    <h4>Can I write multiple reviews for the same lecturer?</h4>
+    <p>No. You can only write ONE review per lecturer. However, you can edit your review anytime.</p>
+    
+    <h4>What do the 5 rating categories mean?</h4>
+    <ul>
+        <li><strong>Clarity:</strong> How well they explain concepts</li>
+        <li><strong>Engagement:</strong> How interesting/interactive their teaching is</li>
+        <li><strong>Punctuality:</strong> How often they start/end on time</li>
+        <li><strong>Responsiveness:</strong> How quickly they reply to questions</li>
+        <li><strong>Fairness:</strong> How fair their grading/assessment is</li>
+    </ul>
+    
+    <h4>How is the overall rating calculated?</h4>
+    <p>Average of all 5 categories (rounded to 1 decimal place).</p>
+    
+    <h4>Can I edit or delete my review?</h4>
+    <p>Yes. Go to the lecturer's profile, find your review, and click Edit or Delete.</p>
+    
+    <h4>What happens if I delete my review?</h4>
+    <p>It's permanently removed. The lecturer's average rating will update accordingly.</p>
+    
+    <h4>Can I write an anonymous review?</h4>
+    <p>Yes. Check "Submit anonymously" when writing. Only admins can see who wrote it.</p>
+    
+    <h4>What is the "Recommend" field?</h4>
+    <p>It's a simple yes/no question: "Would you recommend this lecturer to other students?" This helps others quickly gauge overall satisfaction.</p>
+
+    <h3>Anonymity & Privacy</h3>
+    
+    <h4>If I write anonymously, will the lecturer know it's me?</h4>
+    <p>No. The lecturer sees "Anonymous Student" instead of your name. Only admins can see your identity (for moderation purposes).</p>
+    
+    <h4>Can a lecturer see who reviewed them?</h4>
+    <p>They can see all reviews and replies, but anonymous reviews display as "Anonymous Student".</p>
+    
+    <h4>What data do you collect from me?</h4>
+    <p>Email, password (hashed), reviews you write, ratings you give, and replies you post. We don't share data with third parties.</p>
+    
+    <h4>Is my password secure?</h4>
+    <p>Yes. Passwords are encrypted with bcrypt. We never store plain text passwords.</p>
+
+    <h3>Lecturer Profiles</h3>
+    
+    <h4>Can lecturers see their own profiles and reviews?</h4>
+    <p>Yes. Lecturers can view their profiles and all reviews written about them. They can also reply to reviews and edit their bio.</p>
+    
+    <h4>Can a lecturer claim their profile?</h4>
+    <p>Yes. Lecturers with official MMU email (@mmu.edu.my) can claim their profile during registration for verification.</p>
+    
+    <h4>Can lecturers reply to reviews?</h4>
+    <p>Yes. Lecturers can write replies to any review about them. Replies are visible to all users.</p>
+
+    <h3>Analytics</h3>
+    
+    <h4>What analytics are available?</h4>
+    <p>Both students and lecturers can view analytics showing:</p>
+    <ul>
+        <li>Average ratings across all 5 categories</li>
+        <li>Overall rating (0-5 scale)</li>
+        <li>Total number of reviews</li>
+        <li>Rating distribution (how many ratings per score)</li>
+        <li>Comparison to other lecturers (students only)</li>
+    </ul>
+    
+    <h4>Can I see the distribution of ratings?</h4>
+    <p>Yes. The student analytics page shows how many reviews gave each rating (1-5) per category.</p>
+
+    <h3>Suggestions & Voting</h3>
+    
+    <h4>How do suggestions work?</h4>
+    <p>Any user can suggest features or improvements. Others can upvote or downvote to show support. Admins use this feedback to prioritize new features.</p>
+    
+    <h4>Can I change my vote on a suggestion?</h4>
+    <p>Yes. Click the same button again to remove your vote, or switch to the opposite vote.</p>
+    
+    <h4>Can I delete my suggestion?</h4>
+    <p>You can't delete it yourself, but admins can remove inappropriate suggestions.</p>
+
+    <h3>Bug Reports</h3>
+    
+    <h4>How do I report a bug?</h4>
+    <p>Click "Report Bug" in the navigation menu. Fill in the title and detailed description of the issue you encountered. Include steps to reproduce if possible.</p>
+    
+    <h4>Is my bug report visible to other users?</h4>
+    <p>No. Bug reports are completely private and only visible to the admin team. We keep them confidential to prevent security vulnerabilities from being exploited.</p>
+    
+    <h4>How long does it take for admins to review my bug?</h4>
+    <p>We aim to review all bug reports promptly. You can check the status (New, In Progress, Resolved, Closed) in your submitted report.</p>
+    
+    <h4>Can I see updates on my bug report?</h4>
+    <p>Bug reports are private, so updates are managed internally by the admin team.</p>
+    
+    <h4>What counts as a bug?</h4>
+    <p>Any technical issue such as broken features, error messages, performance problems, or unexpected behavior. For feature requests, use Suggestions instead.</p>
+
+    <h3>Reports & Moderation</h3>
+    
+    <h4>How do I report inappropriate content?</h4>
+    <p>Click the "Report" button under any review. Admins will investigate it within 24 hours.</p>
+    
+    <h4>What happens to reported reviews?</h4>
+    <p>Admins investigate. If the content violates guidelines, it's removed and the user may be suspended.</p>
+    
+    <h4>Can admins delete reviews without a report?</h4>
+    <p>Yes. Admins monitor content proactively to keep the platform safe.</p>
+    
+    <h4>What types of content are not allowed?</h4>
+    <p>Content that is abusive, harassing, defamatory, sexually explicit, spam, or otherwise violates our Terms of Service.</p>
+
+    <h3>Admin Features</h3>
+    
+    <h4>What can admins do?</h4>
+    <p>Admins can:</p>
+    <ul>
+        <li>View and investigate bug reports</li>
+        <li>Pin important reviews to the top of lecturer profiles</li>
+        <li>Moderate content and handle user reports</li>
+        <li>View audit logs of all platform actions</li>
+        <li>Manage user roles and permissions</li>
+    </ul>
+    
+    <h4>Can reviews be pinned?</h4>
+    <p>Yes. Admins can pin reviews to the top of a lecturer's profile to highlight particularly helpful or important feedback.</p>
+
+    <h3>Technical</h3>
+    
+    <h4>What's the difference between dark mode and light mode?</h4>
+    <p>Visual preference. Dark mode reduces eye strain; light mode is the standard view. Your preference is automatically saved.</p>
+    
+    <h4>What languages does MMUInsight support?</h4>
+    <p>English, Malay, and Chinese. Change your language in the top menu.</p>
+    
+    <h4>Is MMUInsight mobile-friendly?</h4>
+    <p>Yes, you can use it on phone, tablet, or desktop. The interface adapts to your screen size.</p>
+
+    <h3>General</h3>
+    
+    <h4>Why does MMUInsight exist?</h4>
+    <p>To give students a transparent way to share feedback about teaching quality and help others choose lecturers wisely.</p>
+    
+    <h4>Is this affiliated with MMU officially?</h4>
+    <p>No. This is a student-run project not officially endorsed by MMU administration. See our disclaimer on login/register pages.</p>
+    
+    <h4>How do I contact support?</h4>
+    <p>Email us at <strong>mmuinsight@gmail.com</strong> for urgent issues or account problems. For bug reports, use the "Report Bug" feature in the navigation menu.</p>
+
+</div>
+{% endblock %}
