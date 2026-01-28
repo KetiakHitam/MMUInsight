@@ -1716,7 +1716,6 @@ input[type="button"]:hover {
   box-shadow: var(--btn-shadow-hover);
   filter: brightness(var(--btn-hover-brightness));
   text-decoration: none;
-  transform: translateY(-2px);
 }
 
 .btn-secondary:hover {
