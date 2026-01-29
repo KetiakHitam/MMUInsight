@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from flask_babel import gettext as _
 from extensions import db, limiter
-from models import Review, User, Reply, Report, Subject
+from models import Review, User, Reply, Report, Subject, ReviewVote, ReplyVote
 from audit import log_admin_action
 from datetime import datetime
 from sqlalchemy import func
@@ -234,7 +234,25 @@ def lecturer_profile(lecturer_id):
         averages = None
         recommend_percentage = None
     
-    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage, reported_review_ids=reported_review_ids, student_has_review=student_has_review, user_review_id=user_review.id if user_review else None, now=datetime.utcnow())
+    # Gather current user's votes for shown reviews and replies (for UI state)
+    user_review_votes = {}
+    user_reply_votes = {}
+    if current_user.is_authenticated:
+        review_ids = [r.id for r in reviews]
+        review_votes = ReviewVote.query.filter(ReviewVote.user_id == current_user.id, ReviewVote.review_id.in_(review_ids)).all() if review_ids else []
+        for v in review_votes:
+            user_review_votes[v.review_id] = v.vote_type
+
+        # collect reply ids
+        reply_ids = []
+        for r in reviews:
+            for rep in r.replies:
+                reply_ids.append(rep.id)
+        reply_votes = ReplyVote.query.filter(ReplyVote.user_id == current_user.id, ReplyVote.reply_id.in_(reply_ids)).all() if reply_ids else []
+        for v in reply_votes:
+            user_reply_votes[v.reply_id] = v.vote_type
+
+    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage, reported_review_ids=reported_review_ids, student_has_review=student_has_review, user_review_id=user_review.id if user_review else None, now=datetime.utcnow(), user_review_votes=user_review_votes, user_reply_votes=user_reply_votes)
 
 @reviews_bp.route('/claim_profile/<int:lecturer_id>', methods=['POST'])
 @login_required
@@ -701,3 +719,111 @@ def unpin_review(review_id):
     
     flash("Review unpinned", "success")
     return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
+
+
+@reviews_bp.route('/review/<int:review_id>/upvote', methods=['POST'])
+@login_required
+def review_upvote(review_id):
+    review = Review.query.get_or_404(review_id)
+
+    # Check existing vote
+    existing = ReviewVote.query.filter_by(user_id=current_user.id, review_id=review_id).first()
+    if existing and existing.vote_type == 'upvote':
+        # cancel upvote
+        db.session.delete(existing)
+        review.upvotes = max(0, review.upvotes - 1)
+        db.session.commit()
+        return jsonify({'status': 'cancelled', 'upvotes': review.upvotes, 'downvotes': review.downvotes})
+
+    if existing and existing.vote_type == 'downvote':
+        # switch vote
+        existing.vote_type = 'upvote'
+        review.downvotes = max(0, review.downvotes - 1)
+        review.upvotes = review.upvotes + 1
+        db.session.commit()
+        return jsonify({'status': 'switched', 'upvotes': review.upvotes, 'downvotes': review.downvotes})
+
+    # new upvote
+    vote = ReviewVote(user_id=current_user.id, review_id=review_id, vote_type='upvote')
+    db.session.add(vote)
+    review.upvotes = review.upvotes + 1
+    db.session.commit()
+    return jsonify({'status': 'ok', 'upvotes': review.upvotes, 'downvotes': review.downvotes})
+
+
+@reviews_bp.route('/review/<int:review_id>/downvote', methods=['POST'])
+@login_required
+def review_downvote(review_id):
+    review = Review.query.get_or_404(review_id)
+
+    existing = ReviewVote.query.filter_by(user_id=current_user.id, review_id=review_id).first()
+    if existing and existing.vote_type == 'downvote':
+        db.session.delete(existing)
+        review.downvotes = max(0, review.downvotes - 1)
+        db.session.commit()
+        return jsonify({'status': 'cancelled', 'upvotes': review.upvotes, 'downvotes': review.downvotes})
+
+    if existing and existing.vote_type == 'upvote':
+        existing.vote_type = 'downvote'
+        review.upvotes = max(0, review.upvotes - 1)
+        review.downvotes = review.downvotes + 1
+        db.session.commit()
+        return jsonify({'status': 'switched', 'upvotes': review.upvotes, 'downvotes': review.downvotes})
+
+    vote = ReviewVote(user_id=current_user.id, review_id=review_id, vote_type='downvote')
+    db.session.add(vote)
+    review.downvotes = review.downvotes + 1
+    db.session.commit()
+    return jsonify({'status': 'ok', 'upvotes': review.upvotes, 'downvotes': review.downvotes})
+
+
+@reviews_bp.route('/reply/<int:reply_id>/upvote', methods=['POST'])
+@login_required
+def reply_upvote(reply_id):
+    reply = Reply.query.get_or_404(reply_id)
+
+    existing = ReplyVote.query.filter_by(user_id=current_user.id, reply_id=reply_id).first()
+    if existing and existing.vote_type == 'upvote':
+        db.session.delete(existing)
+        reply.upvotes = max(0, reply.upvotes - 1)
+        db.session.commit()
+        return jsonify({'status': 'cancelled', 'upvotes': reply.upvotes, 'downvotes': reply.downvotes})
+
+    if existing and existing.vote_type == 'downvote':
+        existing.vote_type = 'upvote'
+        reply.downvotes = max(0, reply.downvotes - 1)
+        reply.upvotes = reply.upvotes + 1
+        db.session.commit()
+        return jsonify({'status': 'switched', 'upvotes': reply.upvotes, 'downvotes': reply.downvotes})
+
+    vote = ReplyVote(user_id=current_user.id, reply_id=reply_id, vote_type='upvote')
+    db.session.add(vote)
+    reply.upvotes = reply.upvotes + 1
+    db.session.commit()
+    return jsonify({'status': 'ok', 'upvotes': reply.upvotes, 'downvotes': reply.downvotes})
+
+
+@reviews_bp.route('/reply/<int:reply_id>/downvote', methods=['POST'])
+@login_required
+def reply_downvote(reply_id):
+    reply = Reply.query.get_or_404(reply_id)
+
+    existing = ReplyVote.query.filter_by(user_id=current_user.id, reply_id=reply_id).first()
+    if existing and existing.vote_type == 'downvote':
+        db.session.delete(existing)
+        reply.downvotes = max(0, reply.downvotes - 1)
+        db.session.commit()
+        return jsonify({'status': 'cancelled', 'upvotes': reply.upvotes, 'downvotes': reply.downvotes})
+
+    if existing and existing.vote_type == 'upvote':
+        existing.vote_type = 'downvote'
+        reply.upvotes = max(0, reply.upvotes - 1)
+        reply.downvotes = reply.downvotes + 1
+        db.session.commit()
+        return jsonify({'status': 'switched', 'upvotes': reply.upvotes, 'downvotes': reply.downvotes})
+
+    vote = ReplyVote(user_id=current_user.id, reply_id=reply_id, vote_type='downvote')
+    db.session.add(vote)
+    reply.downvotes = reply.downvotes + 1
+    db.session.commit()
+    return jsonify({'status': 'ok', 'upvotes': reply.upvotes, 'downvotes': reply.downvotes})
