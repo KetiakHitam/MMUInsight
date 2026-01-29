@@ -171,8 +171,13 @@
     {% endif %}
 
     <h3 style="max-width: 800px; margin: 30px auto 20px auto; text-align: left;">Reviews ({{ reviews|length }})</h3>
+
     
     {% if reviews %}
+    <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+        <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=lecturer.id, sort='upvotes') }}" style="background-color: {% if sort_by == 'upvotes' %}#007bff{% else %}#e9ecef{% endif %}; color: {% if sort_by == 'upvotes' %}white{% else %}#333{% endif %}; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 0.9em; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">👍 Most Upvoted</a>
+        <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=lecturer.id, sort='recent') }}" style="background-color: {% if sort_by == 'recent' %}#007bff{% else %}#e9ecef{% endif %}; color: {% if sort_by == 'recent' %}white{% else %}#333{% endif %}; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 0.9em; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">⏰ Most Recent</a>
+    </div>
         {% for review in reviews %}
         <div class="review-card{% if review.author == current_user %} own-review{% endif %}">
             <div class="review-header">

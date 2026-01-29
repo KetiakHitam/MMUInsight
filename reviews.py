@@ -5,7 +5,7 @@ from extensions import db, limiter
 from models import Review, User, Reply, Report, Subject, ReviewVote, ReplyVote
 from audit import log_admin_action
 from datetime import datetime
-from sqlalchemy import func
+from sqlalchemy import func, desc
 
 reviews_bp = Blueprint('reviews', __name__)
 
@@ -195,7 +195,13 @@ def lecturer_profile(lecturer_id):
         current_user.search_history = ','.join(history)
         db.session.commit()
 
-    reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.review_date.desc()).all()
+    # Determine requested sort and fetch reviews accordingly (pinned always first)
+    sort_by = request.args.get('sort', 'recent')
+    if sort_by == 'upvotes':
+        reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.upvotes.desc()).all()
+    else:
+        # default to recent
+        reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.review_date.desc()).all()
     
     user_review = None
     student_has_review = False
@@ -251,8 +257,8 @@ def lecturer_profile(lecturer_id):
         reply_votes = ReplyVote.query.filter(ReplyVote.user_id == current_user.id, ReplyVote.reply_id.in_(reply_ids)).all() if reply_ids else []
         for v in reply_votes:
             user_reply_votes[v.reply_id] = v.vote_type
-
-    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage, reported_review_ids=reported_review_ids, student_has_review=student_has_review, user_review_id=user_review.id if user_review else None, now=datetime.utcnow(), user_review_votes=user_review_votes, user_reply_votes=user_reply_votes)
+    
+    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage, reported_review_ids=reported_review_ids, student_has_review=student_has_review, user_review_id=user_review.id if user_review else None, now=datetime.utcnow(), user_review_votes=user_review_votes, user_reply_votes=user_reply_votes, sort_by=sort_by)
 
 @reviews_bp.route('/claim_profile/<int:lecturer_id>', methods=['POST'])
 @login_required
