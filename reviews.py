@@ -9,6 +9,32 @@ from sqlalchemy import func, desc
 
 reviews_bp = Blueprint('reviews', __name__)
 
+
+def _recalc_user_total_upvotes(user_id):
+    """Recalculate and persist `total_upvotes` for a user from their reviews.
+    If the user reaches the reliable threshold (>=5) set `reliable_tag` to 1
+    and never unset it later.
+    """
+    if not user_id:
+        return
+    total = db.session.query(func.coalesce(func.sum(Review.upvotes), 0)).filter(Review.user_id == user_id).scalar() or 0
+    try:
+        user = User.query.get(user_id)
+    except Exception:
+        user = None
+    if not user:
+        return
+    user.total_upvotes = int(total)
+    # Only set reliable_tag once when threshold reached; never unset
+    try:
+        if (user.total_upvotes >= 5) and (not user.reliable_tag):
+            user.reliable_tag = 1
+    except Exception:
+        # If reliable_tag is None or missing, make sure it's set correctly
+        if user.total_upvotes >= 5:
+            user.reliable_tag = 1
+    db.session.commit()
+
 @reviews_bp.route('/lecturer/<int:lecturer_id>/terms', methods=['GET'])
 @login_required
 def lecturer_terms(lecturer_id):
@@ -385,9 +411,12 @@ def delete_review(review_id):
         return redirect(url_for('index'))
 
     lecturer_id = review.lecturer_id
+    author_id = review.user_id
     
     db.session.delete(review)
     db.session.commit()
+    # Recalculate the deleted review's author's total upvotes
+    _recalc_user_total_upvotes(author_id)
     
     flash(_("Review deleted successfully!"), "success")
     return redirect(url_for('reviews.lecturer_profile', lecturer_id=lecturer_id))
@@ -739,6 +768,7 @@ def review_upvote(review_id):
         db.session.delete(existing)
         review.upvotes = max(0, review.upvotes - 1)
         db.session.commit()
+        _recalc_user_total_upvotes(review.user_id)
         return jsonify({'status': 'cancelled', 'upvotes': review.upvotes, 'downvotes': review.downvotes})
 
     if existing and existing.vote_type == 'downvote':
@@ -747,6 +777,7 @@ def review_upvote(review_id):
         review.downvotes = max(0, review.downvotes - 1)
         review.upvotes = review.upvotes + 1
         db.session.commit()
+        _recalc_user_total_upvotes(review.user_id)
         return jsonify({'status': 'switched', 'upvotes': review.upvotes, 'downvotes': review.downvotes})
 
     # new upvote
@@ -754,6 +785,7 @@ def review_upvote(review_id):
     db.session.add(vote)
     review.upvotes = review.upvotes + 1
     db.session.commit()
+    _recalc_user_total_upvotes(review.user_id)
     return jsonify({'status': 'ok', 'upvotes': review.upvotes, 'downvotes': review.downvotes})
 
 
@@ -767,6 +799,7 @@ def review_downvote(review_id):
         db.session.delete(existing)
         review.downvotes = max(0, review.downvotes - 1)
         db.session.commit()
+        _recalc_user_total_upvotes(review.user_id)
         return jsonify({'status': 'cancelled', 'upvotes': review.upvotes, 'downvotes': review.downvotes})
 
     if existing and existing.vote_type == 'upvote':
@@ -774,12 +807,14 @@ def review_downvote(review_id):
         review.upvotes = max(0, review.upvotes - 1)
         review.downvotes = review.downvotes + 1
         db.session.commit()
+        _recalc_user_total_upvotes(review.user_id)
         return jsonify({'status': 'switched', 'upvotes': review.upvotes, 'downvotes': review.downvotes})
 
     vote = ReviewVote(user_id=current_user.id, review_id=review_id, vote_type='downvote')
     db.session.add(vote)
     review.downvotes = review.downvotes + 1
     db.session.commit()
+    _recalc_user_total_upvotes(review.user_id)
     return jsonify({'status': 'ok', 'upvotes': review.upvotes, 'downvotes': review.downvotes})
 
 
