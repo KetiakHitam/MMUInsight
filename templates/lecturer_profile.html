@@ -189,6 +189,9 @@
                         <span>Anonymous Student</span>
                     {% else %}
                         <span>{{ review.author.email }}</span>
+                        {% if review.author.reliable_tag %}
+                            <span class="reliable-badge">Reliable</span>
+                        {% endif %}
                         {% if review.is_anonymous and current_user.is_admin() %}
                             <span style="color: var(--text-secondary); font-size: 0.9em;">(Anonymous to others)</span>
                         {% endif %}
@@ -321,6 +324,9 @@
                                 <span style="color: var(--danger);">Anonymous Student</span>
                             {% else %}
                                 <span>{{ reply.author.email }}</span>
+                                {% if reply.author.reliable_tag %}
+                                    <span class="reliable-badge">Reliable</span>
+                                {% endif %}
                                 {% if reply.is_admin and reply.author.role != 'OWNER' %}
                                     {% if reply.author.role == 'ADMIN' %}
                                     <span class="reply-admin-badge admin">ADMIN</span>
@@ -430,6 +436,8 @@ function hideEditForm(replyId) {
 .vote-btn { display: inline-flex; align-items: center; gap:6px; padding:6px 10px; border-radius:6px; border:1px solid #ddd; background:#f8f9fa; cursor:pointer; }
 .vote-btn.active { background:#e6f4ff; border-color:#b6e0ff; }
 .vote-btn .count { font-weight:600; margin-left:4px; }
+/* Reliable badge */
+.reliable-badge { display:inline-block; margin-left:8px; background: #e6ffed; color: #0b6b2e; padding: 2px 6px; border-radius: 6px; font-size: 0.8em; font-weight:600; }
 </style>
 
 <script>

@@ -20,6 +20,10 @@ class User(UserMixin, db.Model):
     last_online = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     dark_mode = db.Column(db.Boolean, nullable=False, default=False)
     search_history = db.Column(db.Text, nullable=True)
+    # Total upvotes across all reviews authored by this user (kept in sync by vote handlers)
+    total_upvotes = db.Column(db.Integer, nullable=False, default=0)
+    # Persistent reliable tag: 1 when the user reached threshold, never unset by app logic
+    reliable_tag = db.Column(db.Integer, nullable=False, default=0)
 
     reviews_written = db.relationship('Review', foreign_keys='Review.user_id', backref='author', lazy=True)
     reviews_received = db.relationship('Review', foreign_keys='Review.lecturer_id', backref='lecturer', lazy=True)
