@@ -6,6 +6,7 @@ from extensions import db, limiter
 from models import Suggestion, SuggestionVote
 from audit import log_admin_action
 from sanitize import sanitize_user_content
+from ascii_detector import AsciiArtDetector
 from datetime import datetime
 from sqlalchemy import desc
 
@@ -36,17 +37,24 @@ def create_suggestion():
         flash(_("Title and description are required"), "error")
         return redirect(url_for('suggestions.suggestions_list'))
     
+    # Check for ASCII art in description (title is too short to contain ASCII art)
+    ascii_result = AsciiArtDetector.detect_ascii_art(description)
+    
     suggestion = Suggestion(
         user_id=None if is_anonymous else current_user.id,
         title=title,
         description=description,
-        is_anonymous=is_anonymous
+        is_anonymous=is_anonymous,
+        ascii_art_score=ascii_result['score']
     )
     
     db.session.add(suggestion)
     db.session.commit()
     
-    flash(_("Suggestion submitted successfully!"), "success")
+    if ascii_result['is_flagged']:
+        flash(_("Suggestion submitted but flagged for review due to suspicious content."), "warning")
+    else:
+        flash(_("Suggestion submitted successfully!"), "success")
     return redirect(url_for('suggestions.suggestions_list'))
 
 @suggestions_bp.route('/suggestion/<int:suggestion_id>/upvote', methods=['POST'])
