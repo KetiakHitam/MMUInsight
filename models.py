@@ -119,6 +119,7 @@ class Review(db.Model):
     moderated_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     moderated_at = db.Column(db.DateTime, nullable=True)
     moderation_action = db.Column(db.String(20), nullable=True)
+    ascii_art_score = db.Column(db.Integer, nullable=False, default=0)
     
     replies = db.relationship('Reply', backref='review', lazy=True, cascade='all, delete-orphan')
     reports = db.relationship('Report', backref='review', lazy=True)
@@ -151,6 +152,7 @@ class Suggestion(db.Model):
     downvotes = db.Column(db.Integer, nullable=False, default=0)
     status = db.Column(db.String(20), nullable=False, default='pending')
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    ascii_art_score = db.Column(db.Integer, nullable=False, default=0)
     
     user = db.relationship('User', backref='suggestions', lazy=True)
     votes = db.relationship('SuggestionVote', backref='suggestion', lazy=True, cascade='all, delete-orphan')
@@ -184,6 +186,7 @@ class BugReport(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
     internal_notes = db.Column(db.Text, nullable=True)
     resolution_notes = db.Column(db.Text, nullable=True)
+    ascii_art_score = db.Column(db.Integer, nullable=False, default=0)
     
     user = db.relationship('User', backref='bug_reports', lazy=True)
     comments = db.relationship('BugComment', backref='bug_report', lazy=True, cascade='all, delete-orphan')

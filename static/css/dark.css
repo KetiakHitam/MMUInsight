@@ -459,6 +459,34 @@ body.dark-mode .stat-card {
   border: 1px solid #444 !important;
 }
 
+/* Dark mode stat card hovers - full colored backgrounds */
+body.dark-mode .stat-card.unverified-lecturers:hover {
+  background: #ffc107 !important;
+  border-color: #ffc107 !important;
+}
+
+body.dark-mode .stat-card.unverified-lecturers:hover p {
+  color: #000 !important;
+}
+
+body.dark-mode .stat-card.flagged-reviews:hover {
+  background: #ff6b6b !important;
+  border-color: #ff6b6b !important;
+}
+
+body.dark-mode .stat-card.flagged-reviews:hover p {
+  color: #fff !important;
+}
+
+body.dark-mode .stat-card.pending-reports:hover {
+  background: #dc3545 !important;
+  border-color: #dc3545 !important;
+}
+
+body.dark-mode .stat-card.pending-reports:hover p {
+  color: #fff !important;
+}
+
 /* Card styling for dark mode */
 body.dark-mode .card {
   background-color: #2a2a2a !important;
@@ -622,7 +650,7 @@ body.dark-mode div[class*="glass"] {
   backdrop-filter: none !important;
 }
 
-body.dark-mode [class*="rating"]:not(.rating-bar-container):not(.rating-bar-fill),
+body.dark-mode [class*="rating"]:not(.rating-bar-container):not(.rating-bar-fill):not(.rating-bar):not(.rating-segment),
 body.dark-mode [class*="review"],
 body.dark-mode [class*="card"] {
   background-color: #1a1f3a !important;
@@ -665,3 +693,5 @@ body.dark-mode .container {
   border-color: rgba(59, 130, 246, 0.4) !important;
   color: rgba(255, 255, 255, 0.95) !important;
 }
+
+
