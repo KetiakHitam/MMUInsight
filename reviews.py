@@ -202,6 +202,7 @@ def lecturer_profile(lecturer_id):
     if current_user.user_type == 'student' and not current_user.profile_consent:
         return redirect(url_for('reviews.lecturer_terms', lecturer_id=lecturer_id))
     
+    
     # Update search history for students
     if current_user.user_type == 'student':
         history = current_user.search_history.split(',') if current_user.search_history else []

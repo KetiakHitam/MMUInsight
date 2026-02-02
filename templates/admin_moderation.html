@@ -38,11 +38,11 @@
                 <div style="flex: 1;">
                     <h3 style="margin: 0 0 8px 0; color: #333;">
                         <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id) }}" style="color: #2563eb; text-decoration: none;">
-                            {{ review.lecturer.email.split('@')[0] }}
+                            {{ (review.lecturer.email.split('@')[0]) if (review.lecturer and review.lecturer.email) else 'Unknown Lecturer' }}
                         </a>
                     </h3>
                     <p style="margin: 0; color: #666; font-size: 0.9em;">
-                        By: <strong>{{ review.author.email if not review.is_anonymous else 'Anonymous Student' }}</strong> 
+                        By: <strong>{{ review.author.email if (not review.is_anonymous and review.author) else 'Anonymous Student' }}</strong> 
                         | {{ review.review_date.strftime('%Y-%m-%d %H:%M') }}
                     </p>
                 </div>
@@ -108,9 +108,9 @@
             {% if review.moderated_at %}
             <div style="background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
                 <p style="margin: 0 0 8px 0; font-weight: 600; color: #2563eb;">📜 Moderation History:</p>
-                <p style="margin: 0; color: #666; font-size: 0.9em;">
+                    <p style="margin: 0; color: #666; font-size: 0.9em;">
                     <strong style="text-transform: capitalize;">{{ review.moderation_action.replace('_', ' ') }}</strong> 
-                    by <strong>{{ review.moderated_by.email }}</strong> 
+                    by <strong>{{ review.moderated_by.email if review.moderated_by else 'Unknown' }}</strong> 
                     on {{ review.moderated_at.strftime('%Y-%m-%d %H:%M:%S') }}
                 </p>
             </div>
@@ -144,11 +144,11 @@
                 <div style="flex: 1;">
                     <h3 style="margin: 0 0 8px 0; color: #333;">
                         <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=item.review.lecturer_id) }}" style="color: #2563eb; text-decoration: none;">
-                            {{ item.review.lecturer.email.split('@')[0] }}
+                            {{ (item.review.lecturer.email.split('@')[0]) if (item.review.lecturer and item.review.lecturer.email) else 'Unknown Lecturer' }}
                         </a>
                     </h3>
                     <p style="margin: 0; color: #666; font-size: 0.9em;">
-                        By: <strong>{{ item.review.author.email if not item.review.is_anonymous else 'Anonymous Student' }}</strong> 
+                        By: <strong>{{ item.review.author.email if (not item.review.is_anonymous and item.review.author) else 'Anonymous Student' }}</strong> 
                         | {{ item.review.review_date.strftime('%Y-%m-%d %H:%M') }}
                     </p>
                 </div>
@@ -163,7 +163,7 @@
             <div style="background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
                 <p style="margin: 0 0 8px 0; font-weight: 600; color: #dc3545;">📢 Latest Report Reason:</p>
                 <p style="margin: 0; color: #666;">{{ item.latest_report.reason }}</p>
-                <p style="margin: 8px 0 0 0; color: #999; font-size: 0.85em;">Reported by: {{ item.latest_report.reporter.email }}</p>
+                <p style="margin: 8px 0 0 0; color: #999; font-size: 0.85em;">Reported by: {{ item.latest_report.reporter.email if item.latest_report.reporter else 'Unknown' }}</p>
                 
                 <!-- Show all reports button if more than 1 report -->
                 {% if item.report_count > 1 %}
@@ -183,7 +183,7 @@
                             <strong>Report #{{ item.report_count - loop.index0 }}:</strong> {{ report.reason }}
                         </p>
                         <p style="margin: 0; color: #999; font-size: 0.8em;">
-                            By: {{ report.reporter.email }} | {{ report.report_date.strftime('%Y-%m-%d %H:%M') }}
+                            By: {{ report.reporter.email if report.reporter else 'Unknown' }} | {{ report.report_date.strftime('%Y-%m-%d %H:%M') }}
                         </p>
                     </div>
                     {% endif %}
@@ -196,9 +196,9 @@
             {% if item.review.moderated_at %}
             <div style="background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
                 <p style="margin: 0 0 8px 0; font-weight: 600; color: #2563eb;">📜 Moderation History:</p>
-                <p style="margin: 0; color: #666; font-size: 0.9em;">
+                    <p style="margin: 0; color: #666; font-size: 0.9em;">
                     <strong style="text-transform: capitalize;">{{ item.review.moderation_action.replace('_', ' ') }}</strong> 
-                    by <strong>{{ item.review.moderated_by.email }}</strong> 
+                    by <strong>{{ item.review.moderated_by.email if item.review.moderated_by else 'Unknown' }}</strong> 
                     on {{ item.review.moderated_at.strftime('%Y-%m-%d %H:%M:%S') }}
                 </p>
             </div>

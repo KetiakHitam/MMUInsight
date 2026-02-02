@@ -16,6 +16,10 @@ __pycache__/
 .env.*
 *.env
 
+# Other env files
+.env.*
+*.env
+
 # Local Database
 mmuinsight.db
 *.db
