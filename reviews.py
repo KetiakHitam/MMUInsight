@@ -5,6 +5,7 @@ from extensions import db, limiter
 from models import Review, User, Reply, Report, Subject, Lecturer
 from moderation import ContentModerator, get_moderation_summary
 from audit import log_admin_action
+from ascii_detector import AsciiArtDetector
 from datetime import datetime
 from sqlalchemy import func
 
@@ -148,6 +149,15 @@ def create_review(lecturer_id):
     # Run auto-moderation on review text
     moderation_result = ContentModerator.moderate(review_text, content_type='review')
     
+    # Check for ASCII art
+    ascii_result = AsciiArtDetector.detect_ascii_art(review_text)
+    
+    # Combine moderation flags: if ASCII art detected, add to flags and mark for review
+    flags = list(moderation_result.flags)
+    if ascii_result['is_flagged']:
+        flags.append('ascii_art')
+        moderation_result.is_clean = False
+    
     review = Review(
         review_text=review_text,
         rating_clarity=rating_clarity,
@@ -162,10 +172,11 @@ def create_review(lecturer_id):
         is_anonymous=is_anonymous,
         subject_code=subject_input,
         # Set moderation flags
-        moderation_flags=','.join(moderation_result.flags) if moderation_result.flags else None,
-        moderation_severity=moderation_result.severity,
+        moderation_flags=','.join(flags) if flags else None,
+        moderation_severity=moderation_result.severity or (ascii_result['severity'] if ascii_result['is_flagged'] else None),
         requires_human_review=not moderation_result.is_clean,
-        is_approved=True if moderation_result.is_clean else None  # Auto-approved if clean
+        is_approved=True if moderation_result.is_clean else None,  # Auto-approved if clean
+        ascii_art_score=ascii_result['score']
     )
     
     db.session.add(review)
@@ -190,6 +201,7 @@ def lecturer_profile(lecturer_id):
     # Students must accept the profile viewing terms before viewing profiles.
     if current_user.user_type == 'student' and not current_user.profile_consent:
         return redirect(url_for('reviews.lecturer_terms', lecturer_id=lecturer_id))
+    
     
     # Update search history for students
     if current_user.user_type == 'student':

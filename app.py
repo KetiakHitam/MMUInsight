@@ -16,12 +16,13 @@ if 'DATABASE_PATH' not in os.environ:
     os.environ['DATABASE_PATH'] = os.path.join(db_directory, 'mmuinsight.db')
 
 from extensions import db, bcrypt, login_manager, limiter, csrf, mail
-from models import User, Subject, Review, Suggestion, SuggestionVote
+from models import User, Subject, Review, Suggestion, SuggestionVote, Lecturer
 from auth import auth_bp
 from reviews import reviews_bp
 from suggestions import suggestions_bp
 from bugs import bugs_bp
 from lecturer_search import search_lecturers_by_email
+from sqlalchemy import func
 
 app = Flask(__name__)
 
@@ -92,6 +93,67 @@ with app.app_context():
             db.session.add(user)
     
     db.session.commit()
+
+
+def get_trending_lecturers(limit=5):
+    """Get trending lecturers: mix of highest-rated and most-reviewed.
+    Returns list of lecturers with review_count and avg_rating attached."""
+    # Get all lecturers with their stats
+    stats_rows = (
+        db.session.query(
+            Lecturer.id,
+            Lecturer.email,
+            Lecturer.name,
+            Lecturer.department,
+            Lecturer.claimed_by_user_id,
+            func.count(Review.id).label("review_count"),
+            func.avg(
+                (
+                    Review.rating_clarity
+                    + Review.rating_engagement
+                    + Review.rating_punctuality
+                    + Review.rating_responsiveness
+                    + Review.rating_fairness
+                )
+                / 5.0
+            ).label("avg_rating"),
+        )
+        .outerjoin(Review)
+        .group_by(Lecturer.id)
+        .having(func.count(Review.id) > 0)  # Only lecturers with reviews
+        .all()
+    )
+    
+    if not stats_rows:
+        return []
+    
+    # Build lecturer objects with stats
+    lecturers_with_stats = []
+    for row in stats_rows:
+        lecturer = Lecturer(
+            id=row.id,
+            email=row.email,
+            name=row.name,
+            department=row.department,
+            claimed_by_user_id=row.claimed_by_user_id
+        )
+        lecturer.review_count = int(row.review_count or 0)
+        lecturer.avg_rating = round(float(row.avg_rating), 1) if row.avg_rating else None
+        lecturer.avatar_initials = row.email.split("@")[0][:2].upper()
+        lecturer.is_claimed = row.claimed_by_user_id is not None
+        lecturers_with_stats.append(lecturer)
+    
+    # Sort by rating (highest first) and pick top rated
+    by_rating = sorted([l for l in lecturers_with_stats if l.avg_rating], 
+                       key=lambda x: x.avg_rating, reverse=True)[:3]
+    
+    # Sort by review count and pick most reviewed
+    by_reviews = sorted(lecturers_with_stats, 
+                       key=lambda x: x.review_count, reverse=True)[:2]
+    
+    # Combine and deduplicate, limit to requested count
+    combined = by_rating + [l for l in by_reviews if l not in by_rating]
+    return combined[:limit]
 
 
 @app.before_request
@@ -176,6 +238,27 @@ def search_results_page():
         q=q,
         results=results,
     )
+
+@app.get("/api/trending-lecturers")
+def api_trending_lecturers():
+    """API endpoint to get trending lecturers for the shuffle display."""
+    lecturers = get_trending_lecturers(limit=5)
+    data = []
+    for lect in lecturers:
+        reason = f"Top rated" if lect.avg_rating else "Most reviewed"
+        if lect.review_count >= 10:
+            reason = "Trending"
+        data.append({
+            "id": lect.id,
+            "email": lect.email,
+            "name": lect.name,
+            "avatar_initials": lect.avatar_initials,
+            "avg_rating": lect.avg_rating,
+            "review_count": lect.review_count,
+            "is_claimed": lect.is_claimed,
+            "reason": reason
+        })
+    return jsonify(data)
 
 @app.get("/test")
 def test():
