@@ -4,6 +4,7 @@ from flask_babel import gettext as _
 from extensions import db, limiter
 from models import BugReport, BugComment
 from audit import log_admin_action
+from ascii_detector import AsciiArtDetector
 from datetime import datetime
 from sqlalchemy import desc
 
@@ -31,17 +32,25 @@ def report_bug():
         flash(_("Description must be between 10 and 5000 characters"), "error")
         return redirect(url_for('bugs.report_bug'))
     
+    # Check for ASCII art in description (skip if looks like code block)
+    # Code blocks are legitimate in bug reports, but excessive ASCII art is not
+    ascii_result = AsciiArtDetector.detect_ascii_art(description)
+    
     # Create bug report
     bug = BugReport(
         title=title,
         description=description,
-        user_id=current_user.id
+        user_id=current_user.id,
+        ascii_art_score=ascii_result['score']
     )
     
     db.session.add(bug)
     db.session.commit()
     
-    flash(_("Thank you for reporting this bug. Our team will review it soon."), "success")
+    if ascii_result['is_flagged']:
+        flash(_("Bug report submitted but flagged for review due to unusual content patterns."), "warning")
+    else:
+        flash(_("Thank you for reporting this bug. Our team will review it soon."), "success")
     return redirect(url_for('index'))
 
 @bugs_bp.route('/admin/bugs', methods=['GET'])
