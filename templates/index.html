@@ -184,8 +184,19 @@
     </div>
 </section>
 
-<section class="features">
+<!-- Trending + Features Section -->
+<section class="content-section">
     <div class="hero-container">
+        <h2 class="section-title">Trending Lecturers</h2>
+        <div id="trending-carousel" class="trending-carousel">
+            <div class="trending-loading">Loading trending lecturers...</div>
+        </div>
+    </div>
+
+    <div class="features-divider"></div>
+
+    <div class="hero-container">
+        <h2 class="section-title">Why Use MMUInsight?</h2>
         <div class="features-grid">
             <div class="feature-card">
                 <div class="feature-icon">✏️</div>
@@ -221,6 +232,73 @@
     </div>
 </section>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let trendingLecturers = [];
+    let currentIndex = 0;
+    
+    // Fetch trending lecturers
+    async function fetchTrendingLecturers() {
+        try {
+            const response = await fetch('/api/trending-lecturers');
+            trendingLecturers = await response.json();
+            if (trendingLecturers.length === 0) {
+                document.getElementById('trending-section').style.display = 'none';
+                return;
+            }
+            renderCarousel();
+            startShuffle();
+        } catch (error) {
+            console.error('Error fetching trending lecturers:', error);
+            document.getElementById('trending-section').style.display = 'none';
+        }
+    }
+    
+    function renderCarousel() {
+        const carousel = document.getElementById('trending-carousel');
+        carousel.innerHTML = '';
+        
+        // Show 5 lecturers in current order
+        for (let i = 0; i < trendingLecturers.length; i++) {
+            const idx = (currentIndex + i) % trendingLecturers.length;
+            const lect = trendingLecturers[idx];
+            
+            const card = document.createElement('a');
+            card.href = `/lecturer/${lect.id}`;
+            card.className = 'trending-card';
+            
+            const starsHtml = `<div class="trending-stars" style="--rating: ${lect.avg_rating || 0}"></div>`;
+            
+            card.innerHTML = `
+                <div class="trending-card-header">
+                    <div class="trending-avatar">${lect.avatar_initials}</div>
+                    <div class="trending-info">
+                        <div class="trending-email">${lect.email}</div>
+                        <div class="trending-reason">${lect.reason}</div>
+                    </div>
+                    ${lect.is_claimed ? '<span class="trending-verified">✓ Verified</span>' : ''}
+                </div>
+                <div class="trending-stats">
+                    ${starsHtml}
+                    <span class="trending-rating">${lect.avg_rating ? lect.avg_rating.toFixed(1) : 'N/A'}</span>
+                    <span class="trending-reviews">${lect.review_count} reviews</span>
+                </div>
+            `;
+            card.style.cursor = 'pointer';
+            carousel.appendChild(card);
+        }
+    }
+    
+    function startShuffle() {
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % trendingLecturers.length;
+            renderCarousel();
+        }, 15000); // Shuffle every 15 seconds
+    }
+    
+    fetchTrendingLecturers();
+});
+</script>
 
 {% endblock %}
 

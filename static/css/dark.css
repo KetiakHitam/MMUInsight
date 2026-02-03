@@ -685,6 +685,8 @@ body.dark-mode .feature-card:hover,
 body.dark-mode .result-card:hover {
   box-shadow: none !important;
   transform: none !important;
+  background: inherit !important;
+  border-color: inherit !important;
 }
 
 /* Static pages (TOS, Privacy, About) - Dark Mode */
