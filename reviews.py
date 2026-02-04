@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from flask_babel import gettext as _
 from extensions import db, limiter
-from models import Review, User, Reply, Report, Subject, Lecturer
+from models import Review, User, Reply, Report, Subject, Lecturer, ReviewVote
 from moderation import ContentModerator, get_moderation_summary
 from audit import log_admin_action
 from ascii_detector import AsciiArtDetector

@@ -3,7 +3,7 @@ from rapidfuzz import process, fuzz
 from sqlalchemy import func
 
 from extensions import db
-from models import Lecturer, Review
+from models import Lecturer, Review, User
 
 
 def _email_initials(email: str) -> str:
