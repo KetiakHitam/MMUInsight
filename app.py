@@ -85,8 +85,12 @@ with app.app_context():
         import re
         lecturers_file = os.path.join(BASE_DIR, 'scraped_lecturers.txt')
         try:
-            with open(lecturers_file, 'r', encoding='utf-8-sig') as f:
-                content = f.read()
+            with open(lecturers_file, 'rb') as f:
+                raw_bytes = f.read()
+            # Remove BOM if present
+            if raw_bytes.startswith(b'\xef\xbb\xbf'):
+                raw_bytes = raw_bytes[3:]
+            content = raw_bytes.decode('utf-8')
             print(f"Loading lecturers from {lecturers_file}...")
             
             pattern = r'^\s*\d+\.\s+(.+?)\n.*?\|\s*([a-zA-Z0-9.@-]+@mmu\.edu\.my)'
