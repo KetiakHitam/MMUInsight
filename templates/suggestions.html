@@ -95,16 +95,10 @@
             <p style="color: #333; line-height: 1.6; margin-bottom: 15px;">{{ suggestion.description }}</p>
             
             <div style="display: flex; align-items: center; gap: 15px; padding-top: 12px; border-top: 1px solid #eee;">
-                {% if current_user.is_authenticated %}
-                <form method="POST" action="{{ url_for('suggestions.upvote_suggestion', suggestion_id=suggestion.id) }}" style="display: inline;">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <button type="submit" style="background-color: #f0f0f0; color: #333; padding: 6px 12px; border-radius: 4px; font-size: 0.9em; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.7';" onmouseout="this.style.opacity='1';">👍 {{ suggestion.upvotes }}</button>
-                </form>
-                <form method="POST" action="{{ url_for('suggestions.downvote_suggestion', suggestion_id=suggestion.id) }}" style="display: inline;">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <button type="submit" style="background-color: #f0f0f0; color: #333; padding: 6px 12px; border-radius: 4px; font-size: 0.9em; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.7';" onmouseout="this.style.opacity='1';">👎 {{ suggestion.downvotes }}</button>
-                </form>
-                {% else %}
+                 {% if current_user.is_authenticated %}
+                 <button onclick="voteOnSuggestion({{ suggestion.id }}, 'upvote', this)" style="background-color: #f0f0f0; color: #333; padding: 6px 12px; border-radius: 4px; font-size: 0.9em; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.7';" onmouseout="this.style.opacity='1';">👍 <span class="upvote-count">{{ suggestion.upvotes }}</span></button>
+                 <button onclick="voteOnSuggestion({{ suggestion.id }}, 'downvote', this)" style="background-color: #f0f0f0; color: #333; padding: 6px 12px; border-radius: 4px; font-size: 0.9em; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.7';" onmouseout="this.style.opacity='1';">👎 <span class="downvote-count">{{ suggestion.downvotes }}</span></button>
+                 {% else %}
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="background-color: #f0f0f0; padding: 6px 12px; border-radius: 4px; font-size: 0.9em; font-weight: 600;">👍 {{ suggestion.upvotes }}</span>
                 </div>
@@ -120,6 +114,34 @@
     {% endif %}
     
     <br>
-    <a href="{{ url_for('index') }}" style="color: #007bff; text-decoration: none; font-size: 0.95em;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Back to Home</a>
-</div>
-{% endblock %}
+     <a href="{{ url_for('index') }}" style="color: #007bff; text-decoration: none; font-size: 0.95em;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Back to Home</a>
+    </div>
+
+    <script>
+    function voteOnSuggestion(suggestionId, voteType, button) {
+     const url = `{{ url_for('suggestions.${voteType}_suggestion', suggestion_id='__ID__').replace('__ID__', suggestionId) }}`.replace('__ID__', suggestionId);
+     const voteEndpoint = voteType === 'upvote' 
+         ? `/suggestion/${suggestionId}/upvote`
+         : `/suggestion/${suggestionId}/downvote`;
+     
+     fetch(voteEndpoint, {
+         method: 'POST',
+         headers: {
+             'X-Requested-With': 'XMLHttpRequest',
+             'X-CSRFToken': '{{ csrf_token() }}'
+         }
+     })
+     .then(response => response.json())
+     .then(data => {
+         // Find the parent container and update vote counts
+         const container = button.closest('div[style*="display: flex"]');
+         const upvoteBtn = container.querySelector('button:nth-child(1)');
+         const downvoteBtn = container.querySelector('button:nth-child(2)');
+         
+         upvoteBtn.querySelector('.upvote-count').textContent = data.upvotes;
+         downvoteBtn.querySelector('.downvote-count').textContent = data.downvotes;
+     })
+     .catch(error => console.error('Error voting:', error));
+    }
+    </script>
+    {% endblock %}
