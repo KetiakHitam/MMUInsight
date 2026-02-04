@@ -28,6 +28,7 @@
             <div id="nav-menu" class="nav-menu" data-js="nav-menu">
                 <div class="nav-links">
                     <a class="nav-link" href="{{ url_for('suggestions.suggestions_list') }}">Suggestions</a>
+                    <a class="nav-link" href="{{ url_for('bugs.report_bug') }}">Report Bug</a>
                 </div>
 
                 <div class="nav-actions">
@@ -72,9 +73,10 @@
                         <div class="nav-dd__panel" role="menu">
                             <a class="nav-dd__item" role="menuitem" href="{{ url_for('auth.admin_dashboard') }}">Dashboard</a>
                             <a class="nav-dd__item" role="menuitem" href="{{ url_for('auth.admin_users') }}">Users</a>
-                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('auth.admin_reports') }}">Reports</a>
+                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('auth.admin_moderation') }}">Moderation</a>
                             <a class="nav-dd__item" role="menuitem" href="{{ url_for('auth.admin_audit_logs') }}">Audit Logs</a>
                             <a class="nav-dd__item" role="menuitem" href="{{ url_for('suggestions.admin_suggestions') }}">Suggestions</a>
+                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('bugs.admin_bugs') }}">Bug Reports</a>
                         </div>
                     </details>
                     {% endif %}
@@ -122,6 +124,7 @@
         <a href="{{ url_for('terms_of_service') }}">Terms of Service</a>
         <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>
         <a href="{{ url_for('about_us') }}">About Us</a>
+        <a href="{{ url_for('faq') }}">FAQ</a>
     </footer>
 
     <script>

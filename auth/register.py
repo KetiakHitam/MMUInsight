@@ -4,7 +4,8 @@ from flask import render_template, request, redirect, url_for, flash
 from flask_babel import gettext as _
 from . import auth_bp
 from extensions import db, bcrypt, limiter
-from models import User
+from models import User, Lecturer
+import os
 
 def validate_password_strength(password):
      """Validate password meets security requirements"""
@@ -60,13 +61,12 @@ def register():
         return redirect(url_for("auth.register"))
 
     pw_hash = bcrypt.generate_password_hash(password).decode("utf-8")
-    token = str(uuid.uuid4())
 
     user = User(
         email=email,
         password_hash=pw_hash,
         user_type=user_type,
-        is_verified=True
+        is_verified=False
     )
 
     # Try to save user to database first
@@ -78,5 +78,19 @@ def register():
         flash(_("An error occurred while creating your account. Please try again."), "error")
         return redirect(url_for("auth.register"))
     
-    flash(_("Account created successfully! You can now log in."), "success")
+    # Get admin email from env or use default
+    admin_email = os.environ.get('ADMIN_APPROVAL_EMAIL', 'isac.megat.azlan@student.mmu.edu.my')
+    
+    # Auto-claim lecturer profile if email matches
+    if user_type == "lecturer":
+        lecturer = Lecturer.query.filter_by(email=email).first()
+        if lecturer and not lecturer.claimed_by_user_id:
+            lecturer.claimed_by_user_id = user.id
+            try:
+                db.session.commit()
+                flash(_("Your lecturer profile has been automatically claimed!"), "success")
+            except Exception as e:
+                db.session.rollback()
+    
+    flash(_(f"Account created! Your account is pending verification. Please email {admin_email} with your MMU email address to request approval."), "info")
     return redirect(url_for("auth.login"))
