@@ -3168,7 +3168,7 @@ body.dark-mode .result-card {
 }
 
 .features {
-  padding: 36px 20px 10px;
+  padding: 36px 20px 10px 40px;
 }
 
 body.dark-mode .features {
@@ -3835,6 +3835,10 @@ body.dark-mode .feature-card:hover {
   }
 
   .site-footer {
+    position: fixed;
+    left: 0 ;
+    right: 0 ;
+    bottom: 0 ;
     padding: 10px;
     z-index: 50;
   }
