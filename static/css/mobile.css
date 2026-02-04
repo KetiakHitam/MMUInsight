@@ -433,7 +433,7 @@
      ============================================ */
 }
 
-/* Make footer stick to bottom and avoid content being hidden behind it on small screens */
+/* This is for TOS and PP to be stucak at the bottom of the page and for the feature section to be scrollable */
 @media (max-width: 767px) {
   :root { --site-footer-height: 64px; }
 
@@ -450,15 +450,15 @@
     padding: 12px !important;
   }
 
-  /* Give page content enough bottom padding so it isn't hidden under the fixed footer */
+  /* Gives page content enough bottom padding so it isn't hidden under the fixed footer */
   body {
     padding-bottom: calc(var(--site-footer-height) + 8px) !important;
   }
 
-  /* Ensure features section can scroll and leaves room for the footer */
+  /* Allows features section to be scrollable and leaves room for the footer */
   .features {
     overflow: auto !important;
-    padding-bottom: calc(var(--site-footer-height) + 8px) !important;
+    padding-bottom: 32px !important;
   }
 }
 
