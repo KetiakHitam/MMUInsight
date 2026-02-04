@@ -240,9 +240,16 @@
                 </div>
             </div>
             
-            <div class="review-text-container">
-                <p class="review-text">{{ review.review_text }}</p>
+            {% if review.is_approved is none and review.requires_human_review %}
+            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                <p style="margin: 0; color: #856404; font-size: 0.9em; font-weight: 600;">⏳ Pending Admin Review</p>
+                <p style="margin: 0.25rem 0 0 0; color: #856404; font-size: 0.85em;">This review has been flagged for moderation and is awaiting approval.</p>
             </div>
+            {% endif %}
+            
+            <div class="review-text-container">
+                 <p class="review-text">{{ review.review_text }}</p>
+             </div>
             
             {% if review.subject_code %}
             <div class="review-subject">

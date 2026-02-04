@@ -39,12 +39,11 @@
             <div class="hero-result-avatar" aria-hidden="true">{{ lecturer.avatar_initials or "?" }}</div>
             <div class="hero-result-main">
               <div class="hero-result-name">
-                <a class="hero-result-link" href="/lecturer/{{ lecturer.id }}">{{ lecturer.email }}</a>
+                <a class="hero-result-link" href="/lecturer/{{ lecturer.id }}">{{ lecturer.email }}</a> <span class="hero-result-faculty">Lecturer</span>
                 {% if lecturer.is_claimed %}
                 <span class="hero-result-verified">Verified</span>
                 {% endif %}
               </div>
-              <div class="hero-result-faculty">Lecturer</div>
               <div class="hero-result-sub">
                 <span class="hero-result-stars" style="--rating: {{ lecturer.avg_rating or 0 }};"></span>
                 {% if lecturer.avg_rating is not none %}

@@ -16,6 +16,7 @@ class User(UserMixin, db.Model):
     verification_token_created_at = db.Column(db.DateTime, nullable=True)
     reset_token = db.Column(db.String(100), nullable=True)
     reset_token_created_at = db.Column(db.DateTime, nullable=True)
+    password_is_temporary = db.Column(db.Boolean, nullable=False, default=False)
     bio = db.Column(db.Text, nullable=True)
     last_online = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     dark_mode = db.Column(db.Boolean, nullable=False, default=False)

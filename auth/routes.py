@@ -1,16 +1,67 @@
 from flask import render_template, redirect, url_for, flash, request
 import re
+import uuid
 from flask_login import current_user
 from . import auth_bp
 from auth.decorators import login_required, admin_required
 from models import User, Report, Review, AuditLog
-from extensions import db
+from extensions import db, bcrypt
 from audit import log_admin_action
+from datetime import datetime, timedelta
 
 @auth_bp.route("/dashboard")
 @login_required
 def dashboard():
     return "Student dashboard (placeholder - requires login)"
+
+@auth_bp.route("/change-password", methods=["GET", "POST"])
+@login_required
+def change_password():
+    if request.method == "GET":
+        return render_template("change_password.html")
+    
+    current_password = request.form.get("current_password", "").strip()
+    new_password = request.form.get("new_password", "").strip()
+    confirm_password = request.form.get("confirm_password", "").strip()
+    
+    # Validate current password
+    if not bcrypt.check_password_hash(current_user.password_hash, current_password):
+        flash("Current password is incorrect", "error")
+        return render_template("change_password.html")
+    
+    # Validate new password matches confirm
+    if new_password != confirm_password:
+        flash("New passwords do not match", "error")
+        return render_template("change_password.html")
+    
+    # Validate password meets requirements
+    if len(new_password) < 8:
+        flash("Password must be at least 8 characters", "error")
+        return render_template("change_password.html")
+    
+    if not any(c.isupper() for c in new_password):
+        flash("Password must contain at least one uppercase letter", "error")
+        return render_template("change_password.html")
+    
+    if not any(c.islower() for c in new_password):
+        flash("Password must contain at least one lowercase letter", "error")
+        return render_template("change_password.html")
+    
+    if not any(c.isdigit() for c in new_password):
+        flash("Password must contain at least one number", "error")
+        return render_template("change_password.html")
+    
+    if not any(c in "!@#$%^&*()-_=+[]{}|;:,.<>?" for c in new_password):
+        flash("Password must contain at least one special character", "error")
+        return render_template("change_password.html")
+    
+    # Update password
+    current_user.password_hash = bcrypt.generate_password_hash(new_password).decode("utf-8")
+    current_user.password_is_temporary = False
+    db.session.commit()
+    
+    flash("Password changed successfully!", "success")
+    return redirect(url_for("index"))
 
 @auth_bp.route("/admin")
 @admin_required
@@ -121,6 +172,23 @@ def admin_delete_user(user_id):
         flash(f"{deleted_user_email} has been deleted", "success")
     else:
         flash("You don't have permission to delete this user", "danger")
+    return redirect(url_for("auth.admin_users"))
+
+@auth_bp.route("/admin/user/<int:user_id>/reset-password", methods=["POST"])
+@admin_required
+def admin_reset_password(user_id):
+    user = User.query.get(user_id)
+    if user and current_user.can_manage_user(user):
+        # Generate temporary password
+        temp_password = str(uuid.uuid4())[:12]
+        user.password_hash = bcrypt.generate_password_hash(temp_password).decode("utf-8")
+        user.password_is_temporary = True
+        user.reset_token_created_at = datetime.utcnow()
+        db.session.commit()
+        log_admin_action(f"Reset password for user {user.email}", "user")
+        flash(f"Password reset for {user.email}. Temporary password: {temp_password} (Expires in 24 hours - Share via secure email)", "success")
+    else:
+        flash("You don't have permission to reset this user's password", "danger")
     return redirect(url_for("auth.admin_users"))
 
 @auth_bp.route("/admin/report/<int:report_id>/dismiss")
