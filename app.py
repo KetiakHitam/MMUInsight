@@ -85,9 +85,13 @@ with app.app_context():
         import re
         lecturers_file = os.path.join(BASE_DIR, 'scraped_lecturers.txt')
         try:
-            with open(lecturers_file, 'r', encoding='utf-8', errors='ignore') as f:
-                content = f.read()
             print(f"Loading lecturers from {lecturers_file}...")
+            with open(lecturers_file, 'rb') as f:
+                raw = f.read()
+            # Strip UTF-8 BOM (EF BB BF)
+            if raw.startswith(b'\xef\xbb\xbf'):
+                raw = raw[3:]
+            content = raw.decode('utf-8')
             
             pattern = r'^\s*\d+\.\s+(.+?)\n.*?\|\s*([a-zA-Z0-9.@-]+@mmu\.edu\.my)'
             for match in re.finditer(pattern, content, re.MULTILINE | re.DOTALL):
