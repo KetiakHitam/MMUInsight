@@ -78,6 +78,38 @@ babel = Babel(app, locale_selector=get_locale)
 with app.app_context():
     db.create_all()
     
+    # Seed lecturers from scraped_lecturers.txt if table is empty
+    from models import Lecturer
+    if Lecturer.query.count() == 0:
+        import re
+        try:
+            # Use absolute path relative to app.py location
+            lecturers_file = os.path.join(BASE_DIR, 'scraped_lecturers.txt')
+            with open(lecturers_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            pattern = r'^\s*\d+\.\s+(.+?)\n.*?\|\s*([a-zA-Z0-9.@-]+@mmu\.edu\.my)'
+            matches = re.finditer(pattern, content, re.MULTILINE | re.DOTALL)
+            
+            for match in matches:
+                name = match.group(1).strip()
+                email = match.group(2).strip()
+                name = re.sub(r'\s+', ' ', name)
+                
+                if name and email:
+                    existing = Lecturer.query.filter_by(email=email).first()
+                    if not existing:
+                        lecturer = Lecturer(name=name, email=email, department='FCI')
+                        db.session.add(lecturer)
+            
+            db.session.commit()
+            lecturer_count = Lecturer.query.count()
+            print(f"✓ Seeded {lecturer_count} lecturers from scraped_lecturers.txt")
+        except FileNotFoundError as e:
+            print(f"✗ Warning: scraped_lecturers.txt not found at {lecturers_file}")
+        except Exception as e:
+            print(f"✗ Error seeding lecturers: {e}")
+    
     # Create admin/owner accounts from env vars if not exists
     admin_pass = os.environ.get('ADMIN_PASSWORD', 'admin')
     owner_pass = os.environ.get('OWNER_PASSWORD', 'owner')
