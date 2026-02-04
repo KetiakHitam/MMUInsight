@@ -2837,7 +2837,8 @@ body.dark-mode .hero-result-avatar {
 }
 
 .hero-result-faculty {
-  margin-top: 0;
+  display: inline;
+  margin-left: 0.5rem;
   color: var(--text-secondary);
   font-size: 0.92rem;
   line-height: 1.2;

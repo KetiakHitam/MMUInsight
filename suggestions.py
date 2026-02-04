@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from flask_babel import gettext as _
 from auth.decorators import admin_required
@@ -86,6 +86,14 @@ def upvote_suggestion(suggestion_id):
         suggestion.upvotes += 1
     
     db.session.commit()
+    
+    # Return JSON for AJAX requests
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({
+            'upvotes': suggestion.upvotes,
+            'downvotes': suggestion.downvotes
+        })
+    
     return redirect(url_for('suggestions.suggestions_list'))
 
 @suggestions_bp.route('/suggestion/<int:suggestion_id>/downvote', methods=['POST'])
@@ -117,6 +125,14 @@ def downvote_suggestion(suggestion_id):
         suggestion.downvotes += 1
     
     db.session.commit()
+    
+    # Return JSON for AJAX requests
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({
+            'upvotes': suggestion.upvotes,
+            'downvotes': suggestion.downvotes
+        })
+    
     return redirect(url_for('suggestions.suggestions_list'))
 
 @suggestions_bp.route('/admin/suggestions')

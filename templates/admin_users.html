@@ -117,25 +117,33 @@
                             {% endif %}
                         {% endif %}
                         
-                        {% if u.id != current_user.id and not u.is_owner() and (current_user.can_suspend_user(u) or current_user.can_delete_user(u)) %}
-                        <div style="display: flex; gap: 6px;">
-                            {% if current_user.can_suspend_user(u) %}
-                            <form method="POST" action="/admin/user/{{ u.id }}/suspend" style="display: inline;">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <button type="submit" 
-                                   style="background-color: #fd7e14; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
-                                   onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Suspend</button>
-                            </form>
-                            {% endif %}
-                            {% if current_user.can_delete_user(u) %}
-                            <form method="POST" action="/admin/user/{{ u.id }}/delete" style="display: inline;" onsubmit="return confirm('Permanently delete this user? This cannot be undone.');">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <button type="submit" 
-                                   style="background-color: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
-                                   onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Delete</button>
-                            </form>
-                            {% endif %}
-                        </div>
+                        {% if u.id != current_user.id and not u.is_owner() and (current_user.can_suspend_user(u) or current_user.can_delete_user(u) or current_user.can_manage_user(u)) %}
+                         <div style="display: flex; gap: 6px;">
+                             {% if current_user.can_manage_user(u) %}
+                             <form method="POST" action="/admin/user/{{ u.id }}/reset-password" style="display: inline;">
+                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                 <button type="submit" 
+                                    style="background-color: #17a2b8; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
+                                    onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Reset Password</button>
+                             </form>
+                             {% endif %}
+                             {% if current_user.can_suspend_user(u) %}
+                             <form method="POST" action="/admin/user/{{ u.id }}/suspend" style="display: inline;">
+                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                 <button type="submit" 
+                                    style="background-color: #fd7e14; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
+                                    onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Suspend</button>
+                             </form>
+                             {% endif %}
+                             {% if current_user.can_delete_user(u) %}
+                             <form method="POST" action="/admin/user/{{ u.id }}/delete" style="display: inline;" onsubmit="return confirm('Permanently delete this user? This cannot be undone.');">
+                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                 <button type="submit" 
+                                    style="background-color: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 3px; font-size: 0.85em; display: inline-block; transition: opacity 0.2s ease; cursor: pointer;" 
+                                    onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">Delete</button>
+                             </form>
+                             {% endif %}
+                         </div>
                         {% else %}
                         <span style="color: #999; font-size: 0.85em;">—</span>
                         {% endif %}
