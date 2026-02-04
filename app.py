@@ -85,7 +85,7 @@ with app.app_context():
         try:
             # Use absolute path relative to app.py location
             lecturers_file = os.path.join(BASE_DIR, 'scraped_lecturers.txt')
-            with open(lecturers_file, 'r', encoding='utf-8') as f:
+            with open(lecturers_file, 'r', encoding='utf-8-sig') as f:
                 content = f.read()
             
             pattern = r'^\s*\d+\.\s+(.+?)\n.*?\|\s*([a-zA-Z0-9.@-]+@mmu\.edu\.my)'
