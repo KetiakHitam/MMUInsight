@@ -38,11 +38,18 @@ mmuinsight_data/
 # Dev-only tooling (seed/reset/test accounts)
 tools/dev/
 tools/diagnose_*.py
-init_db*.py
+init_db.py
+init_db_safe.py
+init_db_fresh.py
 seed_db.py
 new_table_db.py
 migrate_add_usage_count.py
+migrate_moderation.py
+migrate_moderation_history.py
 dump_lecturers.py
 deduplicate_lecturers.py
-scraped_lecturers.txt
 all_lecturers_db.txt
+
+# Keep production files
+!init_db_production.py
+!scraped_lecturers.txt
