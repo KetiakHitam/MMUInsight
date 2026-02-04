@@ -86,12 +86,19 @@ with app.app_context():
         lecturers_file = os.path.join(BASE_DIR, 'scraped_lecturers.txt')
         try:
             print(f"Loading lecturers from {lecturers_file}...")
-            with open(lecturers_file, 'rb') as f:
-                raw = f.read()
-            # Strip UTF-8 BOM (EF BB BF)
-            if raw.startswith(b'\xef\xbb\xbf'):
-                raw = raw[3:]
-            content = raw.decode('utf-8')
+            # Try multiple encodings
+            content = None
+            for encoding in ['utf-8-sig', 'utf-16', 'utf-16-le', 'utf-8', 'latin-1']:
+                try:
+                    with open(lecturers_file, 'r', encoding=encoding) as f:
+                        content = f.read()
+                    print(f"  Decoded as {encoding}")
+                    break
+                except (UnicodeDecodeError, UnicodeError):
+                    continue
+            
+            if content is None:
+                raise ValueError("Could not decode file with any encoding")
             
             pattern = r'^\s*\d+\.\s+(.+?)\n.*?\|\s*([a-zA-Z0-9.@-]+@mmu\.edu\.my)'
             for match in re.finditer(pattern, content, re.MULTILINE | re.DOTALL):
