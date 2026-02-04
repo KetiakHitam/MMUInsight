@@ -5,34 +5,50 @@
 {% block content %}
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <div class="container" style="max-width: 900px;">
-    <h2 style="margin-bottom: 30px;">Feature Suggestions</h2>
     
     <!-- Submit Suggestion Form (logged in users only) -->
     {% if current_user.is_authenticated %}
-    <div class="glass-form" style="margin-bottom: 30px;">
-        <h3 style="margin-top: 0; color: var(--gray-900);">Submit a Suggestion</h3>
-        <form method="POST" action="{{ url_for('suggestions.create_suggestion') }}" style="display: flex; flex-direction: column; gap: 12px;">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <div>
-                <label for="title" style="display: block; font-weight: 600; margin-bottom: 5px;">Title</label>
-                <input type="text" id="title" name="title" placeholder="e.g., Dark mode theme" required class="glass-input">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow" style="margin-bottom: 30px;">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Submit a Suggestion</h3>
+                </div>
+                <div class="card-body">
+                    
+
+                    <form method="POST" action="{{ url_for('suggestions.create_suggestion') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" id="title" name="title" placeholder="e.g., Dark mode theme" required class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea id="description" name="description" rows="4" placeholder="Describe your feature idea..." required class="form-control"></textarea>
+                        </div>
+                        <label class="d-flex align-items-center mb-3" style="gap:10px; cursor:pointer; padding-left:4px;">
+                            <input type="checkbox" id="is_anonymous" name="is_anonymous" style="width:20px; height:20px; transform:scale(1.15); margin:0;">
+                            <span style="font-weight:600; color:var(--text-primary);">Submit anonymously</span>
+                        </label>
+                        <div class="d-grid gap-2 d-sm-flex justify-content-sm-end">
+                            <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Submit Suggestion</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div>
-                <label for="description" style="display: block; font-weight: 600; margin-bottom: 5px;">Description</label>
-                <textarea id="description" name="description" rows="4" placeholder="Describe your feature idea..." required class="glass-input"></textarea>
-            </div>
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                <label style="display: flex; align-items: center; gap: 6px; margin: 0; font-weight: 400; cursor: pointer;">
-                    <input type="checkbox" id="is_anonymous" name="is_anonymous" style="margin: 0;">
-                    <span>Submit anonymously</span>
-                </label>
-                <button type="submit" class="btn btn-lg" style="padding: 10px 20px; margin: 0; white-space: nowrap;">Submit Suggestion</button>
-            </div>
-        </form>
+        </div>
     </div>
     {% else %}
-    <div style="background: rgba(59, 130, 246, 0.08); padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary); margin-bottom: 30px; backdrop-filter: blur(10px);">
-        <p style="margin: 0;"><a href="{{ url_for('auth.login') }}" style="color: var(--primary); font-weight: 500;">Login</a> to submit a suggestion.</p>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow" style="margin-bottom: 30px;">
+                <div class="card-body">
+                    <p style="margin: 0;"><a href="{{ url_for('auth.login') }}" style="color: var(--primary); font-weight: 500;">Login</a> to submit a suggestion.</p>
+                </div>
+            </div>
+        </div>
     </div>
     {% endif %}
     

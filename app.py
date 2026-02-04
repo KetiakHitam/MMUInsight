@@ -20,6 +20,7 @@ from models import User, Subject, Review, Suggestion, SuggestionVote
 from auth import auth_bp
 from reviews import reviews_bp
 from suggestions import suggestions_bp
+from bugs import bugs_bp
 from lecturer_search import search_lecturers_by_email
 
 app = Flask(__name__)
@@ -77,6 +78,44 @@ babel = Babel(app, locale_selector=get_locale)
 with app.app_context():
     db.create_all()
     
+    # Seed lecturers from scraped_lecturers.txt if table is empty
+    from models import Lecturer
+    lecturer_count_before = Lecturer.query.count()
+    if lecturer_count_before == 0:
+        import re
+        lecturers_file = os.path.join(BASE_DIR, 'scraped_lecturers.txt')
+        try:
+            print(f"Loading lecturers from {lecturers_file}...")
+            # Try multiple encodings
+            content = None
+            for encoding in ['utf-8-sig', 'utf-16', 'utf-16-le', 'utf-8', 'latin-1']:
+                try:
+                    with open(lecturers_file, 'r', encoding=encoding) as f:
+                        content = f.read()
+                    print(f"  Decoded as {encoding}")
+                    break
+                except (UnicodeDecodeError, UnicodeError):
+                    continue
+            
+            if content is None:
+                raise ValueError("Could not decode file with any encoding")
+            
+            pattern = r'^\s*\d+\.\s+(.+?)\n.*?\|\s*([a-zA-Z0-9.@-]+@mmu\.edu\.my)'
+            for match in re.finditer(pattern, content, re.MULTILINE | re.DOTALL):
+                name = re.sub(r'\s+', ' ', match.group(1).strip())
+                email = match.group(2).strip()
+                
+                if name and email and not Lecturer.query.filter_by(email=email).first():
+                    db.session.add(Lecturer(name=name, email=email, department='FCI'))
+            
+            db.session.commit()
+            final_count = Lecturer.query.count()
+            print(f"✓ Seeded {final_count - lecturer_count_before} lecturers (total: {final_count})")
+        except FileNotFoundError:
+            print(f"✗ File not found: {lecturers_file}")
+        except Exception as e:
+            print(f"✗ Error seeding lecturers: {type(e).__name__}: {e}")
+    
     # Create admin/owner accounts from env vars if not exists
     admin_pass = os.environ.get('ADMIN_PASSWORD', 'admin')
     owner_pass = os.environ.get('OWNER_PASSWORD', 'owner')
@@ -86,7 +125,7 @@ with app.app_context():
         ("owner@mmu.edu.my", "OWNER", owner_pass),
     ]:
         if not User.query.filter_by(email=email).first():
-            user = User(email=email, user_type="lecturer", role=role, is_verified=True, is_claimed=True)
+            user = User(email=email, user_type="admin", role=role, is_verified=True, is_claimed=True)
             user.password_hash = bcrypt.generate_password_hash(password)
             db.session.add(user)
     
@@ -119,6 +158,7 @@ def load_user(user_id):
 app.register_blueprint(auth_bp)
 app.register_blueprint(reviews_bp)
 app.register_blueprint(suggestions_bp)
+app.register_blueprint(bugs_bp)
 
 @app.route("/set-language/<language>")
 def set_language(language):
@@ -202,6 +242,10 @@ def privacy_policy():
 @app.route("/about")
 def about_us():
     return render_template('about_us.html')
+
+@app.route("/faq")
+def faq():
+    return render_template('FAQ.html')
 
 if __name__ == "__main__":
     debug_mode = os.environ.get("DEBUG", "False").lower() in ['true', '1', 'yes']

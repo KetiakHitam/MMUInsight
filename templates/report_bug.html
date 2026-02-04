@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Report a Bug{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">Report a Bug</h3>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" action="{{ url_for('bugs.report_bug') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Bug Title</label>
+                            <input type="text" class="form-control" id="title" name="title" 
+                                   placeholder="Brief description of the bug" 
+                                   minlength="5" maxlength="200" required>
+                            <small class="form-text text-muted">5-200 characters</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Detailed Description</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      placeholder="What happened? What did you expect to happen? Steps to reproduce..." 
+                                      rows="8" minlength="10" maxlength="5000" required></textarea>
+                            <small class="form-text text-muted">10-5000 characters</small>
+                        </div>
+
+                        <div class="alert alert-info" role="alert">
+                            <strong>Note:</strong> Your bug report will be private and only visible to our admin team. 
+                            We appreciate you helping us improve MMUInsight!
+                        </div>
+
+                        <div class="d-grid gap-2 d-sm-flex justify-content-sm-end">
+                            <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-danger">Submit Bug Report</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

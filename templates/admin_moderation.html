@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+
+{% block title %}Moderation Queue - Admin{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1200px;">
+    <h2 style="margin-bottom: 10px;">📋 Moderation Queue</h2>
+    <p style="color: #666; margin-bottom: 20px;">Review and approve/reject flagged content</p>
+
+    <!-- Filter Buttons -->
+    <div style="display: flex; gap: 10px; margin-bottom: 30px;">
+        <a href="{{ url_for('auth.admin_moderation', filter='all') }}" class="btn {% if filter_type == 'all' %}btn-primary{% else %}btn-secondary{% endif %}">
+            All ({{ count }})
+        </a>
+        <a href="{{ url_for('auth.admin_moderation', filter='automod') }}" class="btn {% if filter_type == 'automod' %}btn-primary{% else %}btn-secondary{% endif %}">
+            Auto-Moderation ({{ flagged_reviews|length }})
+        </a>
+        <a href="{{ url_for('auth.admin_moderation', filter='reported') }}" class="btn {% if filter_type == 'reported' %}btn-primary{% else %}btn-secondary{% endif %}">
+            User Reports ({{ reported_reviews|length }})
+        </a>
+    </div>
+
+    {% if count > 0 %}
+        <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 8px; padding: 15px; margin-bottom: 30px;">
+            <p style="margin: 0; color: #ff9800;"><strong>⚠️ {{ count }} review(s) awaiting moderation</strong></p>
+        </div>
+
+        <!-- Auto-Moderation Flagged Reviews -->
+        {% for review in flagged_reviews %}
+        <div class="glass-card" style="margin-bottom: 20px; padding: 24px; border-left: 4px solid #ff9800;">
+            <!-- Type Badge -->
+            <div style="margin-bottom: 12px;">
+                <span style="background: #ff9800; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8em; font-weight: 600;">🤖 AUTO-MODERATION</span>
+            </div>
+            
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px; gap: 16px;">
+                <div style="flex: 1;">
+                    <h3 style="margin: 0 0 8px 0; color: #333;">
+                        <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id) }}" style="color: #2563eb; text-decoration: none;">
+                            {{ (review.lecturer.email.split('@')[0]) if (review.lecturer and review.lecturer.email) else 'Unknown Lecturer' }}
+                        </a>
+                    </h3>
+                    <p style="margin: 0; color: #666; font-size: 0.9em;">
+                        By: <strong>{{ review.author.email if (not review.is_anonymous and review.author) else 'Anonymous Student' }}</strong> 
+                        | {{ review.review_date.strftime('%Y-%m-%d %H:%M') }}
+                    </p>
+                </div>
+                <div style="text-align: right;">
+                    {% if review.moderation_severity == 'low' %}
+                    <span style="display: inline-block; background: #ffd207; color: #333; padding: 6px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 600;">
+                        🚩 LOW
+                    </span>
+                    {% elif review.moderation_severity == 'medium' %}
+                    <span style="display: inline-block; background: #ff9800; color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 600;">
+                        🚩 MEDIUM
+                    </span>
+                    {% elif review.moderation_severity == 'high' %}
+                    <span style="display: inline-block; background: #dc3545; color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 600;">
+                        🚩 HIGH
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Review Content -->
+            <div style="background: rgba(0, 0, 0, 0.02); border-left: 4px solid #2563eb; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                <p style="margin: 0; color: #333; line-height: 1.6;">{{ review.review_text }}</p>
+            </div>
+
+            <!-- Ratings -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                <div style="text-align: center; padding: 12px; background: rgba(0, 0, 0, 0.02); border-radius: 8px;">
+                    <p style="margin: 0; color: #666; font-size: 0.85em;">Clarity</p>
+                    <p style="margin: 4px 0 0 0; font-weight: bold; color: #2563eb; font-size: 1.2em;">{{ review.rating_clarity }}/5</p>
+                </div>
+                <div style="text-align: center; padding: 12px; background: rgba(0, 0, 0, 0.02); border-radius: 8px;">
+                    <p style="margin: 0; color: #666; font-size: 0.85em;">Engagement</p>
+                    <p style="margin: 4px 0 0 0; font-weight: bold; color: #2563eb; font-size: 1.2em;">{{ review.rating_engagement }}/5</p>
+                </div>
+                <div style="text-align: center; padding: 12px; background: rgba(0, 0, 0, 0.02); border-radius: 8px;">
+                    <p style="margin: 0; color: #666; font-size: 0.85em;">Punctuality</p>
+                    <p style="margin: 4px 0 0 0; font-weight: bold; color: #2563eb; font-size: 1.2em;">{{ review.rating_punctuality }}/5</p>
+                </div>
+                <div style="text-align: center; padding: 12px; background: rgba(0, 0, 0, 0.02); border-radius: 8px;">
+                    <p style="margin: 0; color: #666; font-size: 0.85em;">Responsiveness</p>
+                    <p style="margin: 4px 0 0 0; font-weight: bold; color: #2563eb; font-size: 1.2em;">{{ review.rating_responsiveness }}/5</p>
+                </div>
+                <div style="text-align: center; padding: 12px; background: rgba(0, 0, 0, 0.02); border-radius: 8px;">
+                    <p style="margin: 0; color: #666; font-size: 0.85em;">Fairness</p>
+                    <p style="margin: 4px 0 0 0; font-weight: bold; color: #2563eb; font-size: 1.2em;">{{ review.rating_fairness }}/5</p>
+                </div>
+            </div>
+
+            <!-- Moderation Flags -->
+            {% if review.moderation_flags %}
+            <div style="background: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                <p style="margin: 0 0 8px 0; font-weight: 600; color: #ff6b6b;">🚩 Moderation Flags:</p>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    {% for flag in review.moderation_flags.split(',') %}
+                    <span style="background: #ff6b6b; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85em;">{{ flag.strip().replace('_', ' ') }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Moderation History -->
+            {% if review.moderated_at %}
+            <div style="background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                <p style="margin: 0 0 8px 0; font-weight: 600; color: #2563eb;">📜 Moderation History:</p>
+                    <p style="margin: 0; color: #666; font-size: 0.9em;">
+                    <strong style="text-transform: capitalize;">{{ review.moderation_action.replace('_', ' ') }}</strong> 
+                    by <strong>{{ review.moderated_by.email if review.moderated_by else 'Unknown' }}</strong> 
+                    on {{ review.moderated_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                </p>
+            </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <form method="POST" action="{{ url_for('auth.approve_flagged_review', review_id=review.id) }}" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn" style="padding: 10px 20px; background: #16a34a; color: white; border: none; border-radius: 6px; cursor: pointer;">✓ Approve</button>
+                </form>
+                <form method="POST" action="{{ url_for('auth.reject_flagged_review', review_id=review.id) }}" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer;" onclick="return confirm('Are you sure you want to reject this review? It will not be visible on the platform.');">✕ Reject</button>
+                </form>
+                <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id) }}" class="btn btn-secondary" style="padding: 10px 20px;">👁️ View Profile</a>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- User Reported Reviews -->
+        {% for item in reported_reviews %}
+        <div class="glass-card" style="margin-bottom: 20px; padding: 24px; border-left: 4px solid #dc3545;">
+            <!-- Type Badge -->
+            <div style="margin-bottom: 12px;">
+                <span style="background: #dc3545; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8em; font-weight: 600;">🚩 USER REPORTED ({{ item.report_count }} report{{ 's' if item.report_count != 1 else '' }})</span>
+            </div>
+            
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px; gap: 16px;">
+                <div style="flex: 1;">
+                    <h3 style="margin: 0 0 8px 0; color: #333;">
+                        <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=item.review.lecturer_id) }}" style="color: #2563eb; text-decoration: none;">
+                            {{ (item.review.lecturer.email.split('@')[0]) if (item.review.lecturer and item.review.lecturer.email) else 'Unknown Lecturer' }}
+                        </a>
+                    </h3>
+                    <p style="margin: 0; color: #666; font-size: 0.9em;">
+                        By: <strong>{{ item.review.author.email if (not item.review.is_anonymous and item.review.author) else 'Anonymous Student' }}</strong> 
+                        | {{ item.review.review_date.strftime('%Y-%m-%d %H:%M') }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Review Content -->
+            <div style="background: rgba(0, 0, 0, 0.02); border-left: 4px solid #2563eb; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                <p style="margin: 0; color: #333; line-height: 1.6;">{{ item.review.review_text }}</p>
+            </div>
+
+            <!-- Report Reason -->
+            <div style="background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                <p style="margin: 0 0 8px 0; font-weight: 600; color: #dc3545;">📢 Latest Report Reason:</p>
+                <p style="margin: 0; color: #666;">{{ item.latest_report.reason }}</p>
+                <p style="margin: 8px 0 0 0; color: #999; font-size: 0.85em;">Reported by: {{ item.latest_report.reporter.email if item.latest_report.reporter else 'Unknown' }}</p>
+                
+                <!-- Show all reports button if more than 1 report -->
+                {% if item.report_count > 1 %}
+                <button onclick="toggleReportHistory('report-history-{{ item.review.id }}', this)" 
+                        data-report-count="{{ item.report_count - 1 }}"
+                        style="margin-top: 12px; padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em;">
+                    📜 Show {{ item.report_count - 1 }} Previous Report{{ 's' if item.report_count - 1 != 1 else '' }}
+                </button>
+                
+                <!-- Hidden report history -->
+                <div id="report-history-{{ item.review.id }}" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(220, 53, 69, 0.3);">
+                    <p style="margin: 0 0 12px 0; font-weight: 600; color: #dc3545; font-size: 0.9em;">Previous Reports:</p>
+                    {% for report in item.all_reports %}
+                    {% if not loop.first %}
+                    <div style="background: rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid rgba(220, 53, 69, 0.2);">
+                        <p style="margin: 0 0 6px 0; color: #666; font-size: 0.9em;">
+                            <strong>Report #{{ item.report_count - loop.index0 }}:</strong> {{ report.reason }}
+                        </p>
+                        <p style="margin: 0; color: #999; font-size: 0.8em;">
+                            By: {{ report.reporter.email if report.reporter else 'Unknown' }} | {{ report.report_date.strftime('%Y-%m-%d %H:%M') }}
+                        </p>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Moderation History -->
+            {% if item.review.moderated_at %}
+            <div style="background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                <p style="margin: 0 0 8px 0; font-weight: 600; color: #2563eb;">📜 Moderation History:</p>
+                    <p style="margin: 0; color: #666; font-size: 0.9em;">
+                    <strong style="text-transform: capitalize;">{{ item.review.moderation_action.replace('_', ' ') }}</strong> 
+                    by <strong>{{ item.review.moderated_by.email if item.review.moderated_by else 'Unknown' }}</strong> 
+                    on {{ item.review.moderated_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                </p>
+            </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <a href="{{ url_for('auth.admin_dismiss_report', report_id=item.latest_report.id) }}" 
+                   class="btn" style="padding: 10px 20px; background: #16a34a; color: white; border: none; border-radius: 6px; text-decoration: none; display: inline-block;">✓ Approve</a>
+                <a href="{{ url_for('auth.admin_delete_reported_review', report_id=item.latest_report.id) }}" 
+                   onclick="return confirm('Permanently delete this review? This cannot be undone.');"
+                   class="btn" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 6px; text-decoration: none; display: inline-block;">✕ Reject</a>
+                <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=item.review.lecturer_id) }}" class="btn btn-secondary" style="padding: 10px 20px;">👁️ View Profile</a>
+            </div>
+        </div>
+        {% endfor %}
+
+    {% else %}
+        <div class="glass-card" style="text-align: center; padding: 60px 20px;">
+            <p style="font-size: 3em; margin: 0 0 16px 0;">✓</p>
+            <h3 style="margin: 0 0 8px 0; color: #16a34a;">No Flagged Reviews</h3>
+            <p style="color: #666; margin: 0;">All reviews have been moderated successfully.</p>
+        </div>
+    {% endif %}
+
+    <hr style="margin: 40px 0; border: none; border-top: 1px solid #e0e0e0;">
+    <a href="{{ url_for('auth.admin_dashboard') }}" style="color: #2563eb; text-decoration: none; font-weight: 500;">← Back to Admin Dashboard</a>
+</div>
+
+<script>
+function toggleReportHistory(elementId, button) {
+    const element = document.getElementById(elementId);
+    const reportCount = button.getAttribute('data-report-count');
+    if (element.style.display === 'none') {
+        element.style.display = 'block';
+        button.textContent = '🔼 Hide Report History';
+    } else {
+        element.style.display = 'none';
+        button.textContent = `📜 Show ${reportCount} Previous Report${reportCount != 1 ? 's' : ''}`;
+    }
+}
+</script>
+{% endblock %}

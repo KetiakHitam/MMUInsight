@@ -28,7 +28,7 @@ def resend_verification():
         flash(_("This account is already verified. Please log in."), "info")
         return redirect(url_for("auth.login"))
     
-    # Auto-verify account (email disabled for now)
+    # Auto-verify account (email disabled)
     user.is_verified = True
     db.session.commit()
     
