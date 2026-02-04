@@ -26,8 +26,8 @@
 
             <div id="nav-menu" class="nav-menu" data-js="nav-menu">
                 <div class="nav-links">
-                    <a class="nav-link" href="{{ url_for('suggestions.suggestions_list') }}">Suggestions</a>
-                    <a class="nav-link" href="{{ url_for('bugs.report_bug') }}">Report Bug</a>
+                    <a class="nav-link" href="{{ url_for('suggestions.suggestions_list') }}">{{ _('Suggestions') }}</a>
+                    <a class="nav-link" href="{{ url_for('bugs.report_bug') }}">{{ _('Report Bug') }}</a>
                 </div>
 
                 <div class="nav-actions">
@@ -70,12 +70,12 @@
                             </span>
                         </summary>
                         <div class="nav-dd__panel" role="menu">
-                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('auth.admin_dashboard') }}">Dashboard</a>
-                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('auth.admin_users') }}">Users</a>
-                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('auth.admin_moderation') }}">Moderation</a>
-                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('auth.admin_audit_logs') }}">Audit Logs</a>
-                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('suggestions.admin_suggestions') }}">Suggestions</a>
-                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('bugs.admin_bugs') }}">Bug Reports</a>
+                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('auth.admin_dashboard') }}">{{ _('Dashboard') }}</a>
+                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('auth.admin_users') }}">{{ _('Users') }}</a>
+                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('auth.admin_moderation') }}">{{ _('Moderation') }}</a>
+                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('auth.admin_audit_logs') }}">{{ _('Audit Logs') }}</a>
+                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('suggestions.admin_suggestions') }}">{{ _('Suggestions') }}</a>
+                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('bugs.admin_bugs') }}">{{ _('Bug Reports') }}</a>
                         </div>
                     </details>
                     {% endif %}
@@ -96,9 +96,10 @@
                                 <div class="nav-dd__meta-role">{% if current_user.is_mod() %}{{ current_user.role or 'ADMIN' }}{% else %}{{ current_user.user_type|capitalize }}{% endif %}</div>
                             </div>
                             {% if current_user.user_type == 'lecturer' %}
-                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('reviews.lecturer_profile', lecturer_id=current_user.id) }}">My Profile</a>
+                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('reviews.lecturer_profile', lecturer_id=current_user.id) }}">{{ _('My Profile') }}</a>
                             {% endif %}
-                            <a class="nav-dd__item nav-dd__item--danger" role="menuitem" href="{{ url_for('auth.logout') }}">Logout</a>
+                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('auth.change_password') }}">Change Password</a>
+                            <a class="nav-dd__item nav-dd__item--danger" role="menuitem" href="{{ url_for('auth.logout') }}">{{ _('Logout') }}</a>
                         </div>
                     </details>
                 </div>
@@ -120,10 +121,10 @@
     {% block content %}{% endblock %}
     
     <footer class="site-footer">
-        <a href="{{ url_for('terms_of_service') }}">Terms of Service</a>
-        <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>
-        <a href="{{ url_for('about_us') }}">About Us</a>
-        <a href="{{ url_for('faq') }}">FAQ</a>
+        <a href="{{ url_for('terms_of_service') }}">{{ _('Terms of Service') }}</a>
+        <a href="{{ url_for('privacy_policy') }}">{{ _('Privacy Policy') }}</a>
+        <a href="{{ url_for('about_us') }}">{{ _('About Us') }}</a>
+        <a href="{{ url_for('faq') }}">{{ _('FAQ') }}</a>
     </footer>
 
     <script>

@@ -148,15 +148,30 @@ def create_review(lecturer_id):
     
     # Run auto-moderation on review text
     moderation_result = ContentModerator.moderate(review_text, content_type='review')
+    print(f"DEBUG: is_clean={moderation_result.is_clean}, flags={moderation_result.flags}, severity={moderation_result.severity}")
     
     # Check for ASCII art
     ascii_result = AsciiArtDetector.detect_ascii_art(review_text)
     
     # Combine moderation flags: if ASCII art detected, add to flags and mark for review
     flags = list(moderation_result.flags)
+    severity = moderation_result.severity
+    
+    # Check if profanity was detected (hard violation)
+    has_profanity = any('profanity_detected' in str(flag) for flag in moderation_result.flags)
+    
     if ascii_result['is_flagged']:
         flags.append('ascii_art')
-        moderation_result.is_clean = False
+        # Upgrade severity if ASCII art is moderate/high
+        if ascii_result['severity'] in ['high', 'critical']:
+            severity = 'high'
+    
+    # Determine posting behavior based on severity
+    # HARD VIOLATIONS (don't post, require admin approval):
+    # - Any profanity detected
+    # - Severity is HIGH/CRITICAL
+    # MEDIUM/LOW: Post with warning banner
+    is_hard_violation = has_profanity or severity in ['high', 'critical']
     
     review = Review(
         review_text=review_text,
@@ -173,9 +188,9 @@ def create_review(lecturer_id):
         subject_code=subject_input,
         # Set moderation flags
         moderation_flags=','.join(flags) if flags else None,
-        moderation_severity=moderation_result.severity or (ascii_result['severity'] if ascii_result['is_flagged'] else None),
-        requires_human_review=not moderation_result.is_clean,
-        is_approved=True if moderation_result.is_clean else None,  # Auto-approved if clean
+        moderation_severity=severity,
+        requires_human_review=True if not moderation_result.is_clean else False,
+        is_approved=True if moderation_result.is_clean else (False if is_hard_violation else None),
         ascii_art_score=ascii_result['score']
     )
     
@@ -184,6 +199,9 @@ def create_review(lecturer_id):
     
     if moderation_result.is_clean:
         flash(_("Review submitted successfully!"), "success")
+    elif is_hard_violation:
+        summary = get_moderation_summary(moderation_result.flags)
+        flash(f"Review submission requires admin review: {summary}. It will be visible once approved.", "warning")
     else:
         summary = get_moderation_summary(moderation_result.flags)
         flash(f"Review submitted but flagged for review: {summary}", "warning")
@@ -221,11 +239,12 @@ def lecturer_profile(lecturer_id):
         current_user.search_history = ','.join(history)
         db.session.commit()
 
-    # Get all reviews, filtering out unapproved flagged ones
+    # Get all reviews, including pending moderation
     all_reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.review_date.desc()).all()
     
-    # Filter: show approved reviews and auto-approved (clean) reviews, hide pending moderation
-    reviews = [r for r in all_reviews if r.is_approved is not False and (r.is_approved is True or not r.requires_human_review)]
+    # Filter: show approved reviews, auto-approved (clean) reviews, and pending moderation reviews (with warning)
+    # Hide reviews with is_approved=False (hard violations waiting for admin approval)
+    reviews = [r for r in all_reviews if r.is_approved is not False]
     
     user_review = None
     student_has_review = False

@@ -6,19 +6,19 @@
 <div class="container auth-container">
     <div class="card auth-card">
         <div class="card-header">
-            <h2>Welcome Back</h2>
+            <h2>{{ _('Welcome Back') }}</h2>
         </div>
         <div class="card-body">
             <form method="POST" action="{{ url_for('auth.login') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="password" name="password" required>
+                     <label for="email">{{ _('Email Address') }}</label>
+                     <input type="email" id="email" name="email" required value="{{ request.form.get('email', '') }}">
+                 </div>
+                 <div class="form-group">
+                     <label for="password">{{ _('Password') }}</label>
+                     <div class="password-wrapper">
+                         <input type="password" id="password" name="password" required>
                         <button type="button" class="password-toggle" onclick="togglePassword('password', this)">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -30,16 +30,15 @@
                     </div>
                 </div>
                 <div class="auth-warning">
-                    <small><strong>⚠️ Important:</strong> This site is not affiliated with MMU. Please set a new password - we encourage you to use different passwords for different platforms.</small>
+                    <small><strong>{{ _('⚠️ Important:') }}</strong> {{ _('This site is not affiliated with MMU. Please set a new password - we encourage you to use different passwords for different platforms.') }}</small>
                 </div>
-                <button type="submit" class="btn btn-block btn-lg" style="margin-top: 1.5rem;">Login</button>
+                <button type="submit" class="btn btn-block btn-lg" style="margin-top: 1.5rem;">{{ _('Login') }}</button>
             </form>
         </div>
         <div class="card-footer auth-footer">
-            <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
-            <p><a href="{{ url_for('auth.forgot_password') }}">Forgot your password?</a></p>
-            <p><a href="{{ url_for('auth.resend_verification_page') }}">Resend verification email</a></p>
-        </div>
+             <p>{{ _("Don't have an account?") }} <a href="{{ url_for('auth.register') }}">{{ _('Register here') }}</a></p>
+             <p><a href="{{ url_for('auth.forgot_password') }}">{{ _('Forgot your password?') }}</a></p>
+         </div>
     </div>
 </div>
 

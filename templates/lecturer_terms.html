@@ -190,10 +190,10 @@
     <form method="POST" action="{{ url_for('reviews.accept_lecturer_terms', lecturer_id=lecturer.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         
-        <div class="checkbox-group">
-            <input type="checkbox" id="accepted" name="accepted" required>
-            <label for="accepted">I have read the information above and agree to follow the guidelines.</label>
-        </div>
+        <label class="d-flex align-items-center mb-3" style="gap:10px; cursor:pointer; padding-left:4px;">
+            <input type="checkbox" id="accepted" name="accepted" required style="width:20px; height:20px; transform:scale(1.15); margin:0;">
+            <span style="font-weight:600; color:var(--text-primary);">I have read the information above and agree to follow the guidelines.</span>
+        </label>
 
         <div class="terms-actions">
             <button type="submit" class="btn-confirm">Confirm and Continue</button>
