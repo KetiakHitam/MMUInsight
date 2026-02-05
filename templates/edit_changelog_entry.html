@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Changelog Entry - Admin{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px; padding: 40px 20px;">
+    <!-- Header -->
+    <h2 style="margin: 0 0 8px 0;">📋 Edit Changelog Entry</h2>
+    <p style="color: #666; margin: 0 0 30px 0;">Update the details for version {{ entry.version }}</p>
+
+    <!-- Form -->
+    <form method="POST" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 12px; padding: 30px;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+        <!-- Version Field -->
+        <div style="margin-bottom: 24px;">
+            <label for="version" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                Version <span style="color: #dc3545;">*</span>
+            </label>
+            <input type="text" id="version" name="version" required value="{{ entry.version }}" 
+                   placeholder="e.g., 1.0.0, 1.0.1, 1.1.0" 
+                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1em; font-family: monospace;">
+            <p style="margin: 6px 0 0 0; color: #999; font-size: 0.9em;">Use semantic versioning (MAJOR.MINOR.PATCH)</p>
+        </div>
+
+        <!-- Title Field -->
+        <div style="margin-bottom: 24px;">
+            <label for="title" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                Title <span style="color: #dc3545;">*</span>
+            </label>
+            <input type="text" id="title" name="title" required value="{{ entry.title }}"
+                   placeholder="e.g., Major UI Redesign, Bug Fixes and Improvements" 
+                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1em;">
+        </div>
+
+        <!-- Content Field -->
+        <div style="margin-bottom: 24px;">
+            <label for="content" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                Release Notes <span style="color: #dc3545;">*</span>
+            </label>
+            <p style="margin: 0 0 8px 0; color: #666; font-size: 0.9em;">
+                Use the format below. Line breaks will be preserved.
+            </p>
+            <textarea id="content" name="content" required rows="16" 
+                      style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1em; font-family: monospace; resize: vertical;">{{ entry.content }}</textarea>
+        </div>
+
+        <!-- Publish Checkbox -->
+        <div style="margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" id="is_published" name="is_published" {% if entry.is_published %}checked{% endif %}
+                   style="width: 18px; height: 18px; cursor: pointer;">
+            <label for="is_published" style="margin: 0; cursor: pointer; color: #333; font-weight: 500;">
+                Published
+            </label>
+            <p style="margin: 0; color: #999; font-size: 0.9em;">(uncheck to save as draft)</p>
+        </div>
+
+        <!-- Info Box -->
+        <div style="background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 24px;">
+            <p style="margin: 0; color: #2563eb; font-size: 0.9em;">
+                <strong>Created:</strong> {{ entry.created_at.strftime('%b %d, %Y at %H:%M') }} 
+                | <strong>Updated:</strong> {{ entry.updated_at.strftime('%b %d, %Y at %H:%M') }}
+            </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 10px; margin-top: 30px;">
+            <button type="submit" class="btn" style="padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1em;">
+                ✓ Save Changes
+            </button>
+            <a href="{{ url_for('changelog.admin_changelog') }}" class="btn btn-secondary" style="padding: 12px 24px; background: #999; color: white; border: none; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 1em;">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+    body.dark-mode form {
+        background: rgba(30, 30, 30, 0.85) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    body.dark-mode input,
+    body.dark-mode textarea {
+        background: rgba(0, 0, 0, 0.3) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        color: #e0e0e0 !important;
+    }
+
+    body.dark-mode label,
+    body.dark-mode h2 {
+        color: #f0f0f0 !important;
+    }
+</style>
+{% endblock %}
