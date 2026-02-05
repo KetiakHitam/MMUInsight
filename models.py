@@ -200,3 +200,15 @@ class BugComment(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     
     user = db.relationship('User', backref='bug_comments', lazy=True)
+
+class Changelog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    version = db.Column(db.String(50), nullable=False, unique=True)  # e.g., "1.0.0", "1.0.1"
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=False)  # Markdown or formatted text
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_published = db.Column(db.Boolean, nullable=False, default=True)
+    
+    user = db.relationship('User', backref='changelog_entries', lazy=True)
