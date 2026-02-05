@@ -21,6 +21,7 @@ from auth import auth_bp
 from reviews import reviews_bp
 from suggestions import suggestions_bp
 from bugs import bugs_bp
+from changelog import changelog_bp
 from lecturer_search import search_lecturers_by_email
 
 app = Flask(__name__)
@@ -159,6 +160,7 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(reviews_bp)
 app.register_blueprint(suggestions_bp)
 app.register_blueprint(bugs_bp)
+app.register_blueprint(changelog_bp)
 
 @app.route("/set-language/<language>")
 def set_language(language):
