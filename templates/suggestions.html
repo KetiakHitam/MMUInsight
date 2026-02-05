@@ -119,7 +119,6 @@
 
     <script>
     function voteOnSuggestion(suggestionId, voteType, button) {
-     const url = `{{ url_for('suggestions.${voteType}_suggestion', suggestion_id='__ID__').replace('__ID__', suggestionId) }}`.replace('__ID__', suggestionId);
      const voteEndpoint = voteType === 'upvote' 
          ? `/suggestion/${suggestionId}/upvote`
          : `/suggestion/${suggestionId}/downvote`;
