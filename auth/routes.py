@@ -76,7 +76,9 @@ def admin_dashboard():
     total_reviews = Review.query.count()
     
     pending_reports = Report.query.filter_by(status='pending').count()
-    flagged_reviews = Review.query.filter_by(requires_human_review=True, is_approved=None).count()
+    flagged_reviews = Review.query.filter_by(requires_human_review=True).filter(
+        db.or_(Review.is_approved == None, Review.is_approved == False)
+    ).count()
 
     return render_template(
         "admin_dashboard.html",
@@ -315,10 +317,9 @@ def admin_moderation():
     """Display flagged reviews and reported reviews pending moderation"""
     filter_type = request.args.get('filter', 'all')  # 'all', 'automod', 'reported'
     
-    # Get auto-moderation flagged reviews
-    flagged_reviews = Review.query.filter_by(
-        requires_human_review=True, 
-        is_approved=None
+    # Get auto-moderation flagged reviews (both is_approved=None and is_approved=False)
+    flagged_reviews = Review.query.filter_by(requires_human_review=True).filter(
+        db.or_(Review.is_approved == None, Review.is_approved == False)
     ).order_by(Review.review_date.desc()).all()
     
     # Get reported reviews (pending reports)
