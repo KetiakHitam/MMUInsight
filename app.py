@@ -86,10 +86,29 @@ babel = Babel(app, locale_selector=get_locale)
 # Initialize Flask-Migrate for database schema management
 migrate = Migrate(app, db)
 
-# Initialize database - use db.create_all() for development
-# Flask-Migrate will handle schema management in production
+# Initialize database and create admin accounts
 with app.app_context():
     db.create_all()
+    
+    # Create admin/owner accounts from env vars
+    admin_pass = os.environ.get('ADMIN_PASSWORD', 'admin')
+    owner_pass = os.environ.get('OWNER_PASSWORD', 'owner')
+    
+    for email, role, password in [
+        ("admin@mmu.edu.my", "ADMIN", admin_pass),
+        ("owner@mmu.edu.my", "OWNER", owner_pass),
+    ]:
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            user = User(email=email, user_type="admin", role=role, is_verified=True, is_claimed=True)
+            db.session.add(user)
+        
+        # Always regenerate password hash (encode bytes to string)
+        pw_hash = bcrypt.generate_password_hash(password)
+        user.password_hash = pw_hash.decode('utf-8') if isinstance(pw_hash, bytes) else pw_hash
+        db.session.add(user)
+    
+    db.session.commit()
 
 
 @app.before_request
