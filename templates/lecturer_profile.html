@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ lecturer.email }} - Profile{% endblock %}
+{% block title %}{{ lecturer.name }} - Profile{% endblock %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
@@ -20,12 +20,12 @@
 <div class="container" style="max-width: 900px; margin: 0 auto;">
     <div class="glass-header-profile">
         <h2>
-            {{ lecturer.email }}
+            {{ lecturer.name }}
             {% if lecturer.is_claimed %}
             <span class="verified-badge">Verified</span>
             {% endif %}
         </h2>
-        <p class="subtitle">Lecturer Profile</p>
+        <p class="subtitle">{{ lecturer.email }}</p>
         {% if lecturer.last_online %}
         <p class="last-online">Last online: 
             {% if (now - lecturer.last_online).total_seconds() < 60 %}
@@ -183,6 +183,21 @@
     <h3 style="max-width: 800px; margin: 30px auto 20px auto; text-align: left;">Reviews ({{ reviews|length }})</h3>
     
     {% if reviews %}
+    <div style="max-width: 800px; margin: 0 auto 20px auto; display: flex; gap: 10px;">
+        <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=lecturer.id, sort='newest') }}" 
+           class="btn {% if request.args.get('sort', 'newest') == 'newest' %}btn-primary{% else %}btn-secondary{% endif %}" 
+           style="padding: 8px 16px; font-size: 0.9em;">
+           Newest
+        </a>
+        <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=lecturer.id, sort='upvotes') }}" 
+           class="btn {% if request.args.get('sort', 'newest') == 'upvotes' %}btn-primary{% else %}btn-secondary{% endif %}" 
+           style="padding: 8px 16px; font-size: 0.9em;">
+           Most Liked
+        </a>
+    </div>
+    {% endif %}
+    
+    {% if reviews %}
         {% for review in reviews %}
         <div class="review-card{% if review.author == current_user %} own-review{% endif %}">
             <div class="review-header">
@@ -280,6 +295,17 @@
                     <dd>{{ review.rating_fairness }}/5</dd>
                 </dl>
             </div>
+
+            <div style="display: flex; align-items: center; gap: 12px; padding-top: 12px; border-top: 1px solid #eee; margin-top: 12px;">
+                {% if current_user.is_authenticated %}
+                <button onclick="voteOnReview({{ review.id }}, 'upvote', this)" style="background-color: #f0f0f0; color: #333; padding: 6px 12px; border-radius: 4px; font-size: 0.9em; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.7';" onmouseout="this.style.opacity='1';">👍 <span class="upvote-count">{{ review.upvotes or 0 }}</span></button>
+                <button onclick="voteOnReview({{ review.id }}, 'downvote', this)" style="background-color: #f0f0f0; color: #333; padding: 6px 12px; border-radius: 4px; font-size: 0.9em; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.7';" onmouseout="this.style.opacity='1';">👎 <span class="downvote-count">{{ review.downvotes or 0 }}</span></button>
+                {% else %}
+                <span style="background-color: #f0f0f0; padding: 6px 12px; border-radius: 4px; font-size: 0.9em; font-weight: 600;">👍 {{ review.upvotes or 0 }}</span>
+                <span style="background-color: #f0f0f0; padding: 6px 12px; border-radius: 4px; font-size: 0.9em; font-weight: 600;">👎 {{ review.downvotes or 0 }}</span>
+                {% endif %}
+            </div>
+
             <script>
             function toggleKebabMenu(btn) {
                 var container = btn.closest('.review-kebab-menu-container');
@@ -429,35 +455,34 @@ function hideEditForm(replyId) {
     font-family: inherit !important;
 }
 
-/* Remove upvote/downvote buttons */
-button:has(😍), button:contains("👍"), button:contains("👎"),
-[style*="#28a745"][style*="👍"], [style*="#dc3545"][style*="👎"],
-.upvote-btn, .downvote-btn, .vote-btn {
-    display: none !important;
-}
+
 </style>
 
 <script>
-// Remove any upvote/downvote buttons that may be dynamically added
-document.addEventListener('DOMContentLoaded', function() {
-    // Remove buttons with vote emojis
-    document.querySelectorAll('button').forEach(btn => {
-        if (btn.textContent.includes('👍') || btn.textContent.includes('👎')) {
-            btn.remove();
-        }
-    });
+function voteOnReview(reviewId, voteType, button) {
+    const voteEndpoint = voteType === 'upvote' 
+        ? `/review/${reviewId}/upvote`
+        : `/review/${reviewId}/downvote`;
     
-    // Remove divs that might contain vote buttons
-    document.querySelectorAll('div').forEach(div => {
-        const text = div.textContent;
-        if ((text.includes('👍') && text.includes('0')) || (text.includes('👎') && text.includes('0'))) {
-            // Check if this is likely a vote button container
-            if (div.style.backgroundColor === 'rgb(40, 167, 69)' || div.style.backgroundColor === 'rgb(220, 53, 69)') {
-                div.remove();
-            }
+    fetch(voteEndpoint, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': '{{ csrf_token() }}'
         }
-    });
-});
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Find the parent container and update vote counts
+        const container = button.closest('div[style*="display: flex"]');
+        const upvoteBtn = container.querySelector('button:nth-child(1)');
+        const downvoteBtn = container.querySelector('button:nth-child(2)');
+        
+        upvoteBtn.querySelector('.upvote-count').textContent = data.upvotes;
+        downvoteBtn.querySelector('.downvote-count').textContent = data.downvotes;
+    })
+    .catch(error => console.error('Error voting:', error));
+}
 </script>
 
 {% endblock %}
