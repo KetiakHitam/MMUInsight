@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from flask_babel import gettext as _
 from extensions import db, limiter
-from models import Review, User, Reply, Report, Subject, Lecturer
+from models import Review, User, Reply, Report, Subject, Lecturer, ReviewVote
 from moderation import ContentModerator, get_moderation_summary
 from audit import log_admin_action
 from ascii_detector import AsciiArtDetector
@@ -239,13 +239,13 @@ def lecturer_profile(lecturer_id):
             current_user.search_history = ','.join(history)
             db.session.commit()
 
-    # Get sorting preference (default to recent)
-    sort_by = request.args.get('sort', 'recent')
+    # Get sorting preference (default to newest)
+    sort_by = request.args.get('sort', 'newest')
     
     # Get all reviews, including pending moderation
     if sort_by == 'upvotes':
         all_reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.upvotes.desc()).all()
-    else:
+    else:  # newest
         all_reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.review_date.desc()).all()
     
     # Filter: show approved reviews, auto-approved (clean) reviews, and pending moderation reviews (with warning)
@@ -755,4 +755,82 @@ def unpin_review(review_id):
     log_admin_action(f"Unpinned review {review.id}", "review")
     
     flash("Review unpinned", "success")
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
+
+@reviews_bp.route('/review/<int:review_id>/upvote', methods=['POST'])
+@login_required
+def upvote_review(review_id):
+    review = Review.query.get_or_404(review_id)
+    
+    # Check if user already voted
+    existing_vote = ReviewVote.query.filter_by(
+        user_id=current_user.id,
+        review_id=review_id
+    ).first()
+    
+    if existing_vote:
+        if existing_vote.vote_type == 'upvote':
+            # Remove upvote if already voted
+            db.session.delete(existing_vote)
+            review.upvotes -= 1
+        else:
+            # Switch from downvote to upvote
+            existing_vote.vote_type = 'upvote'
+            review.downvotes -= 1
+            review.upvotes += 1
+    else:
+        # Add new upvote
+        vote = ReviewVote(
+            user_id=current_user.id,
+            review_id=review_id,
+            vote_type='upvote'
+        )
+        db.session.add(vote)
+        review.upvotes += 1
+    
+    db.session.commit()
+    
+    # Return JSON for AJAX requests
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({'upvotes': review.upvotes, 'downvotes': review.downvotes})
+    
+    return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
+
+@reviews_bp.route('/review/<int:review_id>/downvote', methods=['POST'])
+@login_required
+def downvote_review(review_id):
+    review = Review.query.get_or_404(review_id)
+    
+    # Check if user already voted
+    existing_vote = ReviewVote.query.filter_by(
+        user_id=current_user.id,
+        review_id=review_id
+    ).first()
+    
+    if existing_vote:
+        if existing_vote.vote_type == 'downvote':
+            # Remove downvote if already voted
+            db.session.delete(existing_vote)
+            review.downvotes -= 1
+        else:
+            # Switch from upvote to downvote
+            existing_vote.vote_type = 'downvote'
+            review.upvotes -= 1
+            review.downvotes += 1
+    else:
+        # Add new downvote
+        vote = ReviewVote(
+            user_id=current_user.id,
+            review_id=review_id,
+            vote_type='downvote'
+        )
+        db.session.add(vote)
+        review.downvotes += 1
+    
+    db.session.commit()
+    
+    # Return JSON for AJAX requests
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({'upvotes': review.upvotes, 'downvotes': review.downvotes})
+    
     return redirect(url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id))
