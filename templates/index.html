@@ -132,7 +132,7 @@
                                     <div class="hero-result-avatar" aria-hidden="true">{{ lecturer.avatar_initials or "?" }}</div>
                                     <div class="hero-result-main">
                                         <div class="hero-result-name">
-                                             <a class="hero-result-link" href="/lecturer/{{ lecturer.id }}">{{ lecturer.email }}</a> <span class="hero-result-faculty">Lecturer</span>
+                                             <a class="hero-result-link" href="/lecturer/{{ lecturer.id }}">{{ lecturer.name }}</a> <span class="hero-result-faculty">Lecturer</span>
                                              {% if lecturer.is_claimed %}
                                              <span class="hero-result-verified">Verified</span>
                                              {% endif %}

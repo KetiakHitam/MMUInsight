@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ lecturer.email }} - Profile{% endblock %}
+{% block title %}{{ lecturer.name }} - Profile{% endblock %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
@@ -20,12 +20,12 @@
 <div class="container" style="max-width: 900px; margin: 0 auto;">
     <div class="glass-header-profile">
         <h2>
-            {{ lecturer.email }}
+            {{ lecturer.name }}
             {% if lecturer.is_claimed %}
             <span class="verified-badge">Verified</span>
             {% endif %}
         </h2>
-        <p class="subtitle">Lecturer Profile</p>
+        <p class="subtitle">{{ lecturer.email }}</p>
         {% if lecturer.last_online %}
         <p class="last-online">Last online: 
             {% if (now - lecturer.last_online).total_seconds() < 60 %}
