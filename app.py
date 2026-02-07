@@ -16,6 +16,7 @@ if 'DATABASE_PATH' not in os.environ:
     os.environ['DATABASE_PATH'] = os.path.join(db_directory, 'mmuinsight.db')
 
 from extensions import db, bcrypt, login_manager, limiter, csrf, mail
+from flask_migrate import Migrate
 from models import User, Subject, Review, Suggestion, SuggestionVote
 from auth import auth_bp
 from reviews import reviews_bp
@@ -82,70 +83,13 @@ mail.init_app(app)
 # Flask-Session disabled: Flask-Login handles user persistence via database
 babel = Babel(app, locale_selector=get_locale)
 
-# Create database tables on startup
+# Initialize Flask-Migrate for database schema management
+migrate = Migrate(app, db)
+
+# Initialize database - use db.create_all() for development
+# Flask-Migrate will handle schema management in production
 with app.app_context():
     db.create_all()
-    
-    # Seed lecturers from scraped_lecturers.txt if table is empty
-    from models import Lecturer
-    try:
-        lecturer_count_before = Lecturer.query.count()
-    except Exception:
-        lecturer_count_before = 0
-    if lecturer_count_before == 0:
-        import re
-        lecturers_file = os.path.join(BASE_DIR, 'scraped_lecturers.txt')
-        try:
-            print(f"Loading lecturers from {lecturers_file}...")
-            # Try multiple encodings
-            content = None
-            for encoding in ['utf-8-sig', 'utf-16', 'utf-16-le', 'utf-8', 'latin-1']:
-                try:
-                    with open(lecturers_file, 'r', encoding=encoding) as f:
-                        content = f.read()
-                    print(f"  Decoded as {encoding}")
-                    break
-                except (UnicodeDecodeError, UnicodeError):
-                    continue
-            
-            if content is None:
-                raise ValueError("Could not decode file with any encoding")
-            
-            pattern = r'^\s*\d+\.\s+(.+?)\n.*?\|\s*([a-zA-Z0-9.@-]+@mmu\.edu\.my)'
-            for match in re.finditer(pattern, content, re.MULTILINE | re.DOTALL):
-                name = re.sub(r'\s+', ' ', match.group(1).strip())
-                email = match.group(2).strip()
-                
-                if name and email and not Lecturer.query.filter_by(email=email).first():
-                    db.session.add(Lecturer(name=name, email=email, department='FCI'))
-            
-            db.session.commit()
-            final_count = Lecturer.query.count()
-            print(f"✓ Seeded {final_count - lecturer_count_before} lecturers (total: {final_count})")
-        except FileNotFoundError:
-            print(f"✗ File not found: {lecturers_file}")
-        except Exception as e:
-            print(f"✗ Error seeding lecturers: {type(e).__name__}: {e}")
-    
-    # Create admin/owner accounts from env vars (always regenerate hashes)
-    admin_pass = os.environ.get('ADMIN_PASSWORD', 'admin')
-    owner_pass = os.environ.get('OWNER_PASSWORD', 'owner')
-    
-    for email, role, password in [
-        ("admin@mmu.edu.my", "ADMIN", admin_pass),
-        ("owner@mmu.edu.my", "OWNER", owner_pass),
-    ]:
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            user = User(email=email, user_type="admin", role=role, is_verified=True, is_claimed=True)
-            db.session.add(user)
-        
-        # Always regenerate password hash to ensure it's valid (encode bytes to string)
-        pw_hash = bcrypt.generate_password_hash(password)
-        user.password_hash = pw_hash.decode('utf-8') if isinstance(pw_hash, bytes) else pw_hash
-        db.session.add(user)
-    
-    db.session.commit()
 
 
 @app.before_request
