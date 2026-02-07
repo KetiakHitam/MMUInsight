@@ -124,18 +124,22 @@ with app.app_context():
         except Exception as e:
             print(f"✗ Error seeding lecturers: {type(e).__name__}: {e}")
     
-    # Create admin/owner accounts from env vars if not exists
+    # Create admin/owner accounts from env vars (always regenerate hashes)
     admin_pass = os.environ.get('ADMIN_PASSWORD', 'admin')
     owner_pass = os.environ.get('OWNER_PASSWORD', 'owner')
     
     for email, role, password in [
-        ("admin@mmu.edu.my", "ADMIN", admin_pass),
-        ("owner@mmu.edu.my", "OWNER", owner_pass),
+       ("admin@mmu.edu.my", "ADMIN", admin_pass),
+       ("owner@mmu.edu.my", "OWNER", owner_pass),
     ]:
-        if not User.query.filter_by(email=email).first():
-            user = User(email=email, user_type="admin", role=role, is_verified=True, is_claimed=True)
-            user.password_hash = bcrypt.generate_password_hash(password)
-            db.session.add(user)
+       user = User.query.filter_by(email=email).first()
+       if not user:
+           user = User(email=email, user_type="admin", role=role, is_verified=True, is_claimed=True)
+           db.session.add(user)
+       
+       # Always regenerate password hash to ensure it's valid
+       user.password_hash = bcrypt.generate_password_hash(password)
+       db.session.add(user)
     
     db.session.commit()
 
