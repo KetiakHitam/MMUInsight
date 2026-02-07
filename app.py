@@ -15,7 +15,7 @@ if 'DATABASE_PATH' not in os.environ:
     os.makedirs(db_directory, exist_ok=True)
     os.environ['DATABASE_PATH'] = os.path.join(db_directory, 'mmuinsight.db')
 
-from extensions import db, bcrypt, login_manager, limiter, csrf, mail, session_manager
+from extensions import db, bcrypt, login_manager, limiter, csrf, mail
 from models import User, Subject, Review, Suggestion, SuggestionVote
 from auth import auth_bp
 from reviews import reviews_bp
@@ -32,15 +32,8 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-key-please-change-in-production")
 
-# Session Configuration - Use database backend instead of memory
-# TEMPORARILY DISABLED FOR DEBUGGING
-# app.config["SESSION_TYPE"] = "sqlalchemy"
-# app.config["SESSION_SQLALCHEMY"] = db
-# app.config["SESSION_SQLALCHEMY_TABLE"] = "session"
-# app.config["PERMANENT_SESSION_LIFETIME"] = 7 * 24 * 3600  # 7 days
-# app.config["SESSION_REFRESH_EACH_REQUEST"] = True
-
-# Session Cookie Security
+# Session Cookie Security (Flask-Login handles persistence via database)
+app.config["PERMANENT_SESSION_LIFETIME"] = 7 * 24 * 3600  # 7 days
 app.config["SESSION_COOKIE_SECURE"] = not debug_mode  # HTTPS only in production
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"  # Prevent CSRF
@@ -86,7 +79,7 @@ login_manager.init_app(app)
 limiter.init_app(app)
 csrf.init_app(app)
 mail.init_app(app)
-# session_manager.init_app(app)  # TEMPORARILY DISABLED FOR DEBUGGING
+# Flask-Session disabled: Flask-Login handles user persistence via database
 babel = Babel(app, locale_selector=get_locale)
 
 # Create database tables on startup
