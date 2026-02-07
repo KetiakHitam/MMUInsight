@@ -222,25 +222,31 @@ def lecturer_profile(lecturer_id):
     
     
     # Update search history for students
-    if current_user.user_type == 'student':
-        history = current_user.search_history.split(',') if current_user.search_history else []
-        lecturer_id_str = str(lecturer_id)
-        
-        # Remove if exists (to move to top)
-        if lecturer_id_str in history:
-            history.remove(lecturer_id_str)
-        
-        # Add to top
-        history.insert(0, lecturer_id_str)
-        
-        # Keep only top 3
-        history = history[:3]
-        
-        current_user.search_history = ','.join(history)
-        db.session.commit()
+        if current_user.user_type == 'student':
+            history = current_user.search_history.split(',') if current_user.search_history else []
+            lecturer_id_str = str(lecturer_id)
+            
+            # Remove if exists (to move to top)
+            if lecturer_id_str in history:
+                history.remove(lecturer_id_str)
+            
+            # Add to top
+            history.insert(0, lecturer_id_str)
+            
+            # Keep only top 3
+            history = history[:3]
+            
+            current_user.search_history = ','.join(history)
+            db.session.commit()
 
+    # Get sorting preference (default to recent)
+    sort_by = request.args.get('sort', 'recent')
+    
     # Get all reviews, including pending moderation
-    all_reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.review_date.desc()).all()
+    if sort_by == 'upvotes':
+        all_reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.upvotes.desc()).all()
+    else:
+        all_reviews = Review.query.filter_by(lecturer_id=lecturer_id).order_by(Review.is_pinned.desc(), Review.review_date.desc()).all()
     
     # Filter: show approved reviews, auto-approved (clean) reviews, and pending moderation reviews (with warning)
     # Hide reviews with is_approved=False (hard violations waiting for admin approval)
@@ -283,7 +289,7 @@ def lecturer_profile(lecturer_id):
         averages = None
         recommend_percentage = None
     
-    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage, reported_review_ids=reported_review_ids, student_has_review=student_has_review, user_review_id=user_review.id if user_review else None, now=datetime.utcnow())
+    return render_template('lecturer_profile.html', lecturer=lecturer, reviews=reviews, averages=averages, recommend_percentage=recommend_percentage, reported_review_ids=reported_review_ids, student_has_review=student_has_review, user_review_id=user_review.id if user_review else None, user_review_votes={}, user_reply_votes={}, now=datetime.utcnow())
 
 @reviews_bp.route('/claim_profile/<int:lecturer_id>', methods=['POST'])
 @login_required

@@ -17,7 +17,6 @@
 {% endblock %}
 
 {% block content %}
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <div class="container" style="max-width: 900px; margin: 0 auto;">
     <div class="glass-header-profile">
         <h2>
@@ -182,13 +181,8 @@
     {% endif %}
 
     <h3 style="max-width: 800px; margin: 30px auto 20px auto; text-align: left;">Reviews ({{ reviews|length }})</h3>
-
     
     {% if reviews %}
-    <div style="margin-bottom: 20px; display: flex; gap: 10px;">
-        <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=lecturer.id, sort='upvotes') }}" style="background-color: {% if sort_by == 'upvotes' %}#007bff{% else %}#e9ecef{% endif %}; color: {% if sort_by == 'upvotes' %}white{% else %}#333{% endif %}; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 0.9em; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">👍 Most Upvoted</a>
-        <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=lecturer.id, sort='recent') }}" style="background-color: {% if sort_by == 'recent' %}#007bff{% else %}#e9ecef{% endif %}; color: {% if sort_by == 'recent' %}white{% else %}#333{% endif %}; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 0.9em; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8';" onmouseout="this.style.opacity='1';">⏰ Most Recent</a>
-    </div>
         {% for review in reviews %}
         <div class="review-card{% if review.author == current_user %} own-review{% endif %}">
             <div class="review-header">
@@ -200,9 +194,6 @@
                         <span>Anonymous Student</span>
                     {% else %}
                         <span>{{ review.author.email }}</span>
-                        {% if review.author.reliable_tag %}
-                            <span class="reliable-badge">Reliable</span>
-                        {% endif %}
                         {% if review.is_anonymous and current_user.is_admin() %}
                             <span style="color: var(--text-secondary); font-size: 0.9em;">(Anonymous to others)</span>
                         {% endif %}
@@ -289,11 +280,6 @@
                     <dd>{{ review.rating_fairness }}/5</dd>
                 </dl>
             </div>
-            <!-- Vote controls for the review -->
-            <div class="vote-controls" style="display:flex; gap:8px; align-items:center; margin-top:10px;">
-                <button class="btn vote-btn upvote-btn" data-review-id="{{ review.id }}">👍 <span class="count">{{ review.upvotes if review.upvotes is not none else 0 }}</span></button>
-                <button class="btn vote-btn downvote-btn" data-review-id="{{ review.id }}">👎 <span class="count">{{ review.downvotes if review.downvotes is not none else 0 }}</span></button>
-            </div>
             <script>
             function toggleKebabMenu(btn) {
                 var container = btn.closest('.review-kebab-menu-container');
@@ -342,9 +328,6 @@
                                 <span style="color: var(--danger);">Anonymous Student</span>
                             {% else %}
                                 <span>{{ reply.author.email }}</span>
-                                {% if reply.author.reliable_tag %}
-                                    <span class="reliable-badge">Reliable</span>
-                                {% endif %}
                                 {% if reply.is_admin and reply.author.role != 'OWNER' %}
                                     {% if reply.author.role == 'ADMIN' %}
                                     <span class="reply-admin-badge admin">ADMIN</span>
@@ -384,10 +367,6 @@
                                class="btn btn-danger" style="font-size: 0.85em; padding: 5px 10px; text-decoration: none;">Delete</a>
                         </div>
                         {% endif %}
-                    </div>
-                    <div class="reply-vote-controls" style="display:flex; gap:8px; align-items:center; margin-top:8px;">
-                        <button class="btn vote-btn reply-upvote-btn" data-reply-id="{{ reply.id }}">👍 <span class="count">{{ reply.upvotes if reply.upvotes is not none else 0 }}</span></button>
-                        <button class="btn vote-btn reply-downvote-btn" data-reply-id="{{ reply.id }}">👎 <span class="count">{{ reply.downvotes if reply.downvotes is not none else 0 }}</span></button>
                     </div>
                     
                     <div id="reply-edit-{{ reply.id }}" style="display: none;">
@@ -450,99 +429,33 @@ function hideEditForm(replyId) {
     font-family: inherit !important;
 }
 
-/* Vote button styles */
-.vote-btn { display: inline-flex; align-items: center; gap:6px; padding:6px 10px; border-radius:6px; border:1px solid #ddd; background:#f8f9fa; cursor:pointer; }
-.vote-btn.active { background:#e6f4ff; border-color:#b6e0ff; }
-.vote-btn .count { font-weight:600; margin-left:4px; }
-/* Reliable badge style */
-.reliable-badge { display:inline-block; margin-left:8px; background: #e6ffed; color: #0b6b2e; padding: 2px 6px; border-radius: 6px; font-size: 0.8em; font-weight:600; }
+/* Remove upvote/downvote buttons */
+button:has(😍), button:contains("👍"), button:contains("👎"),
+[style*="#28a745"][style*="👍"], [style*="#dc3545"][style*="👎"],
+.upvote-btn, .downvote-btn, .vote-btn {
+    display: none !important;
+}
 </style>
 
 <script>
+// Remove any upvote/downvote buttons that may be dynamically added
 document.addEventListener('DOMContentLoaded', function() {
-    const csrfToken = '{{ csrf_token() }}';
-
-    function postForm(url, data) {
-        data['csrf_token'] = csrfToken;
-        return fetch(url, {method: 'POST', headers: {'Accept': 'application/json'}, body: new URLSearchParams(data)}).then(r => r.json());
-    }
-
-    // Initialize active state from server-provided maps
-    const userReviewVotes = {{ user_review_votes | tojson | safe }};
-    const userReplyVotes = {{ user_reply_votes | tojson | safe }};
-
-    // set active classes for reviews
-    document.querySelectorAll('.vote-controls').forEach(function(ctrl){
-        const upBtn = ctrl.querySelector('.upvote-btn');
-        const downBtn = ctrl.querySelector('.downvote-btn');
-        if (!upBtn) return;
-        const rid = upBtn.getAttribute('data-review-id');
-        const state = userReviewVotes && userReviewVotes[rid];
-        if (state === 'upvote') upBtn.classList.add('active');
-        if (state === 'downvote') downBtn.classList.add('active');
-
-        upBtn.addEventListener('click', function(e){
-            e.preventDefault();
-            postForm('{{ url_for("reviews.review_upvote", review_id=0) }}'.replace('/0/', '/' + rid + '/'), {}).then(function(resp){
-                upBtn.querySelector('.count').textContent = resp.upvotes;
-                downBtn.querySelector('.count').textContent = resp.downvotes;
-                if (resp.status === 'ok' || resp.status === 'switched') {
-                    upBtn.classList.add('active'); downBtn.classList.remove('active');
-                } else if (resp.status === 'cancelled') {
-                    upBtn.classList.remove('active');
-                }
-            }).catch(()=>{});
-        });
-
-        downBtn.addEventListener('click', function(e){
-            e.preventDefault();
-            postForm('{{ url_for("reviews.review_downvote", review_id=0) }}'.replace('/0/', '/' + rid + '/'), {}).then(function(resp){
-                upBtn.querySelector('.count').textContent = resp.upvotes;
-                downBtn.querySelector('.count').textContent = resp.downvotes;
-                if (resp.status === 'ok' || resp.status === 'switched') {
-                    downBtn.classList.add('active'); upBtn.classList.remove('active');
-                } else if (resp.status === 'cancelled') {
-                    downBtn.classList.remove('active');
-                }
-            }).catch(()=>{});
-        });
+    // Remove buttons with vote emojis
+    document.querySelectorAll('button').forEach(btn => {
+        if (btn.textContent.includes('👍') || btn.textContent.includes('👎')) {
+            btn.remove();
+        }
     });
-
-    // replies
-    document.querySelectorAll('.reply-vote-controls').forEach(function(ctrl){
-        const upBtn = ctrl.querySelector('.reply-upvote-btn');
-        const downBtn = ctrl.querySelector('.reply-downvote-btn');
-        if (!upBtn) return;
-        const rid = upBtn.getAttribute('data-reply-id');
-        const state = userReplyVotes && userReplyVotes[rid];
-        if (state === 'upvote') upBtn.classList.add('active');
-        if (state === 'downvote') downBtn.classList.add('active');
-
-        upBtn.addEventListener('click', function(e){
-            e.preventDefault();
-            postForm('{{ url_for("reviews.reply_upvote", reply_id=0) }}'.replace('/0/', '/' + rid + '/'), {}).then(function(resp){
-                upBtn.querySelector('.count').textContent = resp.upvotes;
-                downBtn.querySelector('.count').textContent = resp.downvotes;
-                if (resp.status === 'ok' || resp.status === 'switched') {
-                    upBtn.classList.add('active'); downBtn.classList.remove('active');
-                } else if (resp.status === 'cancelled') {
-                    upBtn.classList.remove('active');
-                }
-            }).catch(()=>{});
-        });
-
-        downBtn.addEventListener('click', function(e){
-            e.preventDefault();
-            postForm('{{ url_for("reviews.reply_downvote", reply_id=0) }}'.replace('/0/', '/' + rid + '/'), {}).then(function(resp){
-                upBtn.querySelector('.count').textContent = resp.upvotes;
-                downBtn.querySelector('.count').textContent = resp.downvotes;
-                if (resp.status === 'ok' || resp.status === 'switched') {
-                    downBtn.classList.add('active'); upBtn.classList.remove('active');
-                } else if (resp.status === 'cancelled') {
-                    downBtn.classList.remove('active');
-                }
-            }).catch(()=>{});
-        });
+    
+    // Remove divs that might contain vote buttons
+    document.querySelectorAll('div').forEach(div => {
+        const text = div.textContent;
+        if ((text.includes('👍') && text.includes('0')) || (text.includes('👎') && text.includes('0'))) {
+            // Check if this is likely a vote button container
+            if (div.style.backgroundColor === 'rgb(40, 167, 69)' || div.style.backgroundColor === 'rgb(220, 53, 69)') {
+                div.remove();
+            }
+        }
     });
 });
 </script>
