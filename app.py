@@ -190,10 +190,19 @@ def set_theme(theme):
 def index():
     recent_searches = []
     if current_user.is_authenticated and current_user.user_type == 'student' and current_user.search_history:
-        ids = current_user.search_history.split(',')
+        id_strs = current_user.search_history.split(',')
+        # Convert to integers for PostgreSQL type compatibility
+        ids = []
+        for id_str in id_strs:
+            try:
+                ids.append(int(id_str.strip()))
+            except ValueError:
+                continue
+        
         # Fetch users and preserve order
-        lecturers = {str(u.id): u for u in User.query.filter(User.id.in_(ids)).all()}
-        recent_searches = [lecturers[id] for id in ids if id in lecturers]
+        if ids:
+            lecturers = {u.id: u for u in User.query.filter(User.id.in_(ids)).all()}
+            recent_searches = [lecturers[uid] for uid in ids if uid in lecturers]
         
     return render_template('index.html', recent_searches=recent_searches)
 
