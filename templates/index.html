@@ -3,7 +3,8 @@
 {% block title %}MMUInsight{% endblock %}
 
 {% block content %}
-<section class="hero">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<section class="hero" style="z-index: 100; position: relative;">
     <div class="hero-container">
         <div class="hero-content">
             <h1 class="hero-title">{{ _('Rate your lecturers.<br>Shape your future.') }}</h1>
@@ -121,6 +122,7 @@
                 <div id="hero-results-panel" class="hero-results-panel">
                     <div class="hero-results-title">
                         <span>Search Results</span>
+                        <a class="hero-results-more" href="{{ url_for('search_results_page', q=search_query) }}">Open full results</a>
                     </div>
                     {% if search_results|length == 0 %}
                         <div class="hero-results-empty">No results found.</div>
@@ -183,8 +185,8 @@
     </div>
 </section>
 
-<section class="features">
-    <div class="hero-container">
+<section class="features" style="z-index: 1; position: relative; height: 500px;">
+    <div class="hero-container" style="z-index: 1;">
         <div class="features-grid">
             <div class="feature-card">
                 <div class="feature-icon">✏️</div>
