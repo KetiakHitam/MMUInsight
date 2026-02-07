@@ -109,6 +109,47 @@ with app.app_context():
         db.session.add(user)
     
     db.session.commit()
+    
+    # Seed lecturers from scraped_lecturers.txt if table is empty
+    try:
+        from models import Lecturer
+        lecturer_count_before = Lecturer.query.count()
+    except Exception:
+        lecturer_count_before = 0
+    
+    if lecturer_count_before == 0:
+        import re
+        lecturers_file = os.path.join(BASE_DIR, 'scraped_lecturers.txt')
+        try:
+            print(f"Loading lecturers from {lecturers_file}...")
+            content = None
+            for encoding in ['utf-8-sig', 'utf-16', 'utf-16-le', 'utf-8', 'latin-1']:
+                try:
+                    with open(lecturers_file, 'r', encoding=encoding) as f:
+                        content = f.read()
+                    print(f"  Decoded as {encoding}")
+                    break
+                except (UnicodeDecodeError, UnicodeError):
+                    continue
+            
+            if content is None:
+                raise ValueError("Could not decode file with any encoding")
+            
+            pattern = r'^\s*\d+\.\s+(.+?)\n.*?\|\s*([a-zA-Z0-9.@-]+@mmu\.edu\.my)'
+            for match in re.finditer(pattern, content, re.MULTILINE | re.DOTALL):
+                name = re.sub(r'\s+', ' ', match.group(1).strip())
+                email = match.group(2).strip()
+                
+                if name and email and not Lecturer.query.filter_by(email=email).first():
+                    db.session.add(Lecturer(name=name, email=email, department='FCI'))
+            
+            db.session.commit()
+            final_count = Lecturer.query.count()
+            print(f"✓ Seeded {final_count - lecturer_count_before} lecturers (total: {final_count})")
+        except FileNotFoundError:
+            print(f"✗ File not found: {lecturers_file}")
+        except Exception as e:
+            print(f"✗ Error seeding lecturers: {type(e).__name__}: {e}")
 
 
 @app.before_request
