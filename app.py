@@ -47,6 +47,9 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"  # Prevent CSRF
 # Use PostgreSQL in production (Railway), SQLite in development
 db_url = os.environ.get('DATABASE_URL')
 if db_url:
+    # Convert old psycopg2 dialect to new psycopg dialect for SQLAlchemy 2.0+
+    if db_url.startswith('postgresql://'):
+        db_url = db_url.replace('postgresql://', 'postgresql+psycopg://', 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 else:
     # Fallback to SQLite for local development
