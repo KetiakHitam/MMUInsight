@@ -88,7 +88,10 @@ with app.app_context():
     
     # Seed lecturers from scraped_lecturers.txt if table is empty
     from models import Lecturer
-    lecturer_count_before = Lecturer.query.count()
+    try:
+        lecturer_count_before = Lecturer.query.count()
+    except Exception:
+        lecturer_count_before = 0
     if lecturer_count_before == 0:
         import re
         lecturers_file = os.path.join(BASE_DIR, 'scraped_lecturers.txt')
