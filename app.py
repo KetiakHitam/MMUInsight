@@ -202,7 +202,7 @@ def index():
         # Fetch users and preserve order
         if ids:
             lecturers = {u.id: u for u in User.query.filter(User.id.in_(ids)).all()}
-            recent_searches = [lecturers[int(id_str.strip())] for id_str in id_strs if int(id_str.strip()) in lecturers]
+            recent_searches = [lecturers[uid] for uid in ids if uid in lecturers]
         
     return render_template('index.html', recent_searches=recent_searches)
 
