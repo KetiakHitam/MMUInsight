@@ -6,9 +6,13 @@
 
 
 <div class="container" style="max-width: 1200px;">
-    <h2 style="margin-bottom: 25px;">👥 Manage Users</h2>
-    
-    <table id="usersTable" style="width: 100%; border-collapse: collapse; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(5px); border-radius: 8px; overflow: hidden;">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">👥 Manage Users</h3>
+        </div>
+        <div class="card-body">
+            <div style="overflow-x: auto;">
+            <table id="usersTable" style="width: 100%; border-collapse: collapse; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(5px); border-radius: 8px; overflow: hidden;">
         <thead>
             <tr style="background: rgba(248, 249, 250, 0.7); border-bottom: 2px solid #dee2e6; backdrop-filter: blur(5px);">
                 <th style="padding: 12px; text-align: left; font-weight: 600; color: #333; font-size: 0.95em; cursor: pointer; user-select: none;" onclick="sortTable('email')">Email <span id="email-sort" style="margin-left: 5px; color: #999; font-size: 0.8em;"></span></th>
@@ -152,9 +156,11 @@
             </tr>
             {% endfor %}
         </tbody>
-    </table>
-    
-    <div style="margin-top: 30px;">
+            </table>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top: 18px;">
         <a href="{{ url_for('auth.admin_dashboard') }}" style="color: #007bff; text-decoration: none; font-size: 0.95em;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Back to Admin Dashboard</a>
     </div>
 </div>
