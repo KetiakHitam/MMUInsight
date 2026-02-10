@@ -229,11 +229,21 @@ class ReviewVote(db.Model):
      review = db.relationship('Review', backref='votes', lazy=True)
 
 class ReplyVote(db.Model):
-     id = db.Column(db.Integer, primary_key=True)
-     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-     reply_id = db.Column(db.Integer, db.ForeignKey('reply.id'), nullable=False)
-     vote_type = db.Column(db.String(10), nullable=False)  # 'upvote' or 'downvote'
-     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+      id = db.Column(db.Integer, primary_key=True)
+      user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+      reply_id = db.Column(db.Integer, db.ForeignKey('reply.id'), nullable=False)
+      vote_type = db.Column(db.String(10), nullable=False)  # 'upvote' or 'downvote'
+      created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-     user = db.relationship('User', backref='reply_votes', lazy=True)
-     reply = db.relationship('Reply', backref='votes', lazy=True)
+      user = db.relationship('User', backref='reply_votes', lazy=True)
+      reply = db.relationship('Reply', backref='votes', lazy=True)
+
+class StatusLog(db.Model):
+      id = db.Column(db.Integer, primary_key=True)
+      event_type = db.Column(db.String(50), nullable=False)  # 'scraper_run', 'scraper_error', 'system_error', 'maintenance', 'incident'
+      title = db.Column(db.String(200), nullable=False)
+      description = db.Column(db.Text, nullable=True)
+      status = db.Column(db.String(20), nullable=False, default='info')  # 'success', 'warning', 'error', 'info'
+      details = db.Column(db.Text, nullable=True)  # JSON for scraper stats, error details, etc.
+      timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+      resolved_at = db.Column(db.DateTime, nullable=True)

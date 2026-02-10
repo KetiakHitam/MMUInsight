@@ -77,6 +77,7 @@
                             <a class="nav-dd__item" role="menuitem" href="{{ url_for('suggestions.admin_suggestions') }}">{{ _('Suggestions') }}</a>
                             <a class="nav-dd__item" role="menuitem" href="{{ url_for('bugs.admin_bugs') }}">{{ _('Bug Reports') }}</a>
                             <a class="nav-dd__item" role="menuitem" href="{{ url_for('changelog.admin_changelog') }}">{{ _('Changelog') }}</a>
+                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('status.admin_status') }}">{{ _('System Status') }}</a>
                         </div>
                     </details>
                     {% endif %}
@@ -123,6 +124,7 @@
     
     <footer class="site-footer">
         <a href="{{ url_for('changelog.changelog_list') }}">{{ _('Changelog') }}</a>
+        <a href="{{ url_for('status.public_status') }}">Status</a>
         <a href="{{ url_for('terms_of_service') }}">{{ _('Terms of Service') }}</a>
         <a href="{{ url_for('privacy_policy') }}">{{ _('Privacy Policy') }}</a>
         <a href="{{ url_for('about_us') }}">{{ _('About Us') }}</a>
