@@ -24,6 +24,8 @@ from suggestions import suggestions_bp
 from bugs import bugs_bp
 from changelog import changelog_bp
 from lecturer_search import search_lecturers_by_email
+import markdown
+import bleach
 
 app = Flask(__name__)
 
@@ -173,7 +175,22 @@ def add_security_headers(response):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+     return User.query.get(int(user_id))
+
+# Markdown filter for Jinja2 templates
+@app.template_filter('markdown')
+def markdown_filter(text):
+     """Convert markdown to HTML, sanitize for security"""
+     if not text:
+         return ''
+     # Convert markdown to HTML
+     html = markdown.markdown(text, extensions=['extra', 'codehilite'])
+     # Sanitize to prevent XSS
+     allowed_tags = ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+                    'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'a', 'hr', 'table',
+                    'thead', 'tbody', 'tr', 'th', 'td']
+     allowed_attrs = {'a': ['href', 'title']}
+     return bleach.clean(html, tags=allowed_tags, attributes=allowed_attrs)
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(reviews_bp)

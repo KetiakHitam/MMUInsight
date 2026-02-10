@@ -78,20 +78,16 @@
         </div>
 
         <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-item">
-                <p class="stat-value">{{ reviews | length }}</p>
-                <p class="stat-label">Total Reviews</p>
-            </div>
-            <div class="stat-item">
-                <p class="stat-value">{{ "%.1f" | format(overall_score) }}</p>
-                <p class="stat-label">Avg Rating</p>
-            </div>
-            <div class="stat-item">
-                <p class="stat-value">{% if recommend_percentage is not none %}{{ recommend_percentage }}{% else %}N/A{% endif %}</p>
-                <p class="stat-label">Recommend %</p>
-            </div>
-        </div>
+         <div class="stats-grid">
+             <div class="stat-item">
+                 <p class="stat-value">{{ reviews | length }}</p>
+                 <p class="stat-label">Total Reviews</p>
+             </div>
+             <div class="stat-item">
+                 <p class="stat-value">{% if recommend_count is not none %}{{ recommend_count }}{% else %}0{% endif %}</p>
+                 <p class="stat-label">{% if recommend_count == 1 %}Student Recommends{% else %}Students Recommend{% endif %}</p>
+             </div>
+         </div>
 
         <!-- Rating Breakdown -->
         <div class="rating-breakdown">
@@ -219,16 +215,31 @@
                 </div>
                 <div class="review-actions">
                     <div class="review-timestamp">
-                        {% if (now - review.review_date).total_seconds() < 60 %}
-                            Just now
-                        {% elif (now - review.review_date).total_seconds() < 3600 %}
-                            {{ ((now - review.review_date).total_seconds() / 60) | int }} minutes ago
-                        {% elif (now - review.review_date).total_seconds() < 86400 %}
-                            {{ ((now - review.review_date).total_seconds() / 3600) | int }} hours ago
-                        {% else %}
-                            {{ review.review_date.strftime('%b ') }}{% set day = review.review_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ review.review_date.strftime(', %Y at %I:%M %p') }}
-                        {% endif %}
-                    </div>
+                         <span class="timestamp-full">
+                             {% if (now - review.review_date).total_seconds() < 60 %}
+                                 Just now
+                             {% elif (now - review.review_date).total_seconds() < 3600 %}
+                                 {{ ((now - review.review_date).total_seconds() / 60) | int }} minutes ago
+                             {% elif (now - review.review_date).total_seconds() < 86400 %}
+                                 {{ ((now - review.review_date).total_seconds() / 3600) | int }} hours ago
+                             {% else %}
+                                 {{ review.review_date.strftime('%b ') }}{% set day = review.review_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ review.review_date.strftime(', %Y at %I:%M %p') }}
+                             {% endif %}
+                         </span>
+                         <span class="timestamp-short" style="display: none;">
+                             {% if (now - review.review_date).total_seconds() < 60 %}
+                                 now
+                             {% elif (now - review.review_date).total_seconds() < 3600 %}
+                                 {{ ((now - review.review_date).total_seconds() / 60) | int }}m
+                             {% elif (now - review.review_date).total_seconds() < 86400 %}
+                                 {{ ((now - review.review_date).total_seconds() / 3600) | int }}h
+                             {% elif (now - review.review_date).total_seconds() < 604800 %}
+                                 {{ ((now - review.review_date).total_seconds() / 86400) | int }}d
+                             {% else %}
+                                 {{ review.review_date.strftime('%b %d') }}
+                             {% endif %}
+                         </span>
+                     </div>
                     {% if current_user.is_authenticated %}
                     <div class="review-kebab-menu-container ui-dd ui-dd--right">
                         <button type="button" class="review-kebab-btn ui-dd__icon-btn" aria-label="Actions" onclick="toggleKebabMenu(this)">
@@ -265,12 +276,6 @@
             <div class="review-text-container">
                  <p class="review-text">{{ review.review_text }}</p>
              </div>
-            
-            {% if review.subject_code %}
-            <div class="review-subject">
-                <strong>Subject:</strong> <span class="subject-badge">{{ review.subject_code }}</span>
-            </div>
-            {% endif %}
 
             <div class="review-ratings">
                 <div class="rating-row">
@@ -279,7 +284,7 @@
                         <span class="overall-rating-score">{{ review.overall_score }}/5</span>
                     </div>
                     <div class="recommend-badge {% if review.recommend %}recommended{% else %}not-recommended{% endif %}">
-                        {% if review.recommend %}✓ Recommended{% else %}✗ Not Recommended{% endif %}
+                        {% if review.recommend %}Recommended ✓{% else %}Not Recommended ✗{% endif %}
                     </div>
                 </div>
                 <dl class="rating-details">
@@ -295,6 +300,12 @@
                     <dd>{{ review.rating_fairness }}/5</dd>
                 </dl>
             </div>
+            
+            {% if review.subject_code %}
+            <div class="review-subject">
+                <strong>Subject:</strong> <span class="subject-badge">{{ review.subject_code }}</span>
+            </div>
+            {% endif %}
 
             <div style="display: flex; align-items: center; gap: 12px; padding-top: 12px; border-top: 1px solid #eee; margin-top: 12px;">
                 {% if current_user.is_authenticated %}
@@ -308,22 +319,22 @@
 
             <script>
             function toggleKebabMenu(btn) {
-                var container = btn.closest('.review-kebab-menu-container');
-                var dropdown = container ? container.querySelector('.review-kebab-dropdown') : null;
+                var container = btn.closest('.ui-dd');
+                var dropdown = container ? container.querySelector('.ui-dd__panel') : null;
 
-                document.querySelectorAll('.review-kebab-dropdown').forEach(function(menu) {
+                document.querySelectorAll('.ui-dd__panel').forEach(function(menu) {
                     if (menu !== dropdown) menu.classList.remove('show');
                 });
 
                 if (dropdown) dropdown.classList.toggle('show');
             }
             function hideAllKebabMenus() {
-                document.querySelectorAll('.review-kebab-dropdown').forEach(function(menu) {
+                document.querySelectorAll('.ui-dd__panel').forEach(function(menu) {
                     menu.classList.remove('show');
                 });
             }
             document.addEventListener('click', function(e) {
-                if (!e.target.closest('.review-kebab-menu-container')) {
+                if (!e.target.closest('.ui-dd')) {
                     hideAllKebabMenus();
                 }
             });
@@ -348,52 +359,71 @@
                 <h4 class="replies-title">Discussion Thread:</h4>
                 {% for reply in review.replies %}
                 <div id="reply-{{ reply.id }}" class="reply-item">
-                    <div class="reply-header">
-                        <p class="reply-author">
-                            {% if reply.author == review.author and review.is_anonymous and not current_user.is_admin() %}
-                                <span style="color: var(--danger);">Anonymous Student</span>
-                            {% else %}
-                                <span>{{ reply.author.email }}</span>
-                                {% if reply.is_admin and reply.author.role != 'OWNER' %}
-                                    {% if reply.author.role == 'ADMIN' %}
-                                    <span class="reply-admin-badge admin">ADMIN</span>
-                                    {% else %}
-                                    <span class="reply-admin-badge mod">MOD</span>
+                    <div class="reply-header" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                        <div style="flex: 1;">
+                            <p class="reply-author">
+                                {% if reply.author == review.author and review.is_anonymous and not current_user.is_admin() %}
+                                    <span style="color: var(--danger);">Anonymous Student</span>
+                                {% else %}
+                                    <span>{{ reply.author.email }}</span>
+                                    {% if reply.is_admin and reply.author.role != 'OWNER' %}
+                                        {% if reply.author.role == 'ADMIN' %}
+                                        <span class="reply-admin-badge admin">ADMIN</span>
+                                        {% else %}
+                                        <span class="reply-admin-badge mod">MOD</span>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if reply.author.user_type == 'lecturer' and not reply.is_admin %}
+                                        <span class="reply-author-badge">LECTURER</span>
                                     {% endif %}
                                 {% endif %}
-                                {% if reply.author.user_type == 'lecturer' and not reply.is_admin %}
-                                    <span class="reply-author-badge">LECTURER</span>
-                                {% endif %}
-                            {% endif %}
-                        </p>
-                        <p class="reply-timestamp">
-                           {% if (now - reply.reply_date).total_seconds() < 60 %}
-                                Just now
-                            {% elif (now - reply.reply_date).total_seconds() < 3600 %}
-                                {{ ((now - reply.reply_date).total_seconds() / 60) | int }} minutes ago
-                            {% elif (now - reply.reply_date).total_seconds() < 86400 %}
-                                {{ ((now - reply.reply_date).total_seconds() / 3600) | int }} hours ago
-                            {% else %}
-                                {{ reply.reply_date.strftime('%b ') }}{% set day = reply.reply_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ reply.reply_date.strftime(', %Y at %I:%M %p') }}
-                            {% endif %}
-                            {% if reply.is_edited %}
-                            <span style="font-style: italic; margin-left: 5px;">(edited)</span>
-                            {% endif %}
-                         </p>
-                    </div>
-                    
-                    <div id="reply-display-{{ reply.id }}">
-                        <p class="reply-text">{{ reply.reply_text }}</p>
-                        
-                        {% if reply.author == current_user %}
-                        <div class="reply-actions">
-                            <button onclick="showEditForm({{ reply.id }})" class="btn btn-secondary" style="font-size: 0.85em; padding: 5px 10px;">Edit</button>
-                            <a href="{{ url_for('reviews.delete_reply', reply_id=reply.id) }}" 
-                               onclick="return confirm('Delete this reply?');"
-                               class="btn btn-danger" style="font-size: 0.85em; padding: 5px 10px; text-decoration: none;">Delete</a>
+                            </p>
+                            <p class="reply-timestamp">
+                                <span class="timestamp-full">
+                                   {% if (now - reply.reply_date).total_seconds() < 60 %}
+                                         Just now
+                                     {% elif (now - reply.reply_date).total_seconds() < 3600 %}
+                                         {{ ((now - reply.reply_date).total_seconds() / 60) | int }} minutes ago
+                                     {% elif (now - reply.reply_date).total_seconds() < 86400 %}
+                                         {{ ((now - reply.reply_date).total_seconds() / 3600) | int }} hours ago
+                                     {% else %}
+                                         {{ reply.reply_date.strftime('%b ') }}{% set day = reply.reply_date.day %}{% if day in [1, 21, 31] %}{{ day }}st{% elif day in [2, 22] %}{{ day }}nd{% elif day in [3, 23] %}{{ day }}rd{% else %}{{ day }}th{% endif %}{{ reply.reply_date.strftime(', %Y at %I:%M %p') }}
+                                     {% endif %}
+                                </span>
+                                <span class="timestamp-short" style="display: none;">
+                                   {% if (now - reply.reply_date).total_seconds() < 60 %}
+                                         now
+                                     {% elif (now - reply.reply_date).total_seconds() < 3600 %}
+                                         {{ ((now - reply.reply_date).total_seconds() / 60) | int }}m
+                                     {% elif (now - reply.reply_date).total_seconds() < 86400 %}
+                                         {{ ((now - reply.reply_date).total_seconds() / 3600) | int }}h
+                                     {% elif (now - reply.reply_date).total_seconds() < 604800 %}
+                                         {{ ((now - reply.reply_date).total_seconds() / 86400) | int }}d
+                                     {% else %}
+                                         {{ reply.reply_date.strftime('%b %d') }}
+                                     {% endif %}
+                                </span>
+                                 {% if reply.is_edited %}
+                                 <span style="font-style: italic; margin-left: 5px;">(edited)</span>
+                                 {% endif %}
+                              </p>
+                        </div>
+                        {% if reply.author == current_user and current_user.is_authenticated %}
+                        <div class="ui-dd ui-dd--right" style="flex-shrink: 0;">
+                            <button type="button" class="ui-dd__icon-btn" aria-label="Actions" onclick="toggleKebabMenu(this)">
+                                <span aria-hidden="true" style="font-size: 1.5em; line-height: 1;">&#8942;</span>
+                            </button>
+                            <div class="ui-dd__panel ui-dd__panel--right">
+                                <a class="ui-dd__item" href="#" onclick="showEditForm({{ reply.id }}); hideAllKebabMenus(); return false;">Edit</a>
+                                <a class="ui-dd__item ui-dd__item--danger" href="{{ url_for('reviews.delete_reply', reply_id=reply.id) }}" onclick="return confirm('Delete this reply?');">Delete</a>
+                            </div>
                         </div>
                         {% endif %}
                     </div>
+                    
+                    <div id="reply-display-{{ reply.id }}">
+                         <p class="reply-text">{{ reply.reply_text }}</p>
+                     </div>
                     
                     <div id="reply-edit-{{ reply.id }}" style="display: none;">
                         <form method="POST" action="{{ url_for('reviews.edit_reply', reply_id=reply.id) }}">
