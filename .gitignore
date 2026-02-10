@@ -53,34 +53,3 @@ all_lecturers_db.txt
 # Keep production files
 !init_db_production.py
 !scraped_lecturers.txt
-
-init_db*.py
-
-# Flask Configuration
-
-SECRET_KEY=8076662c6a94c24f3c06b5fc675b665787e9db22c6bfc2fd41acf9757d4b01de
-FLASK_ENV=production
-DEBUG=True
-
-# WARNING: NEVER set DEBUG=True in production! It exposes sensitive information.
-
-# Database Configuration
-DATABASE_PATH=database/mmuinsight.db
-
-# Email Configuration (Required for email verification)
-# For Gmail: smtp.gmail.com, port 587, TLS enabled
-# Generate App Password: https://myaccount.google.com/apppasswords
-# For Outlook/Office 365: smtp-mail.outlook.com, port 587, TLS enabled
-MAIL_SERVER=smtp-mail.outlook.com
-MAIL_PORT=587
-MAIL_USE_TLS=True
-MAIL_USERNAME=Hor.Jin.han.Jimmy@mmu.edu.my
-MAIL_PASSWORD=081113Jimmy
-MAIL_DEFAULT_SENDER=Hor.Jin.Han.Jimmy@mmu.edu.my
-
-# Instructions:
-# 1. Copy this file to .env
-# 2. Generate a secure SECRET_KEY: python -c "import secrets; print(secrets.token_hex(32))"
-# 3. Replace 'your-secret-key-here' with the generated key
-# 4. Configure email settings (Gmail App Password recommended)
-# 5. Never commit the .env file to version control

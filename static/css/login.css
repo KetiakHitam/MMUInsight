@@ -1,6 +1,6 @@
 body{
-    height: auto;
-    width: 500px;
+    height: 400px;
+    width:500px;
     border: 1px solid black;
     margin: auto;
     margin-top: 100px;
@@ -30,59 +30,4 @@ button{
 }
 #email{
     margin-left:8.5%
-}
-
-/* Mobile Responsive Styles */
-@media (max-width: 768px) {
-    body {
-        width: 90%;
-        margin: 50px auto;
-        padding: 15px;
-    }
-
-    h1, h2 {
-        font-size: 20px;
-    }
-
-    form {
-        width: 100%;
-        padding: 0;
-    }
-
-    input[type="email"],
-    input[type="password"] {
-        width: 100%;
-        padding: 10px;
-        font-size: 16px;
-        margin-bottom: 10px;
-    }
-
-    button {
-        width: 100%;
-        padding: 12px;
-        font-size: 14px;
-    }
-
-    #email {
-        margin-left: 0;
-    }
-}
-
-@media (max-width: 480px) {
-    body {
-        width: 95%;
-        margin: 30px auto;
-        padding: 10px;
-    }
-
-    h1, h2 {
-        font-size: 18px;
-    }
-
-    input[type="email"],
-    input[type="password"],
-    button {
-        font-size: 14px;
-        padding: 10px;
-    }
 }

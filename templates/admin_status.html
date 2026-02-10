@@ -1,0 +1,444 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Status Dashboard - MMUInsight{% endblock %}
+
+{% block content %}
+<div class="container admin-status-container">
+    <h1>Admin Status Dashboard</h1>
+    
+    <!-- System Health Summary -->
+    <div class="health-grid">
+        <div class="health-card">
+            <span class="health-label">System Status</span>
+            <div class="health-badge status-{{ system_status }}">
+                {% if system_status == 'operational' %}
+                    ✓ Operational
+                {% elif system_status == 'degraded' %}
+                    ⚠ Degraded
+                {% else %}
+                    ⚠ Issues
+                {% endif %}
+            </div>
+        </div>
+        <div class="health-card">
+            <span class="health-label">Uptime (30d)</span>
+            <span class="health-value">{{ uptime_30d }}%</span>
+        </div>
+        <div class="health-card">
+            <span class="health-label">Total Lecturers</span>
+            <span class="health-value">{{ total_lecturers }}</span>
+        </div>
+        <div class="health-card">
+            <span class="health-label">Total Reviews</span>
+            <span class="health-value">{{ total_reviews }}</span>
+        </div>
+    </div>
+    
+    <!-- Key Metrics -->
+    <div class="metrics-section">
+        <h2>Essential Metrics</h2>
+        <div class="metrics-grid">
+            <div class="metric-box highlight-warning">
+                <span class="metric-label">Flagged Reviews</span>
+                <span class="metric-number">{{ flagged_reviews }}</span>
+            </div>
+            <div class="metric-box highlight-warning">
+                <span class="metric-label">Pending Bugs</span>
+                <span class="metric-number">{{ pending_bugs }}</span>
+            </div>
+            <div class="metric-box">
+                <span class="metric-label">Avg Moderation</span>
+                <span class="metric-number">{{ avg_moderation_hours }}h</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Quality -->
+    <div class="metrics-section">
+        <h2>Data Quality</h2>
+        <div class="metrics-grid">
+            <div class="metric-box">
+                <span class="metric-label">Lecturers with Bios</span>
+                <span class="metric-number">{{ bio_percentage }}%</span>
+            </div>
+            <div class="metric-box">
+                <span class="metric-label">Claimed Profiles</span>
+                <span class="metric-number">{{ claimed_percentage }}%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Moderation This Week -->
+    <div class="metrics-section">
+        <h2>Moderation This Week</h2>
+        <div class="metrics-grid">
+            <div class="metric-box">
+                <span class="metric-label">Reviews Posted</span>
+                <span class="metric-number">{{ reviews_this_week }}</span>
+            </div>
+            <div class="metric-box">
+                <span class="metric-label">Profanity Detected</span>
+                <span class="metric-number">{{ profanity_week }}</span>
+            </div>
+            <div class="metric-box">
+                <span class="metric-label">ASCII Art Detected</span>
+                <span class="metric-number">{{ ascii_week }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Growth -->
+    <div class="metrics-section">
+        <h2>Growth (This Week)</h2>
+        <div class="metrics-grid">
+            <div class="metric-box">
+                <span class="metric-label">New Users</span>
+                <span class="metric-number">{{ new_users_week }}</span>
+            </div>
+            <div class="metric-box">
+                <span class="metric-label">Total Users</span>
+                <span class="metric-number">{{ total_users }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scraper Status -->
+    {% if scraper_status %}
+    <div class="scraper-section">
+        <h2>Last Scraper Run</h2>
+        <div class="scraper-card scraper-{{ scraper_status.status }}">
+            <div class="scraper-info">
+                <div>
+                    <strong>{{ scraper_status.title }}</strong>
+                    <div class="scraper-time">{{ scraper_status.timestamp.strftime('%Y-%m-%d %H:%M UTC') }}</div>
+                </div>
+                <span class="scraper-status-badge">{{ scraper_status.status.upper() }}</span>
+            </div>
+            {% if scraper_status.details %}
+            <div class="scraper-metadata">
+                {% for key, value in scraper_status.details.items() %}
+                    <div class="metadata-item">
+                        <span class="metadata-key">{{ key }}:</span>
+                        <span class="metadata-value">{{ value }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Error Logs -->
+    {% if error_logs %}
+    <div class="error-section">
+        <h2>Errors (Last 24h)</h2>
+        <div class="error-list">
+            {% for log in error_logs %}
+            <div class="error-item">
+                <div class="error-header">
+                    <strong>{{ log.title }}</strong>
+                    <span class="error-time">{{ log.timestamp.strftime('%H:%M') }}</span>
+                </div>
+                {% if log.description %}
+                    <p class="error-desc">{{ log.description }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Recent Activity Log -->
+    <div class="activity-section">
+        <h2>Recent Activity</h2>
+        <div class="activity-log">
+            {% for log in recent_logs %}
+            <div class="activity-item activity-{{ log.status }}">
+                <div class="activity-left">
+                    <span class="activity-type">{{ log.event_type }}</span>
+                    <span class="activity-title">{{ log.title }}</span>
+                </div>
+                <span class="activity-time">{{ log.timestamp.strftime('%H:%M') }}</span>
+            </div>
+            {% else %}
+            <p style="color: var(--text-secondary);">No activity yet</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-status-container {
+    padding: 2rem 1rem;
+}
+
+.health-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.health-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+.health-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.health-badge {
+    font-weight: 600;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.95rem;
+}
+
+.health-badge.status-operational {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.health-badge.status-degraded,
+.health-badge.status-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.health-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.metrics-section {
+    margin-bottom: 2rem;
+}
+
+.metrics-section h2 {
+    margin-bottom: 1rem;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.metric-box {
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    text-align: center;
+}
+
+.metric-box.highlight-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.metric-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.metric-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.scraper-section {
+    margin-bottom: 2rem;
+}
+
+.scraper-card {
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.scraper-card.scraper-success {
+    border-left-color: #10b981;
+}
+
+.scraper-card.scraper-error {
+    border-left-color: #ef4444;
+}
+
+.scraper-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.scraper-time {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+.scraper-status-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.35rem 0.75rem;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.1);
+}
+
+.scraper-metadata {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+.metadata-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.metadata-key {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.metadata-value {
+    font-weight: 600;
+}
+
+.error-section {
+    margin-bottom: 2rem;
+}
+
+.error-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.error-item {
+    padding: 1rem;
+    background: #fee2e2;
+    border-left: 3px solid #ef4444;
+    border-radius: 4px;
+    color: #7f1d1d;
+}
+
+.error-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.error-time {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.error-desc {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.activity-section {
+    margin-bottom: 2rem;
+}
+
+.activity-log {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    border-left: 3px solid;
+    font-size: 0.9rem;
+}
+
+.activity-item.activity-success {
+    border-left-color: #10b981;
+}
+
+.activity-item.activity-warning {
+    border-left-color: #f59e0b;
+}
+
+.activity-item.activity-error {
+    border-left-color: #ef4444;
+}
+
+.activity-item.activity-info {
+    border-left-color: #3b82f6;
+}
+
+.activity-left {
+    display: flex;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.activity-type {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.activity-title {
+    flex: 1;
+}
+
+.activity-time {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-left: 1rem;
+}
+
+@media (max-width: 768px) {
+    .health-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .scraper-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .activity-left {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+}
+</style>
+{% endblock %}
