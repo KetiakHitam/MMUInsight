@@ -21,10 +21,6 @@ class User(UserMixin, db.Model):
     last_online = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     dark_mode = db.Column(db.Boolean, nullable=False, default=False)
     search_history = db.Column(db.Text, nullable=True)
-    # Total upvotes across all reviews authored by this user (kept in sync by vote handlers)
-    total_upvotes = db.Column(db.Integer, nullable=False, default=0)
-    # Persistent reliable tag: 1 when the user reached threshold, never unset by app logic
-    reliable_tag = db.Column(db.Integer, nullable=False, default=0)
 
     reviews_written = db.relationship('Review', foreign_keys='Review.user_id', backref='author', lazy=True)
     replies = db.relationship('Reply', backref='author', lazy=True)
@@ -118,7 +114,8 @@ class Review(db.Model):
     subject_code = db.Column(db.String(100), nullable=True)
     upvotes = db.Column(db.Integer, nullable=False, default=0)
     downvotes = db.Column(db.Integer, nullable=False, default=0)
-    moderation_flags = db.Column(db.Text, nullable=True) 
+    
+    moderation_flags = db.Column(db.Text, nullable=True)
     moderation_severity = db.Column(db.String(20), nullable=True)  
     requires_human_review = db.Column(db.Boolean, nullable=False, default=False)
     is_approved = db.Column(db.Boolean, nullable=True)  
@@ -132,15 +129,15 @@ class Review(db.Model):
     moderated_by = db.relationship('User', foreign_keys=[moderated_by_id], backref='moderated_reviews')
 
 class Reply(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    reply_text = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    review_id = db.Column(db.Integer, db.ForeignKey('review.id'), nullable=False)
-    reply_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    is_edited = db.Column(db.Boolean, nullable=False, default=False)
-    is_admin = db.Column(db.Boolean, nullable=False, default=False)
-    upvotes = db.Column(db.Integer, nullable=False, default=0)
-    downvotes = db.Column(db.Integer, nullable=False, default=0)
+     id = db.Column(db.Integer, primary_key=True)
+     reply_text = db.Column(db.Text, nullable=False)
+     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+     review_id = db.Column(db.Integer, db.ForeignKey('review.id'), nullable=False)
+     reply_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+     is_edited = db.Column(db.Boolean, nullable=False, default=False)
+     is_admin = db.Column(db.Boolean, nullable=False, default=False)
+     upvotes = db.Column(db.Integer, nullable=False, default=0)
+     downvotes = db.Column(db.Integer, nullable=False, default=0)
 
 class Report(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -183,26 +180,6 @@ class AuditLog(db.Model):
 
     user = db.relationship('User', backref='audit_logs', lazy=True)
 
-class ReviewVote(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    review_id = db.Column(db.Integer, db.ForeignKey('review.id'), nullable=False)
-    vote_type = db.Column(db.String(10), nullable=False)  # 'upvote' or 'downvote'
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-
-    user = db.relationship('User', backref='review_votes', lazy=True)
-    review = db.relationship('Review', backref='votes', lazy=True)
-
-class ReplyVote(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    reply_id = db.Column(db.Integer, db.ForeignKey('reply.id'), nullable=False)
-    vote_type = db.Column(db.String(10), nullable=False)  # 'upvote' or 'downvote'
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-
-    user = db.relationship('User', backref='reply_votes', lazy=True)
-    reply = db.relationship('Reply', backref='votes', lazy=True)
-
 class BugReport(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -229,13 +206,33 @@ class BugComment(db.Model):
     user = db.relationship('User', backref='bug_comments', lazy=True)
 
 class Changelog(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    version = db.Column(db.String(50), nullable=False, unique=True)  # e.g., "1.0.0", "1.0.1"
-    title = db.Column(db.String(200), nullable=False)
-    content = db.Column(db.Text, nullable=False)  # Markdown or formatted text
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
-    is_published = db.Column(db.Boolean, nullable=False, default=True)
-    
-    user = db.relationship('User', backref='changelog_entries', lazy=True)
+     id = db.Column(db.Integer, primary_key=True)
+     version = db.Column(db.String(50), nullable=False, unique=True)  # e.g., "1.0.0", "1.0.1"
+     title = db.Column(db.String(200), nullable=False)
+     content = db.Column(db.Text, nullable=False)  # Markdown or formatted text
+     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+     is_published = db.Column(db.Boolean, nullable=False, default=True)
+     
+     user = db.relationship('User', backref='changelog_entries', lazy=True)
+
+class ReviewVote(db.Model):
+     id = db.Column(db.Integer, primary_key=True)
+     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+     review_id = db.Column(db.Integer, db.ForeignKey('review.id'), nullable=False)
+     vote_type = db.Column(db.String(10), nullable=False)  # 'upvote' or 'downvote'
+     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+     user = db.relationship('User', backref='review_votes', lazy=True)
+     review = db.relationship('Review', backref='votes', lazy=True)
+
+class ReplyVote(db.Model):
+     id = db.Column(db.Integer, primary_key=True)
+     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+     reply_id = db.Column(db.Integer, db.ForeignKey('reply.id'), nullable=False)
+     vote_type = db.Column(db.String(10), nullable=False)  # 'upvote' or 'downvote'
+     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+     user = db.relationship('User', backref='reply_votes', lazy=True)
+     reply = db.relationship('Reply', backref='votes', lazy=True)
