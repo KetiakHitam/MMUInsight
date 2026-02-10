@@ -38,7 +38,9 @@ def login():
                 flash(_("Your temporary password has expired. Please contact an admin for a new password reset."), "error")
                 return redirect(url_for("auth.login"))
         
-        login_user(user, remember=True)
+        # Check if user checked "Remember me" checkbox
+        remember = request.form.get("remember") == "on"
+        login_user(user, remember=remember)
         # Force password change if using temporary password
         if user.password_is_temporary:
             flash(_("You must change your password before continuing."), "warning")
