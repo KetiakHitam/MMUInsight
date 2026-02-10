@@ -75,6 +75,9 @@ try:
     changed |= add_column_if_missing(c, 'suggestion', 'ascii_art_score', "ALTER TABLE suggestion ADD COLUMN ascii_art_score INTEGER NOT NULL DEFAULT 0")
     changed |= add_column_if_missing(c, 'bug_report', 'ascii_art_score', "ALTER TABLE bug_report ADD COLUMN ascii_art_score INTEGER NOT NULL DEFAULT 0")
 
+    # Lecturer profile additions
+    changed |= add_column_if_missing(c, 'lecturer', 'bio', "ALTER TABLE lecturer ADD COLUMN bio TEXT NULL")
+
     if changed:
         conn.commit()
 
@@ -86,5 +89,7 @@ try:
         print('suggestion columns after:', sorted(get_columns(c, 'suggestion')))
     if table_exists(c, 'bug_report'):
         print('bug_report columns after:', sorted(get_columns(c, 'bug_report')))
+    if table_exists(c, 'lecturer'):
+        print('lecturer columns after:', sorted(get_columns(c, 'lecturer')))
 finally:
     conn.close()
