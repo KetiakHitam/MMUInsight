@@ -68,6 +68,7 @@ class Lecturer(db.Model):
     email = db.Column(db.String(150), unique=True, nullable=False)
     name = db.Column(db.String(150), nullable=False)
     department = db.Column(db.String(100), nullable=True)
+    bio = db.Column(db.Text, nullable=True)
     claimed_by_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     
