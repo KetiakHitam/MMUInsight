@@ -184,8 +184,9 @@
     flex-direction: column;
     gap: 0.5rem;
     padding: 1.5rem;
-    background: var(--bg-secondary);
-    border-radius: 8px;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
 }
 
 .health-label {
@@ -234,14 +235,16 @@
 
 .metric-box {
     padding: 1rem;
-    background: var(--bg-secondary);
-    border-radius: 6px;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
     text-align: center;
 }
 
 .metric-box.highlight-warning {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--gray-100);
+    border-left: 4px solid var(--warning);
+    color: var(--text-primary);
 }
 
 .metric-label {
@@ -265,8 +268,9 @@
 
 .scraper-card {
     padding: 1.5rem;
-    background: var(--bg-secondary);
-    border-radius: 8px;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
     border-left: 4px solid;
 }
 
@@ -297,7 +301,7 @@
     text-transform: uppercase;
     padding: 0.35rem 0.75rem;
     border-radius: 4px;
-    background: rgba(0,0,0,0.1);
+    background: var(--gray-200);
 }
 
 .scraper-metadata {
@@ -305,7 +309,7 @@
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid rgba(0,0,0,0.1);
+    border-top: 1px solid var(--gray-200);
 }
 
 .metadata-item {
@@ -338,7 +342,7 @@
     padding: 1rem;
     background: #fee2e2;
     border-left: 3px solid #ef4444;
-    border-radius: 4px;
+    border-radius: 16px;
     color: #7f1d1d;
 }
 
@@ -375,8 +379,9 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 1rem;
-    background: var(--bg-secondary);
-    border-radius: 4px;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
     border-left: 3px solid;
     font-size: 0.9rem;
 }
