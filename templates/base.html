@@ -97,8 +97,8 @@
                                 <div class="nav-dd__meta-email">{{ current_user.email }}</div>
                                 <div class="nav-dd__meta-role">{% if current_user.is_mod() %}{{ current_user.role or 'ADMIN' }}{% else %}{{ current_user.user_type|capitalize }}{% endif %}</div>
                             </div>
-                            {% if current_user.user_type == 'lecturer' %}
-                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('reviews.lecturer_profile', lecturer_id=current_user.id) }}">{{ _('My Profile') }}</a>
+                            {% if current_user.user_type == 'lecturer' and current_user.claimed_lecturer_profiles %}
+                            <a class="nav-dd__item" role="menuitem" href="{{ url_for('reviews.lecturer_profile', lecturer_id=current_user.claimed_lecturer_profiles[0].id) }}">{{ _('My Profile') }}</a>
                             {% endif %}
                             <a class="nav-dd__item" role="menuitem" href="{{ url_for('auth.change_password') }}">Change Password</a>
                             <a class="nav-dd__item nav-dd__item--danger" role="menuitem" href="{{ url_for('auth.logout') }}">{{ _('Logout') }}</a>
