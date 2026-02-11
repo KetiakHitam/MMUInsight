@@ -1,14 +1,29 @@
 /* Dark Mode Styles - NUCLEAR OPTION */
 
 body.dark-mode {
-  background: radial-gradient(
+  background: #0d1117 !important;
+  color: #e0e0e0 !important;
+}
+
+/* Hide scrollbar while keeping scroll functionality */
+::-webkit-scrollbar {
+  display: none;
+}
+
+body.dark-mode {
+  scrollbar-width: none;
+}
+
+/* Keep gradient background for hero section only */
+body.dark-mode .hero {
+  background:
+    radial-gradient(
       1200px 600px at 20% 10%,
       rgba(255, 255, 255, 0.08),
       rgba(255, 255, 255, 0) 60%
     ),
     linear-gradient(135deg, #0b2b7a 0%, #1d4ed8 55%, #08133a 100%) !important;
   background-attachment: fixed !important;
-  color: #e0e0e0 !important;
 }
 
 /* Override ALL inline white backgrounds */
@@ -158,7 +173,7 @@ body.dark-mode .ui-dd__icon-btn:hover {
 }
 
 body.dark-mode .site-footer {
-    background-color: #0b0f1a !important;
+    background-color: #121212 !important;
     border-top-color: rgba(255, 255, 255, 0.08) !important;
 }
 
@@ -655,6 +670,13 @@ body.dark-mode [class*="review"],
 body.dark-mode [class*="card"] {
   background-color: #1a1f3a !important;
   backdrop-filter: none !important;
+}
+
+body.dark-mode .feature-card {
+  background: linear-gradient(135deg, rgba(30, 50, 90, 0.4) 0%, rgba(20, 35, 70, 0.3) 100%) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1.5px solid rgba(93, 151, 255, 0.25) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.08) !important;
 }
 
 /* Remove all hover animations and transforms in dark mode */

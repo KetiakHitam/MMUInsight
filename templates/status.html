@@ -125,15 +125,26 @@
 }
 
 .status-badge.status-operational {
-    background: #10b981;
-    color: white;
-}
+     background: #10b981;
+     color: white;
+ }
 
-.status-badge.status-degraded,
-.status-badge.status-warning {
-    background: #f59e0b;
-    color: white;
-}
+ body.dark-mode .status-badge.status-operational {
+     background: #10b981 !important;
+     color: white !important;
+ }
+ 
+ .status-badge.status-degraded,
+ .status-badge.status-warning {
+     background: #f59e0b;
+     color: white;
+ }
+
+ body.dark-mode .status-badge.status-degraded,
+ body.dark-mode .status-badge.status-warning {
+     background: #f59e0b;
+     color: white;
+ }
 
 .status-right {
     display: flex;

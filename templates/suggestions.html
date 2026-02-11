@@ -3,7 +3,7 @@
 {% block title %}Feature Suggestions{% endblock %}
 
 {% block content %}
-<div class="container" style="max-width: 900px;">
+<div class="container" style="max-width: 900px; background: rgba(255, 255, 255, 0.92); border-radius: 20px; backdrop-filter: blur(18px); border: 1px solid rgba(255, 255, 255, 0.25); padding: 40px;">
     
     <!-- Submit Suggestion Form (logged in users only) -->
     {% if current_user.is_authenticated %}
@@ -143,4 +143,10 @@
      .catch(error => console.error('Error voting:', error));
     }
     </script>
+    <style>
+      body.dark-mode .container {
+          background: rgba(26, 31, 58, 0.85) !important;
+          border-color: rgba(93, 151, 255, 0.25) !important;
+      }
+    </style>
     {% endblock %}
