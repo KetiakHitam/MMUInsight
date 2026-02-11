@@ -3178,12 +3178,12 @@ body.dark-mode .result-card {
 }
 
 body.dark-mode .features {
-  background-color: #0a0e27 !important;
-  background: #0a0e27 !important;
+  background-color: #0d1117 !important;
+  background: #0d1117 !important;
 }
 
 body.dark-mode {
-  background: #0a0e27 !important;
+  background: #0d1117 !important;
 }
 
 .features-grid {
@@ -3201,6 +3201,7 @@ body.dark-mode {
   backdrop-filter: blur(18px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .feature-card:hover {
@@ -3210,7 +3211,7 @@ body.dark-mode {
 }
 
 body.dark-mode .feature-card {
-  background: #1a1f3a !important;
+  background: #0d1117 !important;
   border-color: rgba(62, 168, 255, 0.35) !important;
   backdrop-filter: none !important;
 }
