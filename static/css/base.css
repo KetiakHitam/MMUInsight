@@ -6,18 +6,19 @@
   max-width: 800px;
   margin: 0 auto 30px auto;
   text-align: center;
-  background: var(--glass-bg);
+  background: white !important;
   padding: 30px;
   border-radius: 20px;
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  transition: var(--liquid-transition);
+  backdrop-filter: none;
+  border: none !important;
+  box-shadow: none !important;
+  transition: none !important;
 }
 
 .glass-header-profile:hover {
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 12px 40px rgba(37, 99, 235, 0.15);
+  background: white !important;
+  box-shadow: none !important;
+  transition: none !important;
 }
 
 .glass-header-profile h2 {
@@ -82,24 +83,35 @@ body.dark-mode .glass-header-profile .verified-badge {
   color: #4ade80 !important;
 }
 
+/* Admin page containers */
+body .container[style*="max-width"] {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  padding: 40px !important;
+  backdrop-filter: blur(18px) !important;
+}
+
 /* Rating Display Container */
 .glass-rating-section {
-  background: rgba(255, 255, 255, 0.75);
+  background: white !important;
   padding: 32px;
   border-radius: 16px;
   margin-bottom: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: none !important;
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  transition: var(--liquid-transition);
+  backdrop-filter: none;
+  box-shadow: none !important;
+  transition: none !important;
 }
 
 .glass-rating-section:hover {
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 12px 40px rgba(37, 99, 235, 0.12);
+  background: white !important;
+  box-shadow: none !important;
+  transition: none !important;
+  border: none !important;
 }
 
 /* Overall Score Display */
@@ -278,8 +290,8 @@ body.dark-mode .glass-rating-section {
 }
 
 body.dark-mode .glass-rating-section:hover {
-  background: #252d4a !important;
-  border-color: rgba(62, 168, 255, 0.55) !important;
+  background: #1a1f3a !important;
+  border-color: rgba(62, 168, 255, 0.35) !important;
 }
 
 body.dark-mode .rating-header {
@@ -347,16 +359,22 @@ body.dark-mode [style*="background-color: #e0e0e0"][style*="height: 10px"] {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: var(--liquid-transition);
+  transition: none !important;
   font-family: inherit;
   color: var(--text-primary);
 }
 
 .review-card:hover {
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
-  border-color: rgba(37, 99, 235, 0.3);
-  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: none;
+  transition: none !important;
+}
+
+.review-card:hover .review-text-container {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
 }
 
 .review-card.own-review {
@@ -365,7 +383,7 @@ body.dark-mode [style*="background-color: #e0e0e0"][style*="height: 10px"] {
 }
 
 .review-card.own-review:hover {
-  background: rgba(225, 240, 255, 0.95);
+  background: rgba(240, 247, 255, 0.9);
 }
 
 /* Review Card Header */
@@ -420,10 +438,11 @@ body.dark-mode [style*="background-color: #e0e0e0"][style*="height: 10px"] {
 .review-text-container {
   margin-bottom: 18px;
   padding: 15px;
-  background: rgba(250, 250, 250, 0.8);
+  background: rgba(255, 255, 255, 0.92) !important;
   border-radius: 8px;
   backdrop-filter: blur(5px);
-  border: 1px solid rgba(200, 200, 200, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  transition: none !important;
 }
 
 .review-text {
@@ -748,8 +767,8 @@ body.dark-mode .review-card {
 }
 
 body.dark-mode .review-card:hover {
-  background: #252d4a !important;
-  border-color: rgba(62, 168, 255, 0.4) !important;
+  background: #3a3a3a !important;
+  border-color: #555 !important;
   transform: none !important;
   box-shadow: none !important;
 }
@@ -760,7 +779,7 @@ body.dark-mode .review-card.own-review {
 }
 
 body.dark-mode .review-card.own-review:hover {
-  background: #1f3548 !important;
+  background: #3a3a3a !important;
 }
 
 body.dark-mode .review-kebab-dropdown {
@@ -990,7 +1009,6 @@ body.dark-mode .navbar.navbar--v2 {
   font-weight: 800;
   letter-spacing: 0.02em;
   background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
-  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
   flex: 0 0 auto;
 }
 

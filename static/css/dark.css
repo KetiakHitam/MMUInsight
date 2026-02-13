@@ -476,30 +476,30 @@ body.dark-mode .stat-card {
 
 /* Dark mode stat card hovers - full colored backgrounds */
 body.dark-mode .stat-card.unverified-lecturers:hover {
-  background: #ffc107 !important;
+  background: rgb(26, 31, 58) !important;
   border-color: #ffc107 !important;
 }
 
 body.dark-mode .stat-card.unverified-lecturers:hover p {
-  color: #000 !important;
+  color: inherit !important;
 }
 
 body.dark-mode .stat-card.flagged-reviews:hover {
-  background: #ff6b6b !important;
+  background: rgb(26, 31, 58) !important;
   border-color: #ff6b6b !important;
 }
 
 body.dark-mode .stat-card.flagged-reviews:hover p {
-  color: #fff !important;
+  color: inherit !important;
 }
 
 body.dark-mode .stat-card.pending-reports:hover {
-  background: #dc3545 !important;
+  background: rgb(26, 31, 58) !important;
   border-color: #dc3545 !important;
 }
 
 body.dark-mode .stat-card.pending-reports:hover p {
-  color: #fff !important;
+  color: inherit !important;
 }
 
 /* Card styling for dark mode */
@@ -593,12 +593,116 @@ body.dark-mode tbody tr:hover {
   background-color: #3a3a3a !important;
 }
 
-/* Suggestions form inputs */
+/* Suggestions page - disable all hover effects except buttons */
+body.dark-mode .container:has(form[action*="suggestions"]) *:not(button):not([type="button"]):not([type="submit"]):hover {
+  background-color: inherit !important;
+  border-color: inherit !important;
+  box-shadow: none !important;
+  color: inherit !important;
+  transition: none !important;
+}
+
+/* Bug report page - disable all hover effects except buttons */
+body.dark-mode .container:has(form[action*="bugs"]) *:not(button):not([type="button"]):not([type="submit"]):hover {
+  background-color: inherit !important;
+  border-color: inherit !important;
+  box-shadow: none !important;
+  color: inherit !important;
+  transition: none !important;
+}
+
+/* Admin Status Dashboard */
+body.dark-mode .admin-status-container {
+  background: rgb(26, 31, 58) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  padding: 40px !important;
+}
+
+body.dark-mode .metric-box.highlight-warning {
+  background-color: #ff6b6b !important;
+  color: white !important;
+}
+
+body.dark-mode .health-badge.status-operational {
+  background-color: #10b981 !important;
+  color: white !important;
+}
+
+/* Bug report card shadow - use navy blue for hover */
+body.dark-mode .card.shadow {
+  background-color: rgb(26, 31, 58) !important;
+  border-color: rgb(26, 31, 58) !important;
+  transition: none !important;
+}
+
+body.dark-mode .card.shadow:hover {
+  background-color: rgb(26, 31, 58) !important;
+  border-color: rgb(26, 31, 58) !important;
+  transition: none !important;
+}
+
+body.dark-mode .card-body {
+  background-color: rgb(26, 31, 58) !important;
+}
+
+body.dark-mode .card-header.bg-danger {
+  background-color: rgb(26, 31, 58) !important;
+  color: white !important;
+}
+
+body.dark-mode .card-header.bg-danger.text-white {
+  color: white !important;
+}
+
+/* Suggestions & Bug Report form inputs */
 body.dark-mode input[type="text"],
-body.dark-mode textarea {
+body.dark-mode textarea,
+body.dark-mode .form-control {
   background-color: #3a3a3a !important;
   color: #e0e0e0 !important;
   border-color: #555 !important;
+  transition: none !important;
+}
+
+body.dark-mode input[type="text"]:hover,
+body.dark-mode textarea:hover,
+body.dark-mode .form-control:hover {
+  background-color: #3a3a3a !important;
+  color: #e0e0e0 !important;
+  border-color: #555 !important;
+  transition: none !important;
+}
+
+body.dark-mode input[type="text"]:focus,
+body.dark-mode textarea:focus,
+body.dark-mode .form-control:focus {
+  background-color: #3a3a3a !important;
+  color: #e0e0e0 !important;
+  border-color: #555 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: none !important;
+}
+
+/* Suggestions page form container */
+body.dark-mode .container:has(form[action*="suggestions"]) .card {
+  background-color: rgb(26, 31, 58) !important;
+  border-color: rgb(26, 31, 58) !important;
+}
+
+body.dark-mode .container:has(form[action*="suggestions"]) .card-body {
+  background-color: rgb(26, 31, 58) !important;
+}
+
+/* Suggestions page inputs - override border color on hover */
+body.dark-mode .container:has(form[action*="suggestions"]) input[type="text"]:hover,
+body.dark-mode .container:has(form[action*="suggestions"]) textarea:hover,
+body.dark-mode .container:has(form[action*="suggestions"]) .form-control:hover {
+  background-color: #3a3a3a !important;
+  border-color: #555 !important;
+  color: #e0e0e0 !important;
+  transition: none !important;
 }
 
 /* Theme toggle button */
@@ -619,7 +723,7 @@ body.dark-mode .glass-form {
 }
 
 body.dark-mode .glass-card {
-  background: #1a1f3a !important;
+  background: rgb(26, 31, 58) !important;
   border-color: rgba(59, 130, 246, 0.4) !important;
   backdrop-filter: none !important;
 }
@@ -659,24 +763,59 @@ body.dark-mode [style*="background: white"] {
   color: #e0e0e0 !important;
 }
 
-body.dark-mode div[class*="glass"] {
+body.dark-mode .glass-rating-section {
+  background-color: rgba(255, 255, 255, 0.75) !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+body.dark-mode .glass-rating-section:hover {
+  background-color: rgba(255, 255, 255, 0.75) !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+}
+
+body.dark-mode .review-card:hover {
+  background: #1a1f3a !important;
+  border-color: #555 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  transform: none !important;
+}
+
+body.dark-mode .review-card.own-review:hover {
+  background: #1a1f3a !important;
+}
+
+body.dark-mode .review-text-container {
+  background: rgba(35, 42, 75, 0.5) !important;
+}
+
+body.dark-mode .review-text-container:hover {
+  background: rgb(26, 31, 58) !important;
+  border-bottom-color: rgba(61, 100, 150, 0.4) !important;
+}
+
+body.dark-mode div[class*="glass"]:not(.glass-rating-section) {
   background-color: #1a1f3a !important;
   background: #1a1f3a !important;
   backdrop-filter: none !important;
 }
 
 body.dark-mode [class*="rating"]:not(.rating-bar-container):not(.rating-bar-fill):not(.rating-bar):not(.rating-segment),
-body.dark-mode [class*="review"],
-body.dark-mode [class*="card"] {
+body.dark-mode [class*="review"]:not(:hover),
+body.dark-mode [class*="card"]:not(:hover) {
   background-color: #1a1f3a !important;
   backdrop-filter: none !important;
 }
 
 body.dark-mode .feature-card {
-  background: linear-gradient(135deg, rgba(30, 50, 90, 0.4) 0%, rgba(20, 35, 70, 0.3) 100%) !important;
+  background: rgba(0, 0, 0, 0) !important;
   backdrop-filter: blur(16px) !important;
   border: 1.5px solid rgba(93, 151, 255, 0.25) !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.08) !important;
+}
+
+body.dark-mode .feature-card:hover {
+  background: rgba(0, 0, 0, 0) !important;
 }
 
 /* Remove all hover animations and transforms in dark mode */

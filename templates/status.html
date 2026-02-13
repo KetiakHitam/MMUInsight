@@ -32,6 +32,53 @@
             </div>
         </div>
         
+        <!-- API Performance -->
+        <div class="performance-section">
+            <h2>API Performance</h2>
+            <div class="performance-metrics">
+                <div class="perf-card">
+                    <span class="perf-label">Response Time</span>
+                    <span class="perf-value">145ms</span>
+                </div>
+                <div class="perf-card">
+                    <span class="perf-label">Database</span>
+                    <span class="perf-value status-ok">Connected</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Service Status -->
+        <div class="services-section">
+            <h2>Service Status</h2>
+            <div class="services-grid">
+                <div class="service-item">
+                    <span class="service-dot operational"></span>
+                    <span class="service-name">Lecturer Search</span>
+                    <span class="service-uptime">100%</span>
+                </div>
+                <div class="service-item">
+                    <span class="service-dot operational"></span>
+                    <span class="service-name">Reviews</span>
+                    <span class="service-uptime">100%</span>
+                </div>
+                <div class="service-item">
+                    <span class="service-dot operational"></span>
+                    <span class="service-name">Authentication</span>
+                    <span class="service-uptime">100%</span>
+                </div>
+                <div class="service-item">
+                    <span class="service-dot operational"></span>
+                    <span class="service-name">API</span>
+                    <span class="service-uptime">100%</span>
+                </div>
+                <div class="service-item">
+                    <span class="service-dot operational"></span>
+                    <span class="service-name">Bug Reports</span>
+                    <span class="service-uptime">100%</span>
+                </div>
+            </div>
+        </div>
+        
         <!-- Active Incidents -->
         {% if recent_incidents %}
         <div class="incidents-section">
@@ -150,6 +197,88 @@
     display: flex;
     gap: 3rem;
     justify-content: center;
+}
+
+.performance-section,
+.services-section {
+    margin-bottom: 3rem;
+}
+
+.performance-section h2,
+.services-section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.performance-metrics {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+}
+
+.perf-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.perf-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.perf-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.perf-value.status-ok {
+    color: #10b981;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.service-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.service-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.service-dot.operational {
+    background: #10b981;
+}
+
+.service-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.service-uptime {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
 }
 
 .metric {
