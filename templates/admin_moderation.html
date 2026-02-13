@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container" style="max-width: 1200px;">
     <h2 style="margin-bottom: 10px;">📋 Moderation Queue</h2>
-    <p style="color: #666; margin-bottom: 20px;">Review and approve/reject flagged content</p>
+    <p style="color: #666; margin-bottom: 20px;">Review flagged content and choose whether to keep it visible or remove it.</p>
 
     <!-- Filter Buttons -->
     <div style="display: flex; gap: 10px; margin-bottom: 30px;">
@@ -120,11 +120,11 @@
             <div style="display: flex; gap: 10px; align-items: center;">
                 <form method="POST" action="{{ url_for('auth.approve_flagged_review', review_id=review.id) }}" style="display: inline;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <button type="submit" class="btn" style="padding: 10px 20px; background: #16a34a; color: white; border: none; border-radius: 6px; cursor: pointer;">✓ Approve</button>
+                    <button type="submit" class="btn" style="padding: 10px 20px; background: #16a34a; color: white; border: none; border-radius: 6px; cursor: pointer;">✓ Keep (Show on Profile)</button>
                 </form>
                 <form method="POST" action="{{ url_for('auth.reject_flagged_review', review_id=review.id) }}" style="display: inline;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <button type="submit" class="btn" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer;" onclick="return confirm('Are you sure you want to reject this review? It will not be visible on the platform.');">✕ Reject</button>
+                    <button type="submit" class="btn" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer;" onclick="return confirm('Remove this review from the platform? It will not be visible on the lecturer profile.');">✕ Remove (Hide)</button>
                 </form>
                 <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=review.lecturer_id) }}" class="btn btn-secondary" style="padding: 10px 20px;">👁️ View Profile</a>
             </div>
@@ -207,10 +207,10 @@
             <!-- Action Buttons -->
             <div style="display: flex; gap: 10px; align-items: center;">
                 <a href="{{ url_for('auth.admin_dismiss_report', report_id=item.latest_report.id) }}" 
-                   class="btn" style="padding: 10px 20px; background: #16a34a; color: white; border: none; border-radius: 6px; text-decoration: none; display: inline-block;">✓ Approve</a>
+                         class="btn" style="padding: 10px 20px; background: #16a34a; color: white; border: none; border-radius: 6px; text-decoration: none; display: inline-block;">✓ Dismiss Report (Keep Review)</a>
                 <a href="{{ url_for('auth.admin_delete_reported_review', report_id=item.latest_report.id) }}" 
                    onclick="return confirm('Permanently delete this review? This cannot be undone.');"
-                   class="btn" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 6px; text-decoration: none; display: inline-block;">✕ Reject</a>
+                         class="btn" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 6px; text-decoration: none; display: inline-block;">✕ Delete Review</a>
                 <a href="{{ url_for('reviews.lecturer_profile', lecturer_id=item.review.lecturer_id) }}" class="btn btn-secondary" style="padding: 10px 20px;">👁️ View Profile</a>
             </div>
         </div>
